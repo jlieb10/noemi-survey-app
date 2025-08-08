@@ -1,78 +1,123 @@
-import React, { useEffect, useState } from 'react'
-import { supabase } from './supabaseClient.js'
+import { useState, useEffect } from 'react';
+import TinderCard from 'react-tinder-card';
+import { supabase } from './supabaseClient.js';
 
-const CHOICE = { right:'fuck', up:'marry', left:'kill', down:'not_sure' }
-const BTN_DIR = { fuck:'right', marry:'up', not_sure:'down', kill:'left' }
+// Mapping of swipe directions to labels. Feel free to adjust labels
+// according to the branding of your survey (e.g. "fuck" → "love").
+const CHOICE_MAP = {
+  right: 'fuck',
+  up: 'marry',
+  left: 'kill',
+  down: 'not_sure',
+};
 
-export default function SwipeGame({ participant_id, onFinish }){
-  const [designs, setDesigns] = useState([])
-  const [idx, setIdx] = useState(0)
-  const [TinderCard, setTinderCard] = useState(null)
-  const [err, setErr] = useState(null)
+/**
+ * A Tinder-like swipe interface for collecting qualitative feedback on
+ * label designs. It fetches the list of designs from the public
+ * directory and records each swipe to Supabase.
+ */
+export default function SwipeGame({ participantId }) {
+  const [designs, setDesigns] = useState([]);
+  const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Load swipe lib lazily; don't crash if it fails
-  useEffect(()=>{ import('react-tinder-card').then(m=>setTinderCard(()=>m.default)).catch(()=>setTinderCard(null)) },[])
-
-  // Load designs from Supabase, else from local JSON
-  useEffect(()=>{(async()=>{
-    try{
-      if(supabase){
-        const { data, error } = await supabase.from('designs').select('*').limit(200)
-        if(!error && data && data.length){ setDesigns(shuffle(data)); return }
+  useEffect(() => {
+    const load = async () => {
+      try {
+        // Try to load designs from Supabase first. This ensures the
+        // IDs used for swipes correspond to real rows in the database.
+        if (supabase) {
+          const { data, error } = await supabase.from('designs').select('*').limit(200);
+          if (!error && data && data.length > 0) {
+            setDesigns(shuffle(data));
+            setLoading(false);
+            return;
+          }
+        }
+        // Fallback to local JSON if Supabase is unavailable or empty.
+        const res = await fetch('/designs/index.json', { cache: 'no-store' });
+        const json = await res.json();
+        setDesigns(json);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load designs');
+      } finally {
+        setLoading(false);
       }
-      const res = await fetch('/designs/index.json',{cache:'no-store'})
-      const data = await res.json()
-      setDesigns(shuffle(data))
-    }catch(e){ console.error(e); setErr('Failed to load designs') }
-  })()},[])
+    };
+    load();
+  }, []);
 
-  const record = async(choice, design)=>{
-    try{
-      if(supabase && participant_id && design?.id){
-        await supabase.from('swipes').insert({ participant_id, design_id: design.id, choice })
-      }
-    }catch(e){ console.warn('swipe insert failed', e) }
+  // Shuffle helper
+  function shuffle(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
   }
 
-  const onSwipe = async (dir)=>{
-    const choice = CHOICE[dir]; if(!choice) return
-    const current = designs[idx]
-    await record(choice, current)
-    const next = idx + 1; setIdx(next)
-    if(next >= designs.length) onFinish?.()
-  }
+  /**
+   * Called when the user swipes a card. Inserts a record in the
+   * `swipes` table associating the participant with their choice.
+   *
+   * @param {string} direction The swipe direction (right, up, left, down)
+   * @param {string} designId The UUID of the design record
+   */
+  const handleSwipe = async (direction, designId) => {
+    const choice = CHOICE_MAP[direction];
+    if (!choice) return;
+    // Optimistically advance to the next card
+    setIndex((prev) => prev + 1);
+    try {
+      await supabase.from('swipes').insert({
+        participant_id: participantId,
+        design_id: designId,
+        choice,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  if(!designs.length){
-    return <div className="container center"><div className="card"><div className="title">Loading…</div><p className="subtitle">{err || 'Fetching designs'}</p></div></div>
-  }
+  if (loading) return <p>Loading designs…</p>;
+  if (error) return <p>{error}</p>;
+  if (index >= designs.length) return <p>Thanks for swiping! You’ve completed the session.</p>;
 
-  const d = designs[idx]; const Card = TinderCard
+  // Show one design at a time to keep the interface simple. Additional
+  // designs will be rendered once the current card has been swiped.
+  const current = designs[index];
 
   return (
-    <div className="container">
-      <div className="card" style={{padding:16}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div className="title">Label rater</div>
-          <div className="muted">{idx+1} / {designs.length}</div>
-        </div>
-        <div className="subtitle">→ FUCK · ↑ MARRY · ↓ NOT SURE · ← KILL</div>
-        <div style={{height:12}}/>
-        <div className="stage">
-          {Card ? (
-            <Card key={d.id || idx} onSwipe={onSwipe} preventSwipe={[]}>
-              <img src={d.image_url} alt="" className="design"/>
-            </Card>
-          ) : (
-            <img src={d.image_url} alt="" className="design"/>
-          )}
-        </div>
-        <div className="stack">
-          {['fuck','marry','not_sure','kill'].map(k =>
-            <button key={k} className="pill" onClick={()=>onSwipe(BTN_DIR[k])}>{k.replace('_',' ').toUpperCase()}</button>
-          )}
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <h2 style={{ fontFamily: 'Georgia, serif' }}>Choose your favourites</h2>
+      <div style={{ width: '320px', height: '320px' }}>
+        <TinderCard
+          key={current.id}
+          onSwipe={(dir) => handleSwipe(dir, current.id)}
+          preventSwipe={[]}
+        >
+          <div
+            style={{
+              backgroundColor: '#fff',
+              width: '100%',
+              height: '100%',
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+            }}
+          >
+            <img
+              src={current.image_url}
+              alt="label design"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </div>
+        </TinderCard>
       </div>
+      <p style={{ marginTop: '1rem', fontStyle: 'italic', fontSize: '0.9rem' }}>
+        Swipe right for FUCK · up for MARRY · left for KILL · down for NOT SURE
+      </p>
     </div>
-  )
+  );
 }
-function shuffle(a){ return [...a].sort(()=>Math.random()-.5) }
