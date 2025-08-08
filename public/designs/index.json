@@ -1,0 +1,122 @@
+[
+  {
+    "id": "79f32a60-294d-464b-9666-bd3aab31ea76",
+    "set_id": 1,
+    "quadrant_index": 0,
+    "image_url": "/designs/set1_q0.jpg"
+  },
+  {
+    "id": "73789184-8d81-42e8-96e1-2094f5bbd9e5",
+    "set_id": 1,
+    "quadrant_index": 1,
+    "image_url": "/designs/set1_q1.jpg"
+  },
+  {
+    "id": "aa9ed5a0-39ac-4dc9-b25d-9214ed969120",
+    "set_id": 1,
+    "quadrant_index": 2,
+    "image_url": "/designs/set1_q2.jpg"
+  },
+  {
+    "id": "21722b01-6c25-49c6-b22f-82305badbe4a",
+    "set_id": 1,
+    "quadrant_index": 3,
+    "image_url": "/designs/set1_q3.jpg"
+  },
+  {
+    "id": "edfebb96-e57c-4dc5-a3d5-a5b9316e823c",
+    "set_id": 2,
+    "quadrant_index": 0,
+    "image_url": "/designs/set2_q0.jpg"
+  },
+  {
+    "id": "cd86fdb0-d7e2-43a1-b968-e4969de96f53",
+    "set_id": 2,
+    "quadrant_index": 1,
+    "image_url": "/designs/set2_q1.jpg"
+  },
+  {
+    "id": "85f836c1-849b-492e-9746-38e272bf5c9e",
+    "set_id": 2,
+    "quadrant_index": 2,
+    "image_url": "/designs/set2_q2.jpg"
+  },
+  {
+    "id": "d721c134-23b6-4e64-b1f7-7de691d300ac",
+    "set_id": 2,
+    "quadrant_index": 3,
+    "image_url": "/designs/set2_q3.jpg"
+  },
+  {
+    "id": "386120a3-6a95-4b56-9faa-044ef260768d",
+    "set_id": 3,
+    "quadrant_index": 0,
+    "image_url": "/designs/set3_q0.jpg"
+  },
+  {
+    "id": "a741c545-8f79-47b4-a12f-f2e0b6f99c04",
+    "set_id": 3,
+    "quadrant_index": 1,
+    "image_url": "/designs/set3_q1.jpg"
+  },
+  {
+    "id": "35985990-91ba-4521-a329-d84f1be74a2a",
+    "set_id": 3,
+    "quadrant_index": 2,
+    "image_url": "/designs/set3_q2.jpg"
+  },
+  {
+    "id": "d5edb67c-4c2d-42b4-8d8c-b3edb4be4217",
+    "set_id": 3,
+    "quadrant_index": 3,
+    "image_url": "/designs/set3_q3.jpg"
+  },
+  {
+    "id": "3a8a8c68-2508-4b64-8d7f-65877a9b59ee",
+    "set_id": 4,
+    "quadrant_index": 0,
+    "image_url": "/designs/set4_q0.jpg"
+  },
+  {
+    "id": "17cae65f-d4af-48c2-8c3b-3908e92be44a",
+    "set_id": 4,
+    "quadrant_index": 1,
+    "image_url": "/designs/set4_q1.jpg"
+  },
+  {
+    "id": "80c159b0-245a-4db9-9341-0b5867a31ce9",
+    "set_id": 4,
+    "quadrant_index": 2,
+    "image_url": "/designs/set4_q2.jpg"
+  },
+  {
+    "id": "4b0eced7-c186-411d-8855-23cecea36701",
+    "set_id": 4,
+    "quadrant_index": 3,
+    "image_url": "/designs/set4_q3.jpg"
+  },
+  {
+    "id": "ea691b5f-6541-4033-a517-10fff7963e95",
+    "set_id": 5,
+    "quadrant_index": 0,
+    "image_url": "/designs/set5_q0.jpg"
+  },
+  {
+    "id": "a3e0f1db-73c1-4fa6-a174-664d9d611a9a",
+    "set_id": 5,
+    "quadrant_index": 1,
+    "image_url": "/designs/set5_q1.jpg"
+  },
+  {
+    "id": "d55963d5-f5a6-4587-9ebe-e78e3b1dd67e",
+    "set_id": 5,
+    "quadrant_index": 2,
+    "image_url": "/designs/set5_q2.jpg"
+  },
+  {
+    "id": "bd0df532-72e2-4637-b98e-f43cd8c8a8e7",
+    "set_id": 5,
+    "quadrant_index": 3,
+    "image_url": "/designs/set5_q3.jpg"
+  }
+]
