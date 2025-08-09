@@ -38,6 +38,7 @@ export default function SwipeGame({ participantId }) {
       return direction === 'down' ? [...rest, current] : rest;
     });
     try {
+      if (!supabase) throw new Error('Supabase not configured');
       await supabase.from('swipes').insert({
         participant_id: participantId,
         card_id: current.id,

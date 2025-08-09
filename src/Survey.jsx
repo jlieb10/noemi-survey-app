@@ -48,6 +48,10 @@ export default function Survey({ onComplete }) {
       const goals = Object.entries(answers).map(([k, v]) => `${k}=${JSON.stringify(v)}`);
       const email = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.email || null : null;
       const marketing = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.join === 'yes' : false;
+      if (!supabase) {
+        onComplete('local-test');
+        return;
+      }
       const { data, error: insertError } = await supabase
         .from('participants')
         .insert({ email, goals, marketing_opt_in: marketing })
