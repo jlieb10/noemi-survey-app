@@ -3,8 +3,14 @@ import Survey from './Survey.jsx';
 import SwipeGame from './SwipeGame.jsx';
 import config from '../docs/noemi-survey-config.json';
 
+/**
+ * Root component orchestrating survey and game flow.
+ * Use `?dev=true` in the URL to always show the survey.
+ */
 export default function App() {
-  const storedId = typeof window !== 'undefined' ? localStorage.getItem('participant_id') : null;
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const devMode = urlParams?.get('dev') === 'true';
+  const storedId = typeof window !== 'undefined' && !devMode ? localStorage.getItem('participant_id') : null;
   const [step, setStep] = useState(storedId ? 'game' : 'welcome');
   const [participantId, setParticipantId] = useState(storedId);
 
