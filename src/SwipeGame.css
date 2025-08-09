@@ -1,39 +1,78 @@
+/* SwipeGame.css */
+
+.swipe-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sg-title {
+  font-family: Georgia, serif;
+}
+
+.sg-subtitle {
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
 .swipe-container {
   position: relative;
   width: 320px;
   height: 320px;
 }
 
+.card {
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .swipe-label {
   position: absolute;
   color: rgba(0, 0, 0, 0.6);
-  font-size: 0.9rem;
-  font-style: italic;
+  font-size: 0.8rem;
+  font-family: Georgia, serif;
   pointer-events: none;
+  user-select: none;
 }
 
-.label-right {
+/* Side labels sit just outside the card and are rotated */
+.swipe-label.left {
+  left: -40px;
   top: 50%;
-  right: 8px;
-  transform: translateY(-50%);
+  transform: rotate(-90deg) translate(-50%, 0);
+  transform-origin: left top;
 }
 
-.label-left {
+.swipe-label.right {
+  right: -40px;
   top: 50%;
-  left: 8px;
-  transform: translateY(-50%);
+  transform: rotate(90deg) translate(50%, 0);
+  transform-origin: right top;
 }
 
-.label-up {
-  top: 8px;
+.swipe-label.up {
+  top: -30px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
-.label-down {
-  bottom: 8px;
+.swipe-label.down {
+  bottom: -30px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 50%);
 }
 
 .swipe-feedback {
@@ -42,17 +81,19 @@
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 4rem;
+  opacity: 0.8;
   animation: fadeShrink 0.5s forwards;
   pointer-events: none;
+  will-change: transform, opacity;
 }
 
 @keyframes fadeShrink {
   from {
-    opacity: 1;
     transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
   }
   to {
-    opacity: 0;
     transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
   }
 }

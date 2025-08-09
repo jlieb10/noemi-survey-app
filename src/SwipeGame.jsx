@@ -8,7 +8,7 @@ const CHOICE_MAP = {
   right: 'like',
   left: 'dislike',
   up: 'love',
-  down: 'unsure',
+  down: 'not_sure',
 };
 
 const ICON_MAP = {
@@ -25,28 +25,34 @@ const ICON_MAP = {
  */
 export default function SwipeGame({ participantId }) {
   const [deck, setDeck] = useState(config.swipe_ritual?.deck || []);
-  const [index, setIndex] = useState(0);
   const [feedback, setFeedback] = useState(null);
 
   /**
    * Handle swipe direction and record choice.
    * @param {string} direction
-   * @param {{ id: string }} card
    * @returns {Promise<void>}
    */
-  const handleSwipe = async (direction, card) => {
+  const handleSwipe = async (direction) => {
     const choice = CHOICE_MAP[direction];
-    if (!choice) return;
-    setFeedback(ICON_MAP[direction]);
+    if (!choice || !deck.length) return;
+
+    const current = deck[0];
+
+    // Show quick emoji feedback
+    setFeedback({ icon: ICON_MAP[direction], key: Date.now() });
     setTimeout(() => setFeedback(null), 500);
-    if (direction === 'down') {
-      setDeck((prev) => [...prev, card]);
-    }
-    setIndex((prev) => prev + 1);
+
+    // Rotate current card to back if "down" (unsure), otherwise remove it
+    setDeck((prev) => {
+      const [first, ...rest] = prev;
+      return direction === 'down' ? [...rest, first] : rest;
+    });
+
+    // Persist swipe
     try {
       await supabase.from('swipes').insert({
         participant_id: participantId,
-        card_id: card.id,
+        card_id: current.id,
         choice,
       });
     } catch (err) {
@@ -54,40 +60,38 @@ export default function SwipeGame({ participantId }) {
     }
   };
 
-  if (index >= deck.length) return <p>Thanks for swiping! You’ve completed the ritual.</p>;
-  const current = deck[index];
+  if (!deck.length) {
+    return <p>Thanks for swiping! You’ve completed the ritual.</p>;
+  }
+
+  const current = deck[0];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h2 style={{ fontFamily: 'Georgia, serif' }}>{config.swipe_ritual.title}</h2>
-      <p style={{ fontStyle: 'italic', marginBottom: '1rem' }}>{config.swipe_ritual.subtitle}</p>
+    <div className="swipe-game">
+      <h2 className="sg-title">{config.swipe_ritual.title}</h2>
+      <p className="sg-subtitle">{config.swipe_ritual.subtitle}</p>
+
       <div className="swipe-container">
-        <TinderCard key={current.id} onSwipe={(dir) => handleSwipe(dir, current)}>
-          <div
-            style={{
-              backgroundColor: '#fff',
-              width: '100%',
-              height: '100%',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-            }}
-          >
+        <TinderCard key={current.id} onSwipe={handleSwipe}>
+          <div className="card">
             <img
               src={`${config.survey.meta.assets_base}${current.image}`}
               alt={current.label}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              loading="lazy"
             />
           </div>
         </TinderCard>
-        {feedback && <div className="swipe-feedback">{feedback}</div>}
-        <div className="swipe-label label-right">Like</div>
-        <div className="swipe-label label-left">Dislike</div>
-        <div className="swipe-label label-up">Love</div>
-        <div className="swipe-label label-down">Not Sure</div>
+
+        <span className="swipe-label left">Dislike</span>
+        <span className="swipe-label right">Like</span>
+        <span className="swipe-label up">Love</span>
+        <span className="swipe-label down">Unsure</span>
+
+        {feedback && (
+          <div key={feedback.key} className="swipe-feedback" aria-live="polite">
+            {feedback.icon}
+          </div>
+        )}
       </div>
     </div>
   );
