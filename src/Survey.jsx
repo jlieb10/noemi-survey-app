@@ -2,6 +2,11 @@ import { useState } from 'react';
 import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
 
+/**
+ * Renders the survey and collects responses.
+ * @param {{ onComplete: (id: string) => void }} props - Completion callback.
+ * @returns {JSX.Element} Survey component.
+ */
 export default function Survey({ onComplete }) {
   const questions = config.questions || [];
   const [index, setIndex] = useState(0);
@@ -41,13 +46,20 @@ export default function Survey({ onComplete }) {
     else handleSubmit();
   };
 
+  /**
+   * Persist survey responses and notify completion.
+   * Extracts marketing opt-in data from the gate question.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     try {
       const goals = Object.entries(answers).map(([k, v]) => `${k}=${JSON.stringify(v)}`);
-      const email = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.email || null : null;
-      const marketing = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.join === 'yes' : false;
+      const gate = questions.find((q) => q.type === 'gate_opt_in');
+      const gateAnswer = gate ? answers[gate.id] : null;
+      const email = gateAnswer && typeof gateAnswer === 'object' ? gateAnswer.email || null : null;
+      const marketing = gateAnswer && typeof gateAnswer === 'object' ? gateAnswer.join === 'yes' : false;
       const { data, error: insertError } = await supabase
         .from('participants')
         .insert({ email, goals, marketing_opt_in: marketing })
