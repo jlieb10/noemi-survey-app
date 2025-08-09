@@ -72,7 +72,10 @@ export default function Survey({ onComplete }) {
       case 'short_text_one_word':
         return !!val && val.trim().length > 0;
       case 'gate_opt_in':
-        return val && val.join;
+        // Ensure gate questions are considered answered only when a
+        // choice has been made. `val.join` is a string ('yes'/'no'), so
+        // explicitly coerce to boolean to avoid returning a string.
+        return !!(val && typeof val.join === 'string');
       default:
         return !!val;
     }
