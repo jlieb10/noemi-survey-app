@@ -8,7 +8,7 @@ async function mockSupabase(page) {
       return route.fulfill({
         status: 201,
         contentType: 'application/json',
-        body: JSON.stringify([{ id: 'test-participant' }]),
+        body: JSON.stringify({ id: 'test-participant' }),
       });
     }
     if (url.includes('/swipes')) {
@@ -69,18 +69,24 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await page.getByLabel('Instagram handle (optional)').fill('testhandle');
   await page.getByRole('button', { name: 'Reveal my archetype' }).click();
 
+  await page.waitForSelector('.card img');
   await expect(
     page.getByRole('heading', { name: 'Swipe Ritual (30 seconds)' })
   ).toBeVisible();
+
+  const imgSrc = await page.locator('.card img').first().getAttribute('src');
+  expect(imgSrc).toContain('/designs/');
 
   // Perform a swipe to the right on the first card.
   const card = page.locator('.card').first();
   const box = await card.boundingBox();
   if (box) {
+    const swipeRequest = page.waitForRequest((r) => r.url().includes('/swipes'));
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
     await page.mouse.move(box.x + box.width + 200, box.y + box.height / 2, { steps: 10 });
     await page.mouse.up();
+    await swipeRequest;
   }
   await expect(page.locator('.swipe-feedback')).toBeVisible();
 });

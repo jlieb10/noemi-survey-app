@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TinderCard from 'react-tinder-card';
 import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
@@ -24,8 +24,20 @@ const ICON_MAP = {
  * @returns {JSX.Element}
  */
 export default function SwipeGame({ participantId }) {
-  const [deck, setDeck] = useState(config.swipe_ritual?.deck || []);
+  const [deck, setDeck] = useState(null);
   const [feedback, setFeedback] = useState(null);
+
+  useEffect(() => {
+    fetch('/designs/index.json')
+      .then((res) => res.json())
+      .then((data) => {
+        setDeck(data.slice(0, 20));
+      })
+      .catch((err) => {
+        console.error('Failed to load designs', err);
+        setDeck([]);
+      });
+  }, []);
 
   /**
    * Handle swipe direction and record choice.
@@ -34,7 +46,7 @@ export default function SwipeGame({ participantId }) {
    */
   const handleSwipe = async (direction) => {
     const choice = CHOICE_MAP[direction];
-    if (!choice || !deck.length) return;
+    if (!choice || !deck?.length) return;
 
     const current = deck[0];
 
@@ -61,6 +73,10 @@ export default function SwipeGame({ participantId }) {
     }
   };
 
+  if (deck === null) {
+    return <p>Loading designs…</p>;
+  }
+
   if (!deck.length) {
     return <p>Thanks for swiping! You’ve completed the ritual.</p>;
   }
@@ -75,11 +91,7 @@ export default function SwipeGame({ participantId }) {
       <div className="swipe-container">
         <TinderCard key={current.id} onSwipe={handleSwipe}>
           <div className="card">
-            <img
-              src={`${config.survey.meta.assets_base}${current.image}`}
-              alt={current.label}
-              loading="lazy"
-            />
+            <img src={current.image_url} alt={`Design ${current.id}`} loading="lazy" />
           </div>
         </TinderCard>
 
