@@ -1,26 +1,13 @@
 import { useState } from 'react';
 import Survey from './Survey.jsx';
 import SwipeGame from './SwipeGame.jsx';
+import config from '../docs/noemi-survey-config.json';
 
-/**
- * The main application component. It controls whether the survey or the
- * swipe game is displayed. When the survey completes it stores the
- * participant ID in localStorage and passes it to the swipe game.
- */
 export default function App() {
-  // Track whether the user has completed the survey or not. Default to
-  // "game" if a participant ID already exists in local storage so returning
-  // visitors resume where they left off.
   const storedId = typeof window !== 'undefined' ? localStorage.getItem('participant_id') : null;
-  const [step, setStep] = useState(storedId ? 'game' : 'survey');
+  const [step, setStep] = useState(storedId ? 'game' : 'welcome');
   const [participantId, setParticipantId] = useState(storedId);
 
-  /**
-   * Called when the survey component finishes successfully. Stores the
-   * participant ID and advances the UI to the swipe game.
-   *
-   * @param {string} id The Supabase-generated participant ID
-   */
   const handleComplete = (id) => {
     setParticipantId(id);
     if (typeof window !== 'undefined') {
@@ -31,6 +18,29 @@ export default function App() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
+      {step === 'welcome' && (
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', marginBottom: '0.5rem' }}>
+            {config.survey.meta.title}
+          </h1>
+          <p style={{ fontStyle: 'italic', marginBottom: '1rem' }}>{config.survey.meta.subtitle}</p>
+          <button
+            type="button"
+            onClick={() => setStep('survey')}
+            style={{
+              padding: '0.75rem',
+              fontSize: '1rem',
+              backgroundColor: '#1e1e1e',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            {config.survey.meta.start_cta}
+          </button>
+        </div>
+      )}
       {step === 'survey' && <Survey onComplete={handleComplete} />}
       {step === 'game' && participantId && <SwipeGame participantId={participantId} />}
     </div>

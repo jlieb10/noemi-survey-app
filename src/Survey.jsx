@@ -1,65 +1,59 @@
 import { useState } from 'react';
+import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
 
-/**
- * A simple survey form collecting basic demographic and spending
- * information. When submitted it inserts the participant into the
- * Supabase `participants` table and calls the provided callback with
- * the returned ID.
- */
 export default function Survey({ onComplete }) {
-  // Basic contact details
-  const [email, setEmail] = useState('');
-  const [age, setAge] = useState('');
-  const [spend, setSpend] = useState('');
-  const [optIn, setOptIn] = useState(true);
-
-  // Supplement usage questions
-  const [usesSupplements, setUsesSupplements] = useState('');
-  const [categories, setCategories] = useState([]);
-  const [reasons, setReasons] = useState('');
-  const [frequency, setFrequency] = useState('');
-  const [interest, setInterest] = useState('3');
-
-  // Submission state
+  const questions = config.questions || [];
+  const [index, setIndex] = useState(0);
+  const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /**
-   * Handles the form submission. Inserts a new participant into the
-   * database and, on success, notifies the parent component. Errors
-   * are captured and displayed to the user.
-   */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const current = questions[index];
+
+  const handleChange = (id, value) => {
+    setAnswers((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleMultiChange = (id, optId, max, exclusiveId) => {
+    setAnswers((prev) => {
+      const arr = Array.isArray(prev[id]) ? prev[id] : [];
+      let next;
+      if (arr.includes(optId)) {
+        next = arr.filter((v) => v !== optId);
+      } else {
+        next = [...arr, optId];
+        if (max && next.length > max) next = next.slice(1);
+      }
+      if (exclusiveId) {
+        if (optId === exclusiveId) {
+          next = [exclusiveId];
+        } else {
+          next = next.filter((v) => v !== exclusiveId);
+        }
+      }
+      return { ...prev, [id]: next };
+    });
+  };
+
+  const handleNext = () => {
+    if (index < questions.length - 1) setIndex((i) => i + 1);
+    else handleSubmit();
+  };
+
+  const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Consolidate responses into the goals array. This allows us
-      // to capture arbitrary survey answers without altering the DB
-      // schema. Each element encodes a key=value pair describing
-      // usage, categories, reasons, frequency and interest.
-      const goals = [];
-      goals.push(`uses_supplements=${usesSupplements}`);
-      if (categories.length > 0) goals.push(`categories=${categories.join(',')}`);
-      if (reasons) goals.push(`reasons=${reasons.trim()}`);
-      if (frequency) goals.push(`frequency=${frequency}`);
-      goals.push(`interest=${interest}`);
-
+      const goals = Object.entries(answers).map(([k, v]) => `${k}=${JSON.stringify(v)}`);
+      const email = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.email || null : null;
+      const marketing = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.join === 'yes' : false;
       const { data, error: insertError } = await supabase
         .from('participants')
-        .insert({
-          email,
-          age: age ? parseInt(age, 10) : null,
-          monthly_supplement_spend: spend ? parseFloat(spend) : null,
-          goals,
-          marketing_opt_in: optIn,
-        })
+        .insert({ email, goals, marketing_opt_in: marketing })
         .select()
         .single();
-      if (insertError) {
-        throw insertError;
-      }
+      if (insertError) throw insertError;
       onComplete(data.id);
     } catch (err) {
       setError(err.message || 'An unexpected error occurred');
@@ -68,145 +62,187 @@ export default function Survey({ onComplete }) {
     }
   };
 
+  const isAnswered = () => {
+    const val = answers[current.id];
+    if (!current.required) return true;
+    switch (current.type) {
+      case 'multi_select':
+      case 'rank_top_n':
+        return Array.isArray(val) && val.length > 0;
+      case 'short_text_one_word':
+        return !!val && val.trim().length > 0;
+      case 'gate_opt_in':
+        return val && val.join;
+      default:
+        return !!val;
+    }
+  };
+
+  const renderQuestion = (q) => {
+    switch (q.type) {
+      case 'single_select':
+        return (
+          <div>
+            {q.options.map((opt) => (
+              <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
+                <input
+                  type="radio"
+                  name={q.id}
+                  checked={answers[q.id] === opt.id}
+                  onChange={() => handleChange(q.id, opt.id)}
+                />{' '}
+                {opt.label}
+              </label>
+            ))}
+          </div>
+        );
+      case 'multi_select':
+        return (
+          <div>
+            {q.options.map((opt) => (
+              <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  checked={(answers[q.id] || []).includes(opt.id)}
+                  onChange={() => handleMultiChange(q.id, opt.id, q.max_select, q.exclusive_option_id)}
+                />{' '}
+                {opt.label}
+              </label>
+            ))}
+          </div>
+        );
+      case 'image_select':
+        return (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: q.layout === '2x2' ? '1fr 1fr' : '1fr',
+              gap: '1rem',
+            }}
+          >
+            {q.options.map((opt) => (
+              <label key={opt.id} style={{ cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name={q.id}
+                  style={{ display: 'none' }}
+                  checked={answers[q.id] === opt.id}
+                  onChange={() => handleChange(q.id, opt.id)}
+                />
+                <img
+                  src={`${config.survey.meta.assets_base}${opt.image.src}`}
+                  alt={opt.image.alt}
+                  style={{
+                    width: '100%',
+                    borderRadius: '12px',
+                    border: answers[q.id] === opt.id ? '2px solid #C6A25A' : '2px solid transparent',
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: '0.25rem' }}>{opt.label}</div>
+              </label>
+            ))}
+          </div>
+        );
+      case 'short_text_one_word':
+        return (
+          <input
+            type="text"
+            value={answers[q.id] || ''}
+            onChange={(e) => handleChange(q.id, e.target.value)}
+            maxLength={q.max_chars}
+            placeholder={q.placeholder}
+            style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
+          />
+        );
+      case 'rank_top_n':
+        return (
+          <div>
+            {q.options.map((opt) => (
+              <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  checked={(answers[q.id] || []).includes(opt.id)}
+                  onChange={() => handleMultiChange(q.id, opt.id, q.n)}
+                />{' '}
+                {opt.label}
+              </label>
+            ))}
+            <p style={{ fontSize: '0.8rem', fontStyle: 'italic' }}>Select up to {q.n}</p>
+          </div>
+        );
+      case 'gate_opt_in': {
+        const val = answers[q.id] || { join: null, email: '', instagram: '' };
+        const handleJoin = (choice) => handleChange(q.id, { ...val, join: choice });
+        return (
+          <div>
+            {q.options.map((opt) => (
+              <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
+                <input
+                  type="radio"
+                  name={`${q.id}_join`}
+                  checked={val.join === opt.id}
+                  onChange={() => handleJoin(opt.id)}
+                />{' '}
+                {opt.label}
+              </label>
+            ))}
+            {val.join === 'yes' && q.follow_ups_if_yes && (
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {q.follow_ups_if_yes.map((fu) => (
+                  <label key={fu.id} style={{ display: 'block' }}>
+                    {fu.label}
+                    <input
+                      type={fu.type === 'email' ? 'email' : 'text'}
+                      value={val[fu.id] || ''}
+                      onChange={(e) => handleChange(q.id, { ...val, [fu.id]: e.target.value })}
+                      maxLength={fu.max_chars}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
+      default:
+        return <p>Unsupported question type: {q.type}</p>;
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', marginBottom: '0.5rem' }}>NOĒMI</h1>
-      <p style={{ fontStyle: 'italic', marginBottom: '1rem' }}>We’re crafting a luxury supplement experience and need your insight.</p>
-      {/* Email and age */}
-      <label>
-        Email
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-        />
-      </label>
-      <label>
-        Age
-        <input
-          type="number"
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-          style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-        />
-      </label>
-      {/* Supplement usage */}
-      <fieldset style={{ border: 'none', padding: 0 }}>
-        <legend style={{ fontWeight: 'bold' }}>Do you currently take nutritional supplements?</legend>
-        <label style={{ display: 'block', marginTop: '0.25rem' }}>
-          <input
-            type="radio"
-            name="uses_supplements"
-            value="yes"
-            checked={usesSupplements === 'yes'}
-            onChange={(e) => setUsesSupplements(e.target.value)}
-          />{' '}
-          Yes
-        </label>
-        <label style={{ display: 'block' }}>
-          <input
-            type="radio"
-            name="uses_supplements"
-            value="no"
-            checked={usesSupplements === 'no'}
-            onChange={(e) => setUsesSupplements(e.target.value)}
-          />{' '}
-          No
-        </label>
-      </fieldset>
-      {/* Categories */}
-      <fieldset style={{ border: 'none', padding: 0 }}>
-        <legend style={{ fontWeight: 'bold' }}>Which of these categories do you currently take? (Select all that apply)</legend>
-        {['Energy', 'Immunity', 'Beauty', 'Sleep', 'Mental focus', 'Other'].map((cat) => (
-          <label key={cat} style={{ display: 'block', marginTop: '0.25rem' }}>
-            <input
-              type="checkbox"
-              value={cat}
-              checked={categories.includes(cat)}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setCategories((prev) => {
-                  if (checked) return [...prev, cat];
-                  return prev.filter((c) => c !== cat);
-                });
-              }}
-            />{' '}
-            {cat}
-          </label>
-        ))}
-      </fieldset>
-      {/* Reasons */}
-      <label>
-        Why do you take supplements? (optional)
-        <textarea
-          value={reasons}
-          onChange={(e) => setReasons(e.target.value)}
-          rows={3}
-          style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-        />
-      </label>
-      {/* Frequency */}
-      <label>
-        How often do you take supplements?
-        <select
-          value={frequency}
-          onChange={(e) => setFrequency(e.target.value)}
-          style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-        >
-          <option value="">Select...</option>
-          <option value="daily">Daily</option>
-          <option value="several_times_per_week">Several times per week</option>
-          <option value="weekly">Weekly</option>
-          <option value="occasionally">Occasionally</option>
-        </select>
-      </label>
-      {/* Interest */}
-      <label>
-        How interested are you in discovering a new premium supplement brand?
-        <input
-          type="range"
-          min="1"
-          max="5"
-          step="1"
-          value={interest}
-          onChange={(e) => setInterest(e.target.value)}
-          style={{ width: '100%' }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-          <span>Not at all</span>
-          <span>Very</span>
-        </div>
-      </label>
-      {/* Spend */}
-      <label>
-        Monthly supplement spend (£)
-        <input
-          type="number"
-          step="0.01"
-          value={spend}
-          onChange={(e) => setSpend(e.target.value)}
-          style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-        />
-      </label>
-      {/* Marketing opt-in */}
-      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <input
-          type="checkbox"
-          checked={optIn}
-          onChange={(e) => setOptIn(e.target.checked)}
-        />
-        I agree to receive news and offers from NOĒMI
-      </label>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        style={{ padding: '0.75rem', fontSize: '1rem', backgroundColor: '#1e1e1e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+    <div>
+      <div style={{ marginBottom: '1rem' }}>Question {index + 1} of {questions.length}</div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleNext();
+        }}
+        style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
       >
-        {loading ? 'Submitting…' : 'Start swiping'}
-      </button>
-    </form>
+        <h2 style={{ marginBottom: '0.5rem' }}>{current.prompt}</h2>
+        {renderQuestion(current)}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <button
+          type="submit"
+          disabled={!isAnswered() || loading}
+          style={{
+            padding: '0.75rem',
+            fontSize: '1rem',
+            backgroundColor: '#1e1e1e',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          {loading
+            ? 'Submitting…'
+            : index === questions.length - 1
+            ? config.survey.meta.end_cta
+            : 'Next'}
+        </button>
+      </form>
+    </div>
   );
 }
