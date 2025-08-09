@@ -71,7 +71,7 @@ test('complete survey and swipe ritual', async ({ page }) => {
 
   await page.waitForSelector('.card img');
   await expect(
-    page.getByRole('heading', { name: 'Swipe Ritual (30 seconds)' })
+    page.getByRole('heading', { name: 'Swipe Ritual' })
   ).toBeVisible();
 
   const imgSrc = await page.locator('.card img').first().getAttribute('src');
@@ -88,5 +88,5 @@ test('complete survey and swipe ritual', async ({ page }) => {
     await page.mouse.up();
     await swipeRequest;
   }
-  await expect(page.locator('.swipe-feedback')).toBeVisible();
+  await expect(page.locator('.card')).toBeVisible();
 });

@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1rem;
 }
 
 .sg-title {
@@ -41,7 +42,7 @@
 
 .swipe-label {
   position: absolute;
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(30, 30, 30, 0.6);
   font-size: 0.8rem;
   font-family: Georgia, serif;
   pointer-events: none;
@@ -50,29 +51,29 @@
 
 /* Side labels sit just outside the card and are rotated */
 .swipe-label.left {
-  left: -40px;
+  left: -3rem;
   top: 50%;
-  transform: rotate(-90deg) translate(-50%, 0);
-  transform-origin: left top;
+  transform: rotate(-90deg) translateY(-50%);
+  transform-origin: left center;
 }
 
 .swipe-label.right {
-  right: -40px;
+  right: -3rem;
   top: 50%;
-  transform: rotate(90deg) translate(50%, 0);
-  transform-origin: right top;
+  transform: rotate(90deg) translateY(-50%);
+  transform-origin: right center;
 }
 
 .swipe-label.up {
-  top: -30px;
+  top: -2rem;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, 0);
 }
 
 .swipe-label.down {
-  bottom: -30px;
+  bottom: -2rem;
   left: 50%;
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, 0);
 }
 
 .swipe-feedback {
