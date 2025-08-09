@@ -72,7 +72,7 @@ export default function Survey({ onComplete }) {
       case 'short_text_one_word':
         return !!val && val.trim().length > 0;
       case 'gate_opt_in':
-        return val && val.join;
+        return !!(val && val.join);
       default:
         return !!val;
     }

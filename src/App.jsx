@@ -5,8 +5,9 @@ import config from '../docs/noemi-survey-config.json';
 
 export default function App() {
   const storedId = typeof window !== 'undefined' ? localStorage.getItem('participant_id') : null;
-  const [step, setStep] = useState(storedId ? 'game' : 'welcome');
-  const [participantId, setParticipantId] = useState(storedId);
+  const initialId = storedId && storedId !== 'undefined' && storedId !== 'null' ? storedId : null;
+  const [step, setStep] = useState(initialId ? 'game' : 'welcome');
+  const [participantId, setParticipantId] = useState(initialId);
 
   const handleComplete = (id) => {
     setParticipantId(id);
