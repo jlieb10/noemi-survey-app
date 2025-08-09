@@ -1,91 +1,99 @@
- .swipe-game {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
- }
+/* SwipeGame.css */
 
- .sg-title {
-   font-family: 'Georgia, serif';
- }
+.swipe-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
- .sg-subtitle {
-   font-style: italic;
-   margin-bottom: 1rem;
- }
+.sg-title {
+  font-family: Georgia, serif;
+}
 
- .swipe-container {
-   position: relative;
-   width: 320px;
-   height: 320px;
- }
+.sg-subtitle {
+  font-style: italic;
+  margin-bottom: 1rem;
+}
 
- .card {
-   background-color: #fff;
-   width: 100%;
-   height: 100%;
-   border-radius: 12px;
-   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   overflow: hidden;
- }
+.swipe-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+}
 
- .card img {
-   width: 100%;
-   height: 100%;
-   object-fit: cover;
- }
+.card {
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 
- .swipe-label {
-   position: absolute;
-   color: rgba(0, 0, 0, 0.6);
-   font-size: 0.8rem;
-   font-family: 'Georgia, serif';
-   pointer-events: none;
- }
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
- .swipe-label.left {
-   left: -40px;
-   top: 50%;
-   transform: rotate(-90deg) translate(-50%, 0);
-   transform-origin: left top;
- }
+.swipe-label {
+  position: absolute;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.8rem;
+  font-family: Georgia, serif;
+  pointer-events: none;
+  user-select: none;
+}
 
- .swipe-label.right {
-   right: -40px;
-   top: 50%;
-   transform: rotate(90deg) translate(50%, 0);
-   transform-origin: right top;
- }
+/* Side labels sit just outside the card and are rotated */
+.swipe-label.left {
+  left: -40px;
+  top: 50%;
+  transform: rotate(-90deg) translate(-50%, 0);
+  transform-origin: left top;
+}
 
- .swipe-label.up {
-   top: -30px;
-   left: 50%;
-   transform: translate(-50%, -50%);
- }
+.swipe-label.right {
+  right: -40px;
+  top: 50%;
+  transform: rotate(90deg) translate(50%, 0);
+  transform-origin: right top;
+}
 
- .swipe-label.down {
-   bottom: -30px;
-   left: 50%;
-   transform: translate(-50%, 50%);
- }
+.swipe-label.up {
+  top: -30px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
- .swipe-feedback {
-   position: absolute;
-   top: 50%;
-   left: 50%;
-   transform: translate(-50%, -50%);
-   font-size: 4rem;
-   opacity: 0.8;
-   animation: fadeShrink 0.5s forwards;
-   pointer-events: none;
- }
+.swipe-label.down {
+  bottom: -30px;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
 
- @keyframes fadeShrink {
-   to {
-     transform: translate(-50%, -50%) scale(0.5);
-     opacity: 0;
-   }
- }
+.swipe-feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  opacity: 0.8;
+  animation: fadeShrink 0.5s forwards;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
 
+@keyframes fadeShrink {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+}
