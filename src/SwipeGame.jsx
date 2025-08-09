@@ -38,7 +38,8 @@ export default function SwipeGame({ participantId }) {
         // Fallback to local JSON if Supabase is unavailable or empty.
         const res = await fetch('/designs/index.json', { cache: 'no-store' });
         const json = await res.json();
-        setDesigns(json);
+        // Ensure locally loaded designs are presented in random order
+        setDesigns(shuffle(json));
       } catch (err) {
         console.error(err);
         setError('Failed to load designs');
