@@ -544,7 +544,7 @@
   ],
   "swipe_ritual": {
     "enabled": true,
-    "title": "Swipe Ritual (30 seconds)",
+    "title": "Swipe Ritual",
     "subtitle": "Swipe right for ‘Yes, me’. Left for ‘Not me’.",
     "deck": [
       {

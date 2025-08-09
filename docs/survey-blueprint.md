@@ -25,8 +25,8 @@ A swift, elegant experience inviting participants to explore their wellness inst
 10. **Private Circle by NOEMI — early product testing, rituals, and invitations. Would you like to join?**  
     *Research thesis:* Identify high‑intent early adopters for community building and enable direct follow‑up.
 
-### Swipe Ritual (30 seconds)
-A twelve‑card deck invites “Yes, me” or “Not me” swipes on various wellness practices.  
+### Swipe Ritual
+A twelve‑card deck invites “Yes, me” or “Not me” swipes on various wellness practices. Play for as long as you like.
 *Research thesis:* Gauge instinctive affinity across at‑home luxury, functional tools, mystic rituals and performance behaviours.
 
 ## Mini Terms & Conditions

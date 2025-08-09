@@ -76,35 +76,6 @@ export default function Survey({ onComplete }) {
     }
   };
 
-  /**
-   * Determine whether the current question has been answered.
-   * For gate opt-in questions, validate required follow-up fields.
-   *
-   * @returns {boolean}
-   */
-  const isAnswered = () => {
-    const val = answers[current.id];
-    if (!current.required) return true;
-    switch (current.type) {
-      case 'multi_select':
-      case 'rank_top_n':
-        return Array.isArray(val) && val.length > 0;
-      case 'short_text_one_word':
-        return !!val && val.trim().length > 0;
-      case 'gate_opt_in': {
-        if (!val || !val.join) return false;
-        if (val.join === 'yes' && current.follow_ups_if_yes) {
-          return current.follow_ups_if_yes.every(
-            (fu) => !fu.required || (val[fu.id] && val[fu.id].trim().length > 0),
-          );
-        }
-        return true;
-      }
-      default:
-        return !!val;
-    }
-  };
-
   const renderQuestion = (q) => {
     switch (q.type) {
       case 'single_select':
@@ -159,6 +130,9 @@ export default function Survey({ onComplete }) {
                 <img
                   src={`${config.survey.meta.assets_base}${opt.image.src}`}
                   alt={opt.image.alt}
+                  onError={(e) => {
+                    e.currentTarget.src = '/vite.svg';
+                  }}
                   style={{
                     width: '100%',
                     borderRadius: '12px',
@@ -250,25 +224,43 @@ export default function Survey({ onComplete }) {
         <h2 style={{ marginBottom: '0.5rem' }}>{current.prompt}</h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button
-          type="submit"
-          disabled={!isAnswered() || loading}
-          style={{
-            padding: '0.75rem',
-            fontSize: '1rem',
-            backgroundColor: '#1e1e1e',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          {loading
-            ? 'Submitting…'
-            : index === questions.length - 1
-            ? config.survey.meta.end_cta
-            : 'Next'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              padding: '0.75rem',
+              fontSize: '1rem',
+              backgroundColor: '#C6A25A',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            {loading
+              ? 'Submitting…'
+              : index === questions.length - 1
+              ? config.survey.meta.end_cta
+              : 'Next'}
+          </button>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleNext}
+            style={{
+              padding: '0.75rem',
+              fontSize: '1rem',
+              backgroundColor: '#1e1e1e',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Skip
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -10,9 +10,12 @@ import config from '../docs/noemi-survey-config.json';
 export default function App() {
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const devMode = urlParams?.get('dev') === 'true';
+  const playMode = urlParams?.get('play') === 'true';
   const storedId = typeof window !== 'undefined' && !devMode ? localStorage.getItem('participant_id') : null;
-  const [step, setStep] = useState(devMode ? 'survey' : storedId ? 'game' : 'welcome');
-  const [participantId, setParticipantId] = useState(storedId);
+  const initialStep = devMode ? 'survey' : playMode ? 'game' : storedId ? 'game' : 'welcome';
+  const initialId = storedId || (playMode ? 'guest' : null);
+  const [step, setStep] = useState(initialStep);
+  const [participantId, setParticipantId] = useState(initialId);
 
   const handleComplete = (id) => {
     setParticipantId(id);
@@ -25,14 +28,32 @@ export default function App() {
   return (
     <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
       {step === 'welcome' && (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', marginBottom: '0.5rem' }}>
             {config.survey.meta.title}
           </h1>
-          <p style={{ fontStyle: 'italic', marginBottom: '1rem' }}>{config.survey.meta.subtitle}</p>
+          <p style={{ fontStyle: 'italic' }}>{config.survey.meta.subtitle}</p>
           <button
             type="button"
             onClick={() => setStep('survey')}
+            style={{
+              padding: '0.75rem',
+              fontSize: '1rem',
+              backgroundColor: '#C6A25A',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            {config.survey.meta.start_cta}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setParticipantId(storedId || 'guest');
+              setStep('game');
+            }}
             style={{
               padding: '0.75rem',
               fontSize: '1rem',
@@ -43,7 +64,7 @@ export default function App() {
               cursor: 'pointer',
             }}
           >
-            {config.survey.meta.start_cta}
+            Play Swipe Ritual
           </button>
         </div>
       )}

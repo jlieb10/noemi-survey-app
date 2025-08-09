@@ -24,7 +24,8 @@ const ICON_MAP = {
  * @returns {JSX.Element}
  */
 export default function SwipeGame({ participantId }) {
-  const [deck, setDeck] = useState(config.swipe_ritual?.deck || []);
+  const initialDeck = config.swipe_ritual?.deck || [];
+  const [deck, setDeck] = useState(initialDeck);
   const [feedback, setFeedback] = useState(null);
 
   /**
@@ -40,7 +41,7 @@ export default function SwipeGame({ participantId }) {
 
     // Show quick emoji feedback
     setFeedback({ icon: ICON_MAP[direction], key: Date.now() });
-    setTimeout(() => setFeedback(null), 500);
+    setTimeout(() => setFeedback(null), 1000);
 
     // Rotate current card to back if "down" (unsure), otherwise remove it
     setDeck((prev) => {
@@ -62,7 +63,26 @@ export default function SwipeGame({ participantId }) {
   };
 
   if (!deck.length) {
-    return <p>Thanks for swiping! You’ve completed the ritual.</p>;
+    return (
+      <div className="swipe-game">
+        <p className="sg-subtitle">Thanks for swiping!</p>
+        <button
+          type="button"
+          onClick={() => setDeck(initialDeck)}
+          style={{
+            padding: '0.75rem',
+            fontSize: '1rem',
+            backgroundColor: '#C6A25A',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Play Again
+        </button>
+      </div>
+    );
   }
 
   const current = deck[0];
@@ -79,6 +99,9 @@ export default function SwipeGame({ participantId }) {
               src={`${config.survey.meta.assets_base}${current.image}`}
               alt={current.label}
               loading="lazy"
+              onError={(e) => {
+                e.currentTarget.src = '/vite.svg';
+              }}
             />
           </div>
         </TinderCard>

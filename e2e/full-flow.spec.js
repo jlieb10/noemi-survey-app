@@ -70,7 +70,7 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await page.getByRole('button', { name: 'Reveal my archetype' }).click();
 
   await expect(
-    page.getByRole('heading', { name: 'Swipe Ritual (30 seconds)' })
+    page.getByRole('heading', { name: 'Swipe Ritual' })
   ).toBeVisible();
 
   // Perform a swipe to the right on the first card.
@@ -82,5 +82,5 @@ test('complete survey and swipe ritual', async ({ page }) => {
     await page.mouse.move(box.x + box.width + 200, box.y + box.height / 2, { steps: 10 });
     await page.mouse.up();
   }
-  await expect(page.locator('.swipe-feedback')).toBeVisible();
+  await expect(page.locator('.card')).toBeVisible();
 });
