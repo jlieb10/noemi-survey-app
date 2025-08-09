@@ -68,13 +68,22 @@ export default function SwipeGame({ participantId }) {
     // Optimistically advance to the next card
     setIndex((prev) => prev + 1);
     try {
-      await supabase.from('swipes').insert({
+      const { error } = await supabase.from('swipes').insert({
         participant_id: participantId,
         design_id: designId,
         choice,
       });
+
+      if (error) {
+        console.error(error);
+        // Roll back the optimistic index increment and show an error
+        setIndex((prev) => prev - 1);
+        setError('Failed to save swipe');
+      }
     } catch (err) {
       console.error(err);
+      setIndex((prev) => prev - 1);
+      setError('Failed to save swipe');
     }
   };
 
