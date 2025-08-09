@@ -1,0 +1,58 @@
+.swipe-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+}
+
+.swipe-label {
+  position: absolute;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.9rem;
+  font-style: italic;
+  pointer-events: none;
+}
+
+.label-right {
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+}
+
+.label-left {
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+}
+
+.label-up {
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.label-down {
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.swipe-feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  animation: fadeShrink 0.5s forwards;
+  pointer-events: none;
+}
+
+@keyframes fadeShrink {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+}

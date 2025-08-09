@@ -2,24 +2,51 @@ import { useState } from 'react';
 import TinderCard from 'react-tinder-card';
 import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
+import './SwipeGame.css';
 
 const CHOICE_MAP = {
-  right: 'yes',
-  left: 'no',
+  right: 'like',
+  left: 'dislike',
+  up: 'love',
+  down: 'unsure',
 };
 
-export default function SwipeGame({ participantId }) {
-  const deck = config.swipe_ritual?.deck || [];
-  const [index, setIndex] = useState(0);
+const ICON_MAP = {
+  right: '👍',
+  left: '👎',
+  up: '❤️',
+  down: '❓',
+};
 
-  const handleSwipe = async (direction, cardId) => {
+/**
+ * Swipe-based mini-game for rating cards.
+ * @param {{ participantId: string }} props
+ * @returns {JSX.Element}
+ */
+export default function SwipeGame({ participantId }) {
+  const [deck, setDeck] = useState(config.swipe_ritual?.deck || []);
+  const [index, setIndex] = useState(0);
+  const [feedback, setFeedback] = useState(null);
+
+  /**
+   * Handle swipe direction and record choice.
+   * @param {string} direction
+   * @param {{ id: string }} card
+   * @returns {Promise<void>}
+   */
+  const handleSwipe = async (direction, card) => {
     const choice = CHOICE_MAP[direction];
     if (!choice) return;
+    setFeedback(ICON_MAP[direction]);
+    setTimeout(() => setFeedback(null), 500);
+    if (direction === 'down') {
+      setDeck((prev) => [...prev, card]);
+    }
     setIndex((prev) => prev + 1);
     try {
       await supabase.from('swipes').insert({
         participant_id: participantId,
-        card_id: cardId,
+        card_id: card.id,
         choice,
       });
     } catch (err) {
@@ -34,12 +61,8 @@ export default function SwipeGame({ participantId }) {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <h2 style={{ fontFamily: 'Georgia, serif' }}>{config.swipe_ritual.title}</h2>
       <p style={{ fontStyle: 'italic', marginBottom: '1rem' }}>{config.swipe_ritual.subtitle}</p>
-      <div style={{ width: '320px', height: '320px' }}>
-        <TinderCard
-          key={current.id}
-          onSwipe={(dir) => handleSwipe(dir, current.id)}
-          preventSwipe={['up', 'down']}
-        >
+      <div className="swipe-container">
+        <TinderCard key={current.id} onSwipe={(dir) => handleSwipe(dir, current)}>
           <div
             style={{
               backgroundColor: '#fff',
@@ -60,10 +83,12 @@ export default function SwipeGame({ participantId }) {
             />
           </div>
         </TinderCard>
+        {feedback && <div className="swipe-feedback">{feedback}</div>}
+        <div className="swipe-label label-right">Like</div>
+        <div className="swipe-label label-left">Dislike</div>
+        <div className="swipe-label label-up">Love</div>
+        <div className="swipe-label label-down">Not Sure</div>
       </div>
-      <p style={{ marginTop: '1rem', fontStyle: 'italic', fontSize: '0.9rem' }}>
-        Swipe right for YES · left for NO
-      </p>
     </div>
   );
 }
