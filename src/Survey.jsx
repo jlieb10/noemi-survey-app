@@ -2,6 +2,11 @@ import { useState } from 'react';
 import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
 
+/**
+ * Renders the survey and collects responses.
+ * @param {{ onComplete: (id: string) => void }} props - Completion callback.
+ * @returns {JSX.Element} Survey component.
+ */
 export default function Survey({ onComplete }) {
   const questions = config.questions || [];
   const [index, setIndex] = useState(0);
@@ -41,6 +46,11 @@ export default function Survey({ onComplete }) {
     else handleSubmit();
   };
 
+  /**
+   * Persist survey responses and notify completion.
+   * Extracts marketing opt-in data from the gate question.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
@@ -66,6 +76,12 @@ export default function Survey({ onComplete }) {
     }
   };
 
+  /**
+   * Determine whether the current question has been answered.
+   * For gate opt-in questions, validate required follow-up fields.
+   *
+   * @returns {boolean}
+   */
   const isAnswered = () => {
     const val = answers[current.id];
     if (!current.required) return true;
@@ -75,8 +91,15 @@ export default function Survey({ onComplete }) {
         return Array.isArray(val) && val.length > 0;
       case 'short_text_one_word':
         return !!val && val.trim().length > 0;
-      case 'gate_opt_in':
-        return val && val.join;
+      case 'gate_opt_in': {
+        if (!val || !val.join) return false;
+        if (val.join === 'yes' && current.follow_ups_if_yes) {
+          return current.follow_ups_if_yes.every(
+            (fu) => !fu.required || (val[fu.id] && val[fu.id].trim().length > 0),
+          );
+        }
+        return true;
+      }
       default:
         return !!val;
     }
