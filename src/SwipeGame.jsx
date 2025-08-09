@@ -50,6 +50,7 @@ export default function SwipeGame({ participantId }) {
 
     // Persist swipe
     try {
+      if (!supabase) throw new Error('Supabase not configured');
       await supabase.from('swipes').insert({
         participant_id: participantId,
         card_id: current.id,

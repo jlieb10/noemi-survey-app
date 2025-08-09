@@ -56,10 +56,12 @@ export default function Survey({ onComplete }) {
     setError(null);
     try {
       const goals = Object.entries(answers).map(([k, v]) => `${k}=${JSON.stringify(v)}`);
-      const gate = questions.find((q) => q.type === 'gate_opt_in');
-      const gateAnswer = gate ? answers[gate.id] : null;
-      const email = gateAnswer && typeof gateAnswer === 'object' ? gateAnswer.email || null : null;
-      const marketing = gateAnswer && typeof gateAnswer === 'object' ? gateAnswer.join === 'yes' : false;
+      const email = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.email || null : null;
+      const marketing = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.join === 'yes' : false;
+      if (!supabase) {
+        onComplete('local-test');
+        return;
+      }
       const { data, error: insertError } = await supabase
         .from('participants')
         .insert({ email, goals, marketing_opt_in: marketing })
