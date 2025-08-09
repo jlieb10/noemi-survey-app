@@ -1,6 +1,9 @@
 /* eslint-env node */
 /* global process */
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default defineConfig({
   testDir: './e2e',
@@ -11,8 +14,8 @@ export default defineConfig({
     stdout: 'pipe',
     stderr: 'pipe',
     env: {
-      VITE_SUPABASE_URL: '',
-      VITE_SUPABASE_ANON_KEY: '',
+      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || '',
+      VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || '',
     },
   },
   use: {
