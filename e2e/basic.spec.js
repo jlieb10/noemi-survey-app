@@ -1,6 +1,16 @@
 import { test, expect } from '@playwright/test';
 
-test('loads survey on first visit', async ({ page }) => {
+test('renders welcome screen and first question', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'NOĒMI' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: 'NOEMI — A Minute for Your Future Ritual',
+    }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Begin' }).click();
+  await expect(
+    page.getByText(
+      'When you think of feeling your absolute best, which word speaks first?',
+    ),
+  ).toBeVisible();
 });
