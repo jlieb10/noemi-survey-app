@@ -182,34 +182,13 @@
       "required": true,
       "ui_hint": "chips",
       "options": [
-        {
-          "id": "mood",
-          "label": "Mood"
-        },
-        {
-          "id": "energy",
-          "label": "Energy"
-        },
-        {
-          "id": "glow",
-          "label": "Glow"
-        },
-        {
-          "id": "strength",
-          "label": "Strength"
-        },
-        {
-          "id": "calm",
-          "label": "Calm"
-        },
-        {
-          "id": "focus",
-          "label": "Focus"
-        },
-        {
-          "id": "resilience",
-          "label": "Resilience"
-        }
+        { "id": "mood", "label": "Mood" },
+        { "id": "energy", "label": "Energy" },
+        { "id": "glow", "label": "Glow" },
+        { "id": "strength", "label": "Strength" },
+        { "id": "calm", "label": "Calm" },
+        { "id": "focus", "label": "Focus" },
+        { "id": "resilience", "label": "Resilience" }
       ],
       "research_thesis": "Identify dominant wellness motivation archetypes for messaging."
     },
@@ -221,110 +200,29 @@
       "max_select": 4,
       "ui_hint": "chips",
       "options": [
-        {
-          "id": "coffee_tea",
-          "label": "Coffee/Tea",
-          "tags": [
-            "habit_anchor",
-            "beverage"
-          ]
-        },
-        {
-          "id": "skincare",
-          "label": "Skincare",
-          "tags": [
-            "luxury_beauty",
-            "self_care"
-          ]
-        },
-        {
-          "id": "vitamins_minerals",
-          "label": "Vitamins/Minerals",
-          "tags": [
-            "wellness",
-            "supplements"
-          ]
-        },
-        {
-          "id": "fitness",
-          "label": "Movement/Fitness",
-          "tags": [
-            "wellness",
-            "performance"
-          ]
-        },
-        {
-          "id": "meditation",
-          "label": "Meditation/Breath",
-          "tags": [
-            "wellness",
-            "calm"
-          ]
-        },
-        {
-          "id": "home_luxury",
-          "label": "At-home luxuries (bath, silk, candle)",
-          "tags": [
-            "at_home_luxury",
-            "self_care"
-          ]
-        },
-        {
-          "id": "stealth_supps",
-          "label": "Supplements you don’t call supplements",
-          "tags": [
-            "hidden_usage"
-          ]
-        }
+        { "id": "coffee_tea", "label": "Coffee/Tea", "tags": ["habit_anchor", "beverage"] },
+        { "id": "skincare", "label": "Skincare", "tags": ["luxury_beauty", "self_care"] },
+        { "id": "vitamins_minerals", "label": "Vitamins/Minerals", "tags": ["wellness", "supplements"] },
+        { "id": "fitness", "label": "Movement/Fitness", "tags": ["wellness", "performance"] },
+        { "id": "meditation", "label": "Meditation/Breath", "tags": ["wellness", "calm"] },
+        { "id": "bath_candles", "label": "Bath rituals & candles", "tags": ["at_home_luxury", "self_care"] },
+        { "id": "stealth_supps", "label": "Supplements you don’t call supplements", "tags": ["hidden_usage"] }
       ],
       "research_thesis": "Measure existing daily habit anchors NOEMI can attach to."
     },
     {
       "id": "Q3",
-      "type": "image_select",
-      "prompt": "Choose the image that feels most like the future you want.",
+      "type": "single_select",
+      "prompt": "Which best describes your approach to daily supplements?",
       "required": true,
-      "layout": "2x2",
-      "ui_hint": "image_tiles",
+      "ui_hint": "cards_vertical",
       "options": [
-        {
-          "id": "serene_self_care",
-          "label": "Serene self-care",
-          "image": {
-            "src": "q3_serene.jpg",
-            "alt": "Candlelit bath, linen robe, calm bathroom"
-          },
-          "creative_bucket": "at_home_luxury"
-        },
-        {
-          "id": "clinical_precision",
-          "label": "Clinical precision",
-          "image": {
-            "src": "q3_clinical.jpg",
-            "alt": "Sleek counter with amber tonics and wearable device"
-          },
-          "creative_bucket": "functional_medicine"
-        },
-        {
-          "id": "radiant_social",
-          "label": "Radiant social life",
-          "image": {
-            "src": "q3_social.jpg",
-            "alt": "Golden-hour dinner with friends, soft glam"
-          },
-          "creative_bucket": "glow_community"
-        },
-        {
-          "id": "ageless_vitality",
-          "label": "Ageless vitality",
-          "image": {
-            "src": "q3_vitality.jpg",
-            "alt": "Outdoor movement in morning light"
-          },
-          "creative_bucket": "performance_longevity"
-        }
+        { "id": "routine_consistent", "label": "I take them consistently as part of my routine" },
+        { "id": "as_needed", "label": "Only when I feel I need them" },
+        { "id": "curious", "label": "I'm curious but not a regular taker" },
+        { "id": "none", "label": "I don't take supplements" }
       ],
-      "research_thesis": "Identify aspirational imagery for creative direction and ad targeting."
+      "research_thesis": "Gauge baseline supplement engagement to inform education strategy."
     },
     {
       "id": "Q4",
@@ -333,22 +231,10 @@
       "required": true,
       "ui_hint": "cards_horizontal",
       "options": [
-        {
-          "id": "daily",
-          "label": "I use them daily"
-        },
-        {
-          "id": "few_week",
-          "label": "A few times a week"
-        },
-        {
-          "id": "occasionally",
-          "label": "Occasionally"
-        },
-        {
-          "id": "never_curious",
-          "label": "Never but I’m curious"
-        }
+        { "id": "daily", "label": "I use them daily" },
+        { "id": "few_week", "label": "A few times a week" },
+        { "id": "occasionally", "label": "Occasionally" },
+        { "id": "never_curious", "label": "Never but I’m curious" }
       ],
       "research_thesis": "Segment existing vs. latent buyers."
     },
@@ -360,49 +246,30 @@
       "ui_hint": "chips",
       "exclusive_option_id": "none",
       "options": [
-        {
-          "id": "magnesium",
-          "label": "Magnesium"
-        },
-        {
-          "id": "vitamin_d",
-          "label": "Vitamin D"
-        },
-        {
-          "id": "collagen",
-          "label": "Collagen"
-        },
-        {
-          "id": "creatine",
-          "label": "Creatine"
-        },
-        {
-          "id": "adaptogens",
-          "label": "Adaptogens"
-        },
-        {
-          "id": "probiotics",
-          "label": "Probiotics"
-        },
-        {
-          "id": "electrolytes",
-          "label": "Electrolytes"
-        },
-        {
-          "id": "none",
-          "label": "None"
-        }
+        { "id": "magnesium", "label": "Magnesium" },
+        { "id": "vitamin_d", "label": "Vitamin D" },
+        { "id": "collagen", "label": "Collagen" },
+        { "id": "creatine", "label": "Creatine" },
+        { "id": "adaptogens", "label": "Adaptogens" },
+        { "id": "probiotics", "label": "Probiotics" },
+        { "id": "electrolytes", "label": "Electrolytes" },
+        { "id": "none", "label": "None" }
       ],
-      "research_thesis": "Reveal “hidden” supplement users who don’t self-identify as such."
+      "research_thesis": "Reveal hidden supplement users who don’t self-identify as such."
     },
     {
       "id": "Q6",
-      "type": "short_text_one_word",
-      "prompt": "One word: what would make your self-care feel luxurious at home?",
-      "required": false,
-      "max_chars": 20,
-      "placeholder": "e.g., silk, ritual, calm",
-      "research_thesis": "Qualitative insight into luxury positioning & ritualization."
+      "type": "single_select",
+      "prompt": "Which supplement form do you prefer?",
+      "required": true,
+      "ui_hint": "chips",
+      "options": [
+        { "id": "capsule_pill", "label": "Capsule or pill" },
+        { "id": "powder_mix", "label": "Powder to mix" },
+        { "id": "elixir_tincture", "label": "Elixir or tincture" },
+        { "id": "not_sure", "label": "I’m not sure" }
+      ],
+      "research_thesis": "Inform product format preferences for formulation."
     },
     {
       "id": "Q7",
@@ -412,34 +279,13 @@
       "ui_hint": "drag_pills",
       "n": 3,
       "options": [
-        {
-          "id": "sleep",
-          "label": "Better sleep"
-        },
-        {
-          "id": "energy",
-          "label": "More energy"
-        },
-        {
-          "id": "mood",
-          "label": "Mood boost"
-        },
-        {
-          "id": "glow",
-          "label": "Skin/hair/nail glow"
-        },
-        {
-          "id": "metabolism",
-          "label": "Metabolism support"
-        },
-        {
-          "id": "longevity",
-          "label": "Longevity"
-        },
-        {
-          "id": "focus",
-          "label": "Focus"
-        }
+        { "id": "sleep", "label": "Better sleep" },
+        { "id": "energy", "label": "More energy" },
+        { "id": "mood", "label": "Mood boost" },
+        { "id": "glow", "label": "Skin/hair/nail glow" },
+        { "id": "metabolism", "label": "Metabolism support" },
+        { "id": "longevity", "label": "Longevity" },
+        { "id": "focus", "label": "Focus" }
       ],
       "research_thesis": "Rank function categories for initial product launch order."
     },
@@ -450,26 +296,10 @@
       "required": true,
       "ui_hint": "cards_vertical",
       "options": [
-        {
-          "id": "ritual_mystic",
-          "label": "Ritual & mystic",
-          "glyph": "star"
-        },
-        {
-          "id": "functional_medicine",
-          "label": "Clinical & data‑guided",
-          "glyph": "retort"
-        },
-        {
-          "id": "sensory_indulgent",
-          "label": "Sensory & indulgent",
-          "glyph": "droplet"
-        },
-        {
-          "id": "efficient_performance",
-          "label": "Efficient & performance‑driven",
-          "glyph": "lightning"
-        }
+        { "id": "ritual_mystic", "label": "Ritual & mystic", "glyph": "star" },
+        { "id": "functional_medicine", "label": "Clinical & data‑guided", "glyph": "retort" },
+        { "id": "sensory_indulgent", "label": "Sensory & indulgent", "glyph": "droplet" },
+        { "id": "efficient_performance", "label": "Efficient & performance‑driven", "glyph": "lightning" }
       ],
       "research_thesis": "Positioning axis across self‑care ↔ functional medicine ↔ at‑home luxury ↔ performance."
     },
@@ -480,66 +310,57 @@
       "required": true,
       "ui_hint": "chips",
       "options": [
-        {
-          "id": "fashion",
-          "label": "Fashion"
-        },
-        {
-          "id": "dining",
-          "label": "Dining"
-        },
-        {
-          "id": "skincare",
-          "label": "Skincare"
-        },
-        {
-          "id": "travel",
-          "label": "Travel"
-        },
-        {
-          "id": "fitness_wellness",
-          "label": "Fitness/Wellness"
-        },
-        {
-          "id": "experiences",
-          "label": "Experiences"
-        }
+        { "id": "fashion", "label": "Fashion" },
+        { "id": "dining", "label": "Dining" },
+        { "id": "skincare", "label": "Skincare" },
+        { "id": "travel", "label": "Travel" },
+        { "id": "fitness_wellness", "label": "Fitness/Wellness" },
+        { "id": "experiences", "label": "Experiences" }
       ],
       "research_thesis": "Map cross-category spending patterns for pricing strategy."
     },
     {
       "id": "Q10",
+      "type": "single_select",
+      "prompt": "How open are you to evidence‑led botanicals and functional ingredients?",
+      "required": true,
+      "ui_hint": "chips",
+      "options": [
+        { "id": "very_open", "label": "Very open" },
+        { "id": "somewhat_open", "label": "Somewhat open" },
+        { "id": "skeptical", "label": "Skeptical" },
+        { "id": "not_interested", "label": "Not interested" }
+      ],
+      "research_thesis": "Understand receptiveness to science‑driven formulations vs. traditional approaches."
+    },
+    {
+      "id": "Q11",
+      "type": "single_select",
+      "prompt": "Would you consider a monthly subscription for a curated ritual kit?",
+      "required": true,
+      "ui_hint": "chips",
+      "options": [
+        { "id": "definitely", "label": "Yes, definitely" },
+        { "id": "maybe", "label": "Maybe — depends on price" },
+        { "id": "not_for_me", "label": "No, I’d rather buy as needed" }
+      ],
+      "research_thesis": "Test appetite for subscription vs. à la carte purchasing."
+    },
+    {
+      "id": "Q12",
       "type": "gate_opt_in",
       "prompt": "Private Circle by NOEMI — early product testing, rituals, and invitations. Would you like to join?",
       "required": true,
       "ui_hint": "toggle_yes_no",
       "options": [
-        {
-          "id": "yes",
-          "label": "Yes"
-        },
-        {
-          "id": "no",
-          "label": "No"
-        }
+        { "id": "yes", "label": "Yes" },
+        { "id": "no", "label": "No" }
       ],
       "follow_ups_if_yes": [
-        {
-          "id": "email",
-          "type": "email",
-          "label": "Email (optional)",
-          "required": false
-        },
-        {
-          "id": "instagram",
-          "type": "text",
-          "label": "Instagram handle (optional)",
-          "prefix": "@",
-          "required": false,
-          "max_chars": 30
-        }
+        { "id": "email", "type": "email", "label": "Email (optional)", "required": false },
+        { "id": "instagram", "type": "text", "label": "Instagram handle (optional)", "prefix": "@", "required": false, "max_chars": 30 }
       ],
-      "research_thesis": "Identify high-intent early adopters for community building and enable direct social follow-up."
+      "research_thesis": "Identify high‑intent early adopters for community building and enable direct social follow‑up."
     }
   ],
   "swipe_ritual": {
@@ -776,172 +597,7 @@
           "STYLE == 'AtHomeLuxury'",
           "SWIPE_AT_HOME_LUXURY_SCORE >= 2"
         ]
-      },
-      {
-        "id": "Mystic_Ritualists",
-        "rules": [
-          "STYLE == 'RitualMystic'",
-          "SWIPE_MYSTIC_SCORE >= 2"
-        ]
-      },
-      {
-        "id": "Performance_Driven",
-        "rules": [
-          "STYLE == 'Performance'",
-          "SWIPE_PERFORMANCE_SCORE >= 2"
-        ]
-      },
-      {
-        "id": "Hidden_Supp_Users",
-        "rules": [
-          "HIDDEN_SUPP_USER == true"
-        ]
       }
     ]
-  },
-  "data_schema": {
-    "respondent": {
-      "id": "uuid",
-      "created_at": "iso8601",
-      "utm": {
-        "utm_source": "string",
-        "utm_medium": "string",
-        "utm_campaign": "string",
-        "utm_content": "string",
-        "utm_term": "string"
-      },
-      "session_id": "string"
-    },
-    "answers": [
-      {
-        "Q1": "string"
-      },
-      {
-        "Q2": [
-          "string"
-        ]
-      },
-      {
-        "Q3": "string"
-      },
-      {
-        "Q4": "string"
-      },
-      {
-        "Q5": [
-          "string"
-        ]
-      },
-      {
-        "Q6": "string"
-      },
-      {
-        "Q7": [
-          "string"
-        ]
-      },
-      {
-        "Q8": "string"
-      },
-      {
-        "Q9": "string"
-      },
-      {
-        "Q10": {
-          "join": "yes|no",
-          "email": "string|null",
-          "instagram": "string|null"
-        }
-      }
-    ],
-    "swipes": [
-      {
-        "card_id": "string",
-        "choice": "yes|no"
-      }
-    ],
-    "computed_segments": {
-      "ARCHETYPE": "string",
-      "STYLE": "string",
-      "FUNCTION_TOP1": "string",
-      "HIDDEN_SUPP_USER": "boolean",
-      "INTENT_LEVEL": "string",
-      "LUXURY_WORD": "string|null",
-      "SWIPE_AT_HOME_LUXURY_SCORE": "number",
-      "SWIPE_FUNCTIONAL_TOOL_SCORE": "number",
-      "SWIPE_MYSTIC_SCORE": "number",
-      "SWIPE_PERFORMANCE_SCORE": "number"
-    }
-  },
-  "incentives": {
-    "coupon": {
-      "offer": "10% launch discount + early access",
-      "code_format": "NOEMI10-{RANDOM6}",
-      "random_charset": "ABCDEFGHJKLMNPQRSTUVWXYZ23456789",
-      "length": 6,
-      "display_on_completion": true,
-      "send_email_if_provided": true
-    }
-  },
-  "ui": {
-    "screens": {
-      "welcome": {
-        "headline": "A quiet minute for your future ritual.",
-        "subcopy": "10 quick taps. Private. Beautiful results.",
-        "background": "ivory",
-        "cta": "Begin",
-        "watermark_glyph": "crescent"
-      },
-      "question": {
-        "background": "ivory",
-        "watermark_opacity": 0.05
-      },
-      "results": {
-        "confetti": true,
-        "show_progress": false
-      }
-    },
-    "components": {
-      "chip": {
-        "radius": 16,
-        "bg": "chip_bg",
-        "bg_selected": "chip_selected_bg",
-        "border_selected": "soft_gold"
-      },
-      "tile": {
-        "radius": 12,
-        "shadow": "soft"
-      },
-      "card": {
-        "radius": 16,
-        "shadow": "elevated"
-      },
-      "input": {
-        "radius": 10,
-        "border": "line"
-      }
-    },
-    "accessibility": {
-      "min_touch_target_px": 44,
-      "contrast_ratio_min": 4.5,
-      "alt_text_required": true,
-      "focus_visible": true
-    }
-  },
-  "logic": {
-    "exclusive_option_rules": [
-      {
-        "question_id": "Q5",
-        "exclusive_option_id": "none"
-      }
-    ],
-    "conditional_followups": [
-      {
-        "question_id": "Q10",
-        "when_option": "yes",
-        "show_followups": true
-      }
-    ],
-    "progress_curve": "optimistic_linear(0.1)"
   }
 }

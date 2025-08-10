@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { onGameStart, onSwipe as trackSwipe } from './analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
@@ -29,6 +30,9 @@ export default function SwipeGame({ participantId }) {
   const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
+    // Fire a game start event when the component mounts
+    onGameStart(participantId);
+
     fetch('/designs/index.json')
       .then((res) => res.json())
       .then((data) => {
@@ -78,6 +82,9 @@ export default function SwipeGame({ participantId }) {
           body: JSON.stringify({ participant_id: participantId, card_id: current.id, choice }),
         });
       }
+
+      // Emit analytics event for the swipe
+      trackSwipe(participantId, current.id, choice);
     } catch (err) {
       console.error(err);
     }

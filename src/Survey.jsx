@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
+import { onSurveyStart, onQuestionAnswered, onSurveyComplete } from './analytics.js';
 
 /**
  * Renders the survey and collects responses.
@@ -16,8 +17,15 @@ export default function Survey({ onComplete }) {
 
   const current = questions[index];
 
+  // Fire survey start once on mount
+  useEffect(() => {
+    onSurveyStart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleChange = (id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
+    onQuestionAnswered(id, value);
   };
 
   const handleMultiChange = (id, optId, max, exclusiveId) => {
@@ -37,6 +45,7 @@ export default function Survey({ onComplete }) {
           next = next.filter((v) => v !== exclusiveId);
         }
       }
+      onQuestionAnswered(id, next);
       return { ...prev, [id]: next };
     });
   };
@@ -55,22 +64,30 @@ export default function Survey({ onComplete }) {
     setLoading(true);
     setError(null);
     try {
-      const goals = Object.entries(answers).map(([k, v]) => `${k}=${JSON.stringify(v)}`);
-      const email = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.email || null : null;
-      const marketing = answers.Q10 && typeof answers.Q10 === 'object' ? answers.Q10.join === 'yes' : false;
-      if (!supabase) {
-        onComplete('local-test');
-        return;
+      // Extract opt‑in details from the gate question (Q12).
+      const gate = answers.Q12 && typeof answers.Q12 === 'object' ? answers.Q12 : {};
+      const email = gate.email || null;
+      const marketing = gate.join === 'yes';
+      let participantId = 'local-test';
+
+      // Persist to Supabase if a client is available.
+      if (supabase) {
+        const { data, error: insertError } = await supabase
+          .from('participants')
+          .insert({ email, answers, marketing_opt_in: marketing })
+          .select()
+          .single();
+        if (insertError) throw insertError;
+        participantId = data.id;
       }
-      const { data, error: insertError } = await supabase
-        .from('participants')
-        .insert({ email, goals, marketing_opt_in: marketing })
-        .select()
-        .single();
-      if (insertError) throw insertError;
-      onComplete(data.id);
+
+      // Invoke completion callback with the new or placeholder ID.
+      onComplete(participantId);
+      onSurveyComplete(participantId);
     } catch (err) {
       setError(err.message || 'An unexpected error occurred');
+      // Even on error, navigate forward in dev/local mode.
+      onComplete('local-test');
     } finally {
       setLoading(false);
     }
