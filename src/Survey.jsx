@@ -228,15 +228,7 @@ export default function Survey({ onComplete }) {
           <button
             type="submit"
             disabled={loading}
-            style={{
-              padding: '0.75rem',
-              fontSize: '1rem',
-              backgroundColor: '#C6A25A',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="lux-button-primary"
           >
             {loading
               ? 'Submitting…'
@@ -248,15 +240,7 @@ export default function Survey({ onComplete }) {
             type="button"
             disabled={loading}
             onClick={handleNext}
-            style={{
-              padding: '0.75rem',
-              fontSize: '1rem',
-              backgroundColor: '#1e1e1e',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="lux-button-secondary"
           >
             Skip
           </button>

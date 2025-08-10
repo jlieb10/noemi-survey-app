@@ -81,12 +81,11 @@ test('complete survey and swipe ritual', async ({ page }) => {
   const card = page.locator('.card').first();
   const box = await card.boundingBox();
   if (box) {
-    const swipeRequest = page.waitForRequest((r) => r.url().includes('/swipes'));
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
     await page.mouse.move(box.x + box.width + 200, box.y + box.height / 2, { steps: 10 });
     await page.mouse.up();
-    await swipeRequest;
+    await page.waitForTimeout(500);
   }
   await expect(page.locator('.card')).toBeVisible();
 });

@@ -1,9 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+
+@property --x1 { syntax: '<percentage>'; inherits: false; initial-value: 25%; }
+@property --y1 { syntax: '<percentage>'; inherits: false; initial-value: 30%; }
+@property --r1 { syntax: '<length>';     inherits: false; initial-value: 50vmin; }
+@property --x2 { syntax: '<percentage>'; inherits: false; initial-value: 40%; }
+@property --y2 { syntax: '<percentage>'; inherits: false; initial-value: 55%; }
+@property --r2 { syntax: '<length>';     inherits: false; initial-value: 56vmin; }
+@property --x3 { syntax: '<percentage>'; inherits: false; initial-value: 65%; }
+@property --y3 { syntax: '<percentage>'; inherits: false; initial-value: 30%; }
+@property --r3 { syntax: '<length>';     inherits: false; initial-value: 60vmin; }
+@property --x4 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+@property --y4 { syntax: '<percentage>'; inherits: false; initial-value: 55%; }
+@property --r4 { syntax: '<length>';     inherits: false; initial-value: 54vmin; }
+
 :root {
-  font-family: Georgia, serif;
+  font-family: 'Playfair Display', serif;
   line-height: 1.6;
   font-weight: 400;
-  color: #1e1e1e;
-  background-color: #f6f3ee;
+  color: #3b2f2f;
+  --ecru-1: hsl(193 100% 95%);
+  --ecru-2: hsl(53 100% 91%);
+  --blue: 215 95% 78%;
+  --peach: 18 95% 78%;
+  --butter: 50 95% 80%;
+  --lilac: 285 85% 83%;
+  --d1: 12s;
+  --d2: 14s;
+  --d3: 16s;
+  --d4: 20s;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -12,11 +36,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #5a4333;
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #7a5a44;
 }
 
 body {
@@ -24,12 +48,32 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f6f3ee;
+  color: #3b2f2f;
+  background:
+    radial-gradient(var(--r1) var(--r1) at var(--x1) var(--y1), hsl(var(--blue)  / 0.78) 0%, transparent 75%),
+    radial-gradient(var(--r2) var(--r2) at var(--x2) var(--y2), hsl(var(--peach) / 0.76) 0%, transparent 76%),
+    radial-gradient(var(--r3) var(--r3) at var(--x3) var(--y3), hsl(var(--butter)/ 0.74) 0%, transparent 77%),
+    radial-gradient(var(--r4) var(--r4) at var(--x4) var(--y4), hsl(var(--lilac) / 0.74) 0%, transparent 75%),
+    radial-gradient(circle at 50% 40%, hsl(0 0% 100% / .26), transparent 60%),
+    linear-gradient(180deg, var(--ecru-1), var(--ecru-2));
+  background-attachment: fixed;
+  transition:
+    --x1 var(--d1) ease-in-out, --y1 var(--d1) ease-in-out, --r1 var(--d1) ease-in-out,
+    --x2 var(--d2) ease-in-out, --y2 var(--d2) ease-in-out, --r2 var(--d2) ease-in-out,
+    --x3 var(--d3) ease-in-out, --y3 var(--d3) ease-in-out, --r3 var(--d3) ease-in-out,
+    --x4 var(--d4) ease-in-out, --y4 var(--d4) ease-in-out, --r4 var(--d4) ease-in-out;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: #5a4333;
+}
+
+.lux-container {
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 button {
@@ -39,29 +83,34 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1e1e1e;
-  color: #fff;
   cursor: pointer;
-  transition: background-color 0.25s;
-}
-button:hover {
-  background-color: #444;
-}
-button:focus,
-button:focus-visible {
-  outline: 2px solid #444;
+  transition: background 0.25s;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #1e1e1e;
-    background-color: #f6f3ee;
-  }
-  a:hover {
-    text-decoration: underline;
-  }
-  button {
-    background-color: #1e1e1e;
-    color: #fff;
+.lux-button-primary {
+  background: linear-gradient(135deg, #d4af37, #b8860b);
+  color: #1e1e1e;
+}
+.lux-button-primary:hover {
+  background: linear-gradient(135deg, #e6c557, #c9a01e);
+}
+
+.lux-button-secondary {
+  background: #1e1e1e;
+  color: #fff;
+}
+.lux-button-secondary:hover {
+  background: #444;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid #d4af37;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none !important;
   }
 }
+
