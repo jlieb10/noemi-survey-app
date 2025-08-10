@@ -25,13 +25,16 @@ const ICON_MAP = {
  */
 export default function SwipeGame({ participantId }) {
   const [deck, setDeck] = useState(null);
+  const [initialDeck, setInitialDeck] = useState([]);
   const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
     fetch('/designs/index.json')
       .then((res) => res.json())
       .then((data) => {
-        setDeck(data.slice(0, 20));
+        const subset = data.slice(0, 20);
+        setDeck(subset);
+        setInitialDeck(subset);
       })
       .catch((err) => {
         console.error('Failed to load designs', err);
@@ -62,12 +65,19 @@ export default function SwipeGame({ participantId }) {
 
     // Persist swipe
     try {
-      if (!supabase) throw new Error('Supabase not configured');
-      await supabase.from('swipes').insert({
-        participant_id: participantId,
-        card_id: current.id,
-        choice,
-      });
+      if (supabase) {
+        await supabase.from('swipes').insert({
+          participant_id: participantId,
+          card_id: current.id,
+          choice,
+        });
+      } else {
+        await fetch('https://lzzgroksxrqkwyvykmka.supabase.co/rest/v1/swipes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ participant_id: participantId, card_id: current.id, choice }),
+        });
+      }
     } catch (err) {
       console.error(err);
     }
@@ -84,15 +94,7 @@ export default function SwipeGame({ participantId }) {
         <button
           type="button"
           onClick={() => setDeck(initialDeck)}
-          style={{
-            padding: '0.75rem',
-            fontSize: '1rem',
-            backgroundColor: '#C6A25A',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
+          className="lux-button-primary"
         >
           Play Again
         </button>

@@ -26,25 +26,15 @@ export default function App() {
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
+    <div className="lux-container">
       {step === 'welcome' && (
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', marginBottom: '0.5rem' }}>
-            {config.survey.meta.title}
-          </h1>
+          <h1>{config.survey.meta.title}</h1>
           <p style={{ fontStyle: 'italic' }}>{config.survey.meta.subtitle}</p>
           <button
             type="button"
             onClick={() => setStep('survey')}
-            style={{
-              padding: '0.75rem',
-              fontSize: '1rem',
-              backgroundColor: '#C6A25A',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="lux-button-primary"
           >
             {config.survey.meta.start_cta}
           </button>
@@ -54,15 +44,7 @@ export default function App() {
               setParticipantId(storedId || 'guest');
               setStep('game');
             }}
-            style={{
-              padding: '0.75rem',
-              fontSize: '1rem',
-              backgroundColor: '#1e1e1e',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="lux-button-secondary"
           >
             Play Swipe Ritual
           </button>

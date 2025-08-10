@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+
 :root {
-  font-family: Georgia, serif;
+  font-family: 'Playfair Display', serif;
   line-height: 1.6;
   font-weight: 400;
-  color: #1e1e1e;
-  background-color: #f6f3ee;
+  color: #f5f3f0;
+  background: linear-gradient(135deg, #0e0e0e, #1a1a1a);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -12,11 +14,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #d4af37;
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #e6c557;
 }
 
 body {
@@ -24,12 +26,20 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f6f3ee;
+  background: linear-gradient(135deg, #0e0e0e, #1a1a1a);
+  color: #f5f3f0;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: #d4af37;
+}
+
+.lux-container {
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 button {
@@ -39,29 +49,37 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1e1e1e;
-  color: #fff;
   cursor: pointer;
-  transition: background-color 0.25s;
+  transition: background 0.25s;
 }
-button:hover {
-  background-color: #444;
+
+.lux-button-primary {
+  background: linear-gradient(135deg, #d4af37, #b8860b);
+  color: #1e1e1e;
 }
+.lux-button-primary:hover {
+  background: linear-gradient(135deg, #e6c557, #c9a01e);
+}
+
+.lux-button-secondary {
+  background: #1e1e1e;
+  color: #fff;
+}
+.lux-button-secondary:hover {
+  background: #444;
+}
+
 button:focus,
 button:focus-visible {
-  outline: 2px solid #444;
+  outline: 2px solid #d4af37;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #1e1e1e;
-    background-color: #f6f3ee;
+    color: #f5f3f0;
+    background: linear-gradient(135deg, #0e0e0e, #1a1a1a);
   }
   a:hover {
     text-decoration: underline;
-  }
-  button {
-    background-color: #1e1e1e;
-    color: #fff;
   }
 }
