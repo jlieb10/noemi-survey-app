@@ -5,7 +5,7 @@
 - Prefer functional React components with hooks.
 
 ## Testing
-- Run `pnpm run lint` and `pnpm run test:e2e` before committing.
+- Run `pnpm run lint`, unit tests, and `pnpm run test:e2e` before committing.
 
 This repository uses [Vite](https://vitejs.dev) with React for a survey application.
 Follow these guidelines when contributing code.
@@ -28,10 +28,19 @@ Run these commands before submitting changes:
 
 ```bash
 pnpm run lint
+pnpm run test       # run unit tests if configured
 pnpm run test:e2e
 ```
 
 Both commands must succeed before commit. Linting checks for style issues and the Playwright suite verifies core interactions.
+
+## Acceptance criteria
+
+Pull requests are accepted only when they include:
+
+- Unit tests for all new or changed code.
+- End-to-end tests for any relevant user flow.
+- Passing results from `pnpm run lint`, all unit tests, and `pnpm run test:e2e` with no errors.
 
 ## Commit messages
 - Write commits in the imperative mood: "Add feature" not "Added feature".
