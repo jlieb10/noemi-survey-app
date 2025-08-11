@@ -20,7 +20,6 @@ export default function Survey({ onComplete }) {
   // Fire survey start once on mount
   useEffect(() => {
     onSurveyStart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (id, value) => {
