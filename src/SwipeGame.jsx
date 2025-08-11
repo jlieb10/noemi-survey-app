@@ -44,7 +44,7 @@ export default function SwipeGame({ participantId }) {
         console.error('Failed to load designs', err);
         setDeck([]);
       });
-  }, []);
+  }, [participantId]);
 
   /**
    * Handle swipe direction and record choice.
