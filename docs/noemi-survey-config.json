@@ -18,7 +18,7 @@
         "wellness",
         "functional medicine",
         "at-home luxury",
-        "ritual",
+        "routine",
         "alchemy"
       ]
     }
@@ -114,13 +114,13 @@
   },
   "survey": {
     "meta": {
-      "title": "NOEMI — A Minute for Your Future Ritual",
+      "title": "NOEMI — A Minute for Your Future",
       "subtitle": "10 quick taps to join the pre-launch circle",
       "estimated_time_seconds": 120,
       "language": "en-GB",
       "assets_base": "/assets/noemi/survey/",
       "start_cta": "Begin",
-      "end_cta": "Reveal my archetype"
+      "end_cta": "See my results"
     },
     "legal": {
       "mini_terms": "By participating, you agree that all imagery, brand concepts, and creative assets shown in this survey are proprietary to NOEMI. No portion may be copied, shared, or reproduced. Your responses may be used in anonymised form for research and marketing purposes. Your data will not be sold to third parties.",
@@ -190,12 +190,12 @@
         { "id": "focus", "label": "Focus" },
         { "id": "resilience", "label": "Resilience" }
       ],
-      "research_thesis": "Identify dominant wellness motivation archetypes for messaging."
+      "research_thesis": "Identify dominant wellness motivations for messaging."
     },
     {
       "id": "Q2",
       "type": "multi_select",
-      "prompt": "Which daily rituals do you never skip?",
+      "prompt": "Which daily routines do you never skip?",
       "required": true,
       "max_select": 4,
       "ui_hint": "chips",
@@ -205,7 +205,7 @@
         { "id": "vitamins_minerals", "label": "Vitamins/Minerals", "tags": ["wellness", "supplements"] },
         { "id": "fitness", "label": "Movement/Fitness", "tags": ["wellness", "performance"] },
         { "id": "meditation", "label": "Meditation/Breath", "tags": ["wellness", "calm"] },
-        { "id": "bath_candles", "label": "Bath rituals & candles", "tags": ["at_home_luxury", "self_care"] },
+        { "id": "bath_candles", "label": "Bath routines & candles", "tags": ["at_home_luxury", "self_care"] },
         { "id": "stealth_supps", "label": "Supplements you don’t call supplements", "tags": ["hidden_usage"] }
       ],
       "research_thesis": "Measure existing daily habit anchors NOEMI can attach to."
@@ -296,7 +296,7 @@
       "required": true,
       "ui_hint": "cards_vertical",
       "options": [
-        { "id": "ritual_mystic", "label": "Ritual & mystic", "glyph": "star" },
+        { "id": "mystic", "label": "Mystic feel", "glyph": "star" },
         { "id": "functional_medicine", "label": "Clinical & data‑guided", "glyph": "retort" },
         { "id": "sensory_indulgent", "label": "Sensory & indulgent", "glyph": "droplet" },
         { "id": "efficient_performance", "label": "Efficient & performance‑driven", "glyph": "lightning" }
@@ -336,7 +336,7 @@
     {
       "id": "Q11",
       "type": "single_select",
-      "prompt": "Would you consider a monthly subscription for a curated ritual kit?",
+      "prompt": "Would you consider a monthly subscription for a curated wellness kit?",
       "required": true,
       "ui_hint": "chips",
       "options": [
@@ -349,7 +349,7 @@
     {
       "id": "Q12",
       "type": "gate_opt_in",
-      "prompt": "Private Circle by NOEMI — early product testing, rituals, and invitations. Would you like to join?",
+      "prompt": "Private Circle by NOEMI — early product testing, experiences, and invitations. Would you like to join?",
       "required": true,
       "ui_hint": "toggle_yes_no",
       "options": [
@@ -363,14 +363,13 @@
       "research_thesis": "Identify high‑intent early adopters for community building and enable direct social follow‑up."
     }
   ],
-  "swipe_ritual": {
+  "swipe_game": {
     "enabled": true,
-    "title": "Swipe Ritual",
     "subtitle": "Swipe right for ‘Yes, me’. Left for ‘Not me’.",
     "deck": [
       {
         "id": "magnesium_bath",
-        "label": "Magnesium bath ritual",
+        "label": "Magnesium bath",
         "category": "at_home_luxury",
         "image": "swipe_mag_bath.jpg"
       },
@@ -383,7 +382,7 @@
       {
         "id": "altar_tarot",
         "label": "Altar & tarot pull",
-        "category": "mystic_ritual",
+        "category": "mystic",
         "image": "swipe_tarot.jpg"
       },
       {
@@ -406,7 +405,7 @@
       },
       {
         "id": "gua_sha",
-        "label": "Gua sha ritual",
+        "label": "Gua sha session",
         "category": "at_home_luxury",
         "image": "swipe_gua_sha.jpg"
       },
@@ -419,12 +418,12 @@
       {
         "id": "moon_cycles",
         "label": "Moon cycle tracking",
-        "category": "mystic_ritual",
+        "category": "mystic",
         "image": "swipe_moon.jpg"
       },
       {
-        "id": "protein_ritual",
-        "label": "Protein ritual",
+        "id": "protein_routine",
+        "label": "Protein routine",
         "category": "performance",
         "image": "swipe_protein.jpg"
       },
@@ -437,7 +436,7 @@
       {
         "id": "sound_bath",
         "label": "Sound bath",
-        "category": "mystic_ritual",
+        "category": "mystic",
         "image": "swipe_sound_bath.jpg"
       }
     ],
@@ -448,16 +447,16 @@
     "category_rollups": [
       "at_home_luxury",
       "functional_tool",
-      "mystic_ritual",
+      "mystic",
       "performance"
     ]
   },
   "results_logic": {
-    "archetype_map_from_Q1": {
+    "profile_map_from_Q1": {
       "mood": {
         "id": "radiant_muse",
         "name": "Radiant Muse",
-        "copy": "Your ritual begins with mood and glow. Sensorial, at-home moments grounded in science."
+        "copy": "Your journey begins with mood and glow. Sensorial, at-home moments grounded in science."
       },
       "energy": {
         "id": "vigor_siren",
@@ -467,7 +466,7 @@
       "glow": {
         "id": "luminous_alchemist",
         "name": "Luminous Alchemist",
-        "copy": "Beauty is your ritual. You glow from the inside—skincare meets functional wellness."
+        "copy": "Beauty is your practice. You glow from the inside—skincare meets functional wellness."
       },
       "strength": {
         "id": "divine_shield",
@@ -477,7 +476,7 @@
       "calm": {
         "id": "serene_oracle",
         "name": "Serene Oracle",
-        "copy": "Quiet power and deep rest. Ritual meets research for lasting calm."
+        "copy": "Quiet power and deep rest. Practice meets research for lasting calm."
       },
       "focus": {
         "id": "clarity_architect",
@@ -506,7 +505,7 @@
       "body_font": "ui_sans",
       "glyph": "star",
       "fields": [
-        "archetype_name",
+        "profile_name",
         "one_line_copy",
         "brandmark"
       ]
@@ -515,7 +514,7 @@
   "segments": {
     "computed_fields": [
       {
-        "id": "ARCHETYPE",
+        "id": "PROFILE",
         "source": "Q1",
         "mapping": {
           "mood": "Radiant Muse",
@@ -531,7 +530,7 @@
         "id": "STYLE",
         "source": "Q8",
         "mapping": {
-          "ritual_mystic": "RitualMystic",
+          "mystic": "Mystic",
           "functional_medicine": "FunctionalMedicine",
           "sensory_indulgent": "AtHomeLuxury",
           "efficient_performance": "Performance"
@@ -564,22 +563,22 @@
       },
       {
         "id": "SWIPE_AT_HOME_LUXURY_SCORE",
-        "source": "swipe_ritual.deck",
+        "source": "swipe_game.deck",
         "transform": "count_yes(category=='at_home_luxury')"
       },
       {
         "id": "SWIPE_FUNCTIONAL_TOOL_SCORE",
-        "source": "swipe_ritual.deck",
+        "source": "swipe_game.deck",
         "transform": "count_yes(category=='functional_tool')"
       },
       {
         "id": "SWIPE_MYSTIC_SCORE",
-        "source": "swipe_ritual.deck",
-        "transform": "count_yes(category=='mystic_ritual')"
+        "source": "swipe_game.deck",
+        "transform": "count_yes(category=='mystic')"
       },
       {
         "id": "SWIPE_PERFORMANCE_SCORE",
-        "source": "swipe_ritual.deck",
+        "source": "swipe_game.deck",
         "transform": "count_yes(category=='performance')"
       }
     ],

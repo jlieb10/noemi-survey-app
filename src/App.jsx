@@ -46,7 +46,7 @@ export default function App() {
             }}
             className="lux-button-secondary"
           >
-            Play Swipe Ritual
+            Play the game
           </button>
         </div>
       )}

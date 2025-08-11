@@ -21,7 +21,7 @@ export function onSurveyComplete(participantId) {
 }
 
 export function onGameStart(participantId) {
-  // Called when the swipe ritual game starts
+  // Called when the swipe game starts
   console.debug('Analytics: game_start', { participantId });
 }
 

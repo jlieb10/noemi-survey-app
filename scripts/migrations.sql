@@ -10,7 +10,7 @@ create table if not exists participants (
   created_at timestamp with time zone default timezone('utc', now())
 );
 
--- Create table for storing swipe actions in the ritual game
+-- Create table for storing swipe actions in the game
 create table if not exists swipes (
   id uuid default uuid_generate_v4() primary key,
   participant_id uuid references participants(id) on delete cascade,

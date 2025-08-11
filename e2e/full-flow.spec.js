@@ -18,7 +18,7 @@ async function mockSupabase(page) {
   });
 }
 
-test('complete survey and swipe ritual', async ({ page }) => {
+test('complete survey and play swipe game', async ({ page }) => {
   await mockSupabase(page);
   await page.goto('/');
   await page.getByRole('button', { name: 'Begin' }).click();
@@ -58,7 +58,7 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q8
-  await page.getByLabel('Ritual & mystic').check();
+  await page.getByLabel('Mystic feel').check();
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q9
@@ -79,12 +79,10 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await page
     .getByLabel('Instagram handle (optional)')
     .fill('testhandle');
-  await page.getByRole('button', { name: 'Reveal my archetype' }).click();
+  await page.getByRole('button', { name: 'See my results' }).click();
 
   await page.waitForSelector('.card img');
-  await expect(
-    page.getByRole('heading', { name: 'Swipe Ritual' })
-  ).toBeVisible();
+  await expect(page.locator('.swipe-container')).toBeVisible();
 
   const imgSrc = await page.locator('.card img').first().getAttribute('src');
   expect(imgSrc).toContain('/designs/');

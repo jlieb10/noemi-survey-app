@@ -30,7 +30,7 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
   await page.getByLabel('Mood').check();
   await page.getByRole('button', { name: 'Next' }).click();
 
-  // Q2 – select two rituals
+  // Q2 – select two routines
   await page.getByLabel('Coffee/Tea').check();
   await page.getByLabel('Skincare').check();
   await page.getByRole('button', { name: 'Next' }).click();
@@ -59,7 +59,7 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q8 – wellness feel
-  await page.getByLabel('Ritual & mystic').check();
+  await page.getByLabel('Mystic feel').check();
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q9 – spending category
@@ -78,11 +78,11 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
   await page.getByLabel('Yes').check();
   await page.getByLabel('Email (optional)').fill('test@example.com');
   await page.getByLabel('Instagram handle (optional)').fill('testhandle');
-  await page.getByRole('button', { name: 'Reveal my archetype' }).click();
+  await page.getByRole('button', { name: 'See my results' }).click();
 
-  // After completion we should land on the Swipe Ritual game
+  // After completion we should land on the swipe game
   await page.waitForSelector('.card img');
-  await expect(page.getByRole('heading', { name: 'Swipe Ritual' })).toBeVisible();
+  await expect(page.locator('.swipe-container')).toBeVisible();
 
   // Perform a right swipe on the first card
   const card = page.locator('.card').first();

@@ -49,6 +49,14 @@ export default function SwipeGame({ participantId }) {
     loadDesigns();
   }, [participantId]);
 
+  useEffect(() => {
+    if (!deck) return;
+    deck.slice(0, 10).forEach((card) => {
+      const img = new Image();
+      img.src = card.image_url;
+    });
+  }, [deck]);
+
   /**
    * Handle swipe direction and record choice.
    * @param {string} direction
@@ -116,8 +124,7 @@ export default function SwipeGame({ participantId }) {
 
   return (
     <div className="swipe-game">
-      <h2 className="sg-title">{config.swipe_ritual.title}</h2>
-      <p className="sg-subtitle">{config.swipe_ritual.subtitle}</p>
+      <p className="sg-subtitle">{config.swipe_game.subtitle}</p>
 
       <div className="swipe-container">
         <TinderCard key={current.id} onSwipe={handleSwipe}>
@@ -127,7 +134,7 @@ export default function SwipeGame({ participantId }) {
               alt={`Design ${current.id}`} 
               loading="lazy" 
               onError={(e) => {
-                e.currentTarget.src = '/vite.svg';
+                e.currentTarget.src = '/favicon.svg';
               }}/>
           </div>
         </TinderCard>

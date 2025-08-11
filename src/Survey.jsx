@@ -147,7 +147,7 @@ export default function Survey({ onComplete }) {
                   src={`${config.survey.meta.assets_base}${opt.image.src}`}
                   alt={opt.image.alt}
                   onError={(e) => {
-                    e.currentTarget.src = '/vite.svg';
+                    e.currentTarget.src = '/favicon.svg';
                   }}
                   style={{
                     width: '100%',
