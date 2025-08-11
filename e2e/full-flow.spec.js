@@ -85,11 +85,11 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Swipe Ritual' })
   ).toBeVisible();
+  await page.waitForSelector('.card.tutorial', { state: 'detached' });
 
   const imgSrc = await page.locator('.card img').first().getAttribute('src');
   expect(imgSrc).toContain('/designs/');
 
-  // Perform a swipe to the right on the first card.
   const card = page.locator('.card').first();
   const box = await card.boundingBox();
   if (box) {
