@@ -74,6 +74,15 @@ h1 {
   padding: 2rem;
   max-width: 600px;
   margin: 0 auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.survey-wrapper {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 button {
