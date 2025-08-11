@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from './analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../docs/noemi-survey-config.json';
@@ -17,6 +17,13 @@ const ICON_MAP = {
   left: '👎',
   up: '❤️',
   down: '❓',
+};
+
+const KEY_MAP = {
+  ArrowRight: 'right',
+  ArrowLeft: 'left',
+  ArrowUp: 'up',
+  ArrowDown: 'down',
 };
 
 /**
@@ -54,7 +61,7 @@ export default function SwipeGame({ participantId }) {
    * @param {string} direction
    * @returns {Promise<void>}
    */
-  const handleSwipe = async (direction) => {
+  const handleSwipe = useCallback(async (direction) => {
     const choice = CHOICE_MAP[direction];
     if (!choice || !deck?.length) return;
 
@@ -91,7 +98,27 @@ export default function SwipeGame({ participantId }) {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [deck, participantId]);
+
+  /**
+   * Bind arrow key presses to swipe directions.
+   * @param {KeyboardEvent} e
+   */
+  const handleKeyDown = useCallback(
+    (e) => {
+      const direction = KEY_MAP[e.key];
+      if (direction) {
+        e.preventDefault();
+        handleSwipe(direction);
+      }
+    },
+    [handleSwipe],
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   if (deck === null) {
     return <p>Loading designs…</p>;

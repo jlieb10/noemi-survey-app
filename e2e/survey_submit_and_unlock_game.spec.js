@@ -84,16 +84,9 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
   await page.waitForSelector('.card img');
   await expect(page.getByRole('heading', { name: 'Swipe Ritual' })).toBeVisible();
 
-  // Perform a right swipe on the first card
-  const card = page.locator('.card').first();
-  const box = await card.boundingBox();
-  if (box) {
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.down();
-    await page.mouse.move(box.x + box.width + 200, box.y + box.height / 2, { steps: 10 });
-    await page.mouse.up();
-    await page.waitForTimeout(500);
-  }
+  // Perform a right swipe on the first card via keyboard
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(500);
 
   // Expect there are still cards left (the deck rotates or reduces)
   await expect(page.locator('.card')).toBeVisible();
