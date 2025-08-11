@@ -5,6 +5,10 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  height: 100vh;
+  max-height: 100vh;
+  justify-content: center;
+  overflow: hidden;
 }
 
 
@@ -21,8 +25,8 @@
 
 .swipe-container {
   position: relative;
-  width: 320px;
-  height: 320px;
+  width: min(80vw, 80vh, 320px);
+  height: min(80vw, 80vh, 320px);
 }
 
 .card {
@@ -47,10 +51,14 @@
 .swipe-label {
   position: absolute;
   color: rgba(90, 67, 51, 0.6);
-  font-size: 0.8rem;
+  font-size: 1.2rem;
   font-family: 'Playfair Display', serif;
   pointer-events: none;
   user-select: none;
+}
+
+.swipe-label.active {
+  color: #5a4333;
 }
 
 /* Side labels sit just outside the card and are rotated */
@@ -85,21 +93,42 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 4rem;
+  font-size: 6rem;
   color: #5a4333;
   opacity: 0.8;
-  animation: fadeShrink 0.5s forwards;
+  animation: fadeShrink 1s forwards;
   pointer-events: none;
   will-change: transform, opacity;
 }
 
+.card.tutorial {
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+
+.card.tutorial.hint-right {
+  transform: translateX(40px) rotate(5deg);
+}
+
+.card.tutorial.hint-left {
+  transform: translateX(-40px) rotate(-5deg);
+}
+
+.card.tutorial.hint-up {
+  transform: translateY(-40px) rotate(-5deg);
+}
+
+.card.tutorial.hint-down {
+  transform: translateY(40px) rotate(5deg);
+}
+
 @keyframes fadeShrink {
   from {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1.2);
     opacity: 1;
   }
   to {
-    transform: translate(-50%, -50%) scale(0.5);
+    transform: translate(-50%, -50%) scale(0.8);
     opacity: 0;
   }
 }

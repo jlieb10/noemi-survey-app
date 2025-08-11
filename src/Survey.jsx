@@ -49,6 +49,30 @@ export default function Survey({ onComplete }) {
     });
   };
 
+  const renderOtherOption = (q, limit) => (
+    <label style={{ display: 'block', marginTop: '0.5rem' }}>
+      <input
+        type="checkbox"
+        checked={(answers[q.id] || []).includes('other')}
+        onChange={() => handleMultiChange(q.id, 'other', limit, q.exclusive_option_id)}
+      />{' '}
+      Other
+      {(answers[q.id] || []).includes('other') && (
+        <input
+          type="text"
+          value={answers[`${q.id}_other`] || ''}
+          onChange={(e) => handleChange(`${q.id}_other`, e.target.value)}
+          style={{
+            marginLeft: '0.5rem',
+            padding: '0.25rem',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+          }}
+        />
+      )}
+    </label>
+  );
+
   const handleNext = () => {
     if (index < questions.length - 1) setIndex((i) => i + 1);
     else handleSubmit();
@@ -95,21 +119,6 @@ export default function Survey({ onComplete }) {
   const renderQuestion = (q) => {
     switch (q.type) {
       case 'single_select':
-        return (
-          <div>
-            {q.options.map((opt) => (
-              <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
-                <input
-                  type="radio"
-                  name={q.id}
-                  checked={answers[q.id] === opt.id}
-                  onChange={() => handleChange(q.id, opt.id)}
-                />{' '}
-                {opt.label}
-              </label>
-            ))}
-          </div>
-        );
       case 'multi_select':
         return (
           <div>
@@ -123,6 +132,7 @@ export default function Survey({ onComplete }) {
                 {opt.label}
               </label>
             ))}
+            {renderOtherOption(q, q.max_select)}
           </div>
         );
       case 'image_select':
@@ -137,11 +147,10 @@ export default function Survey({ onComplete }) {
             {q.options.map((opt) => (
               <label key={opt.id} style={{ cursor: 'pointer' }}>
                 <input
-                  type="radio"
-                  name={q.id}
+                  type="checkbox"
                   style={{ display: 'none' }}
-                  checked={answers[q.id] === opt.id}
-                  onChange={() => handleChange(q.id, opt.id)}
+                  checked={(answers[q.id] || []).includes(opt.id)}
+                  onChange={() => handleMultiChange(q.id, opt.id, q.max_select, q.exclusive_option_id)}
                 />
                 <img
                   src={`${config.survey.meta.assets_base}${opt.image.src}`}
@@ -152,7 +161,7 @@ export default function Survey({ onComplete }) {
                   style={{
                     width: '100%',
                     borderRadius: '12px',
-                    border: answers[q.id] === opt.id ? '2px solid #C6A25A' : '2px solid transparent',
+                    border: (answers[q.id] || []).includes(opt.id) ? '2px solid #C6A25A' : '2px solid transparent',
                   }}
                 />
                 <div style={{ textAlign: 'center', marginTop: '0.25rem' }}>{opt.label}</div>
@@ -184,19 +193,22 @@ export default function Survey({ onComplete }) {
                 {opt.label}
               </label>
             ))}
+            {renderOtherOption(q, q.n)}
             <p style={{ fontSize: '0.8rem', fontStyle: 'italic' }}>Select up to {q.n}</p>
           </div>
         );
       case 'gate_opt_in': {
         const val = answers[q.id] || { join: null, email: '', instagram: '' };
-        const handleJoin = (choice) => handleChange(q.id, { ...val, join: choice });
+        const handleJoin = (choice) => {
+          const newChoice = val.join === choice ? null : choice;
+          handleChange(q.id, { ...val, join: newChoice });
+        };
         return (
           <div>
             {q.options.map((opt) => (
               <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
                 <input
-                  type="radio"
-                  name={`${q.id}_join`}
+                  type="checkbox"
                   checked={val.join === opt.id}
                   onChange={() => handleJoin(opt.id)}
                 />{' '}
@@ -228,7 +240,7 @@ export default function Survey({ onComplete }) {
   };
 
   return (
-    <div>
+    <div className="survey-wrapper">
       <div style={{ marginBottom: '1rem' }}>Question {index + 1} of {questions.length}</div>
       <form
         onSubmit={(e) => {

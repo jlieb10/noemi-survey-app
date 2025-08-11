@@ -82,12 +82,17 @@ test('complete survey and play swipe game', async ({ page }) => {
   await page.getByRole('button', { name: 'See my results' }).click();
 
   await page.waitForSelector('.card img');
+
   await expect(page.locator('.swipe-container')).toBeVisible();
+
+  await expect(
+    page.getByRole('heading', { name: 'Swipe Ritual' })
+  ).toBeVisible();
+  await page.waitForSelector('.card.tutorial', { state: 'detached' });
 
   const imgSrc = await page.locator('.card img').first().getAttribute('src');
   expect(imgSrc).toContain('/designs/');
 
-  // Perform a swipe to the right on the first card.
   const card = page.locator('.card').first();
   const box = await card.boundingBox();
   if (box) {

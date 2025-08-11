@@ -84,7 +84,12 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
   await page.waitForSelector('.card img');
   await expect(page.locator('.swipe-container')).toBeVisible();
 
-  // Perform a right swipe on the first card
+  // Perform a right swipe on the first card via keyboard
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(500);
+
+  // Expect there are still cards left (the deck rotates or reduces)
+  await page.waitForSelector('.card.tutorial', { state: 'detached' });
   const card = page.locator('.card').first();
   const box = await card.boundingBox();
   if (box) {
@@ -95,6 +100,5 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
     await page.waitForTimeout(500);
   }
 
-  // Expect there are still cards left (the deck rotates or reduces)
   await expect(page.locator('.card')).toBeVisible();
 });
