@@ -27,6 +27,8 @@ const ICON_MAP = {
 export default function SwipeGame({ participantId }) {
   const [deck, setDeck] = useState(null);
   const [initialDeck, setInitialDeck] = useState([]);
+
+  const [feedbacks, setFeedbacks] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [history, setHistory] = useState([]);
   const [showTutorial, setShowTutorial] = useState(true);
@@ -133,6 +135,14 @@ export default function SwipeGame({ participantId }) {
     const current = deck[0];
     setHistory((prev) => [...prev, { deck: [...deck], card: current }]);
 
+    // REVISIT:
+    // Show quick emoji feedback
+    const id = Date.now();
+    setFeedbacks((prev) => [...prev, { icon: ICON_MAP[direction], id }]);
+    setTimeout(() => {
+      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    }, 1500);
+    
     setFeedback({ icon: ICON_MAP[direction], key: Date.now() });
     setTimeout(() => setFeedback(null), 1000);
 
@@ -234,11 +244,11 @@ export default function SwipeGame({ participantId }) {
           Unsure
         </span>
 
-        {feedback && (
-          <div key={feedback.key} className="swipe-feedback" aria-live="polite">
-            {feedback.icon}
+        {feedbacks.map((fb) => (
+          <div key={fb.id} className="swipe-feedback" aria-live="polite">
+            {fb.icon}
           </div>
-        )}
+        ))}
       </div>
 
       {history.length > 0 && (
