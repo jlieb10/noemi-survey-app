@@ -27,7 +27,7 @@ const ICON_MAP = {
 export default function SwipeGame({ participantId }) {
   const [deck, setDeck] = useState(null);
   const [initialDeck, setInitialDeck] = useState([]);
-  const [feedback, setFeedback] = useState(null);
+  const [feedbacks, setFeedbacks] = useState([]);
 
   useEffect(() => {
     // Fire a game start event whenever the participant ID changes
@@ -61,8 +61,11 @@ export default function SwipeGame({ participantId }) {
     const current = deck[0];
 
     // Show quick emoji feedback
-    setFeedback({ icon: ICON_MAP[direction], key: Date.now() });
-    setTimeout(() => setFeedback(null), 1000);
+    const id = Date.now();
+    setFeedbacks((prev) => [...prev, { icon: ICON_MAP[direction], id }]);
+    setTimeout(() => {
+      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    }, 1500);
 
     // Rotate current card to back if "down" (unsure), otherwise remove it
     setDeck((prev) => {
@@ -137,11 +140,11 @@ export default function SwipeGame({ participantId }) {
         <span className="swipe-label up">Love</span>
         <span className="swipe-label down">Unsure</span>
 
-        {feedback && (
-          <div key={feedback.key} className="swipe-feedback" aria-live="polite">
-            {feedback.icon}
+        {feedbacks.map((fb) => (
+          <div key={fb.id} className="swipe-feedback" aria-live="polite">
+            {fb.icon}
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

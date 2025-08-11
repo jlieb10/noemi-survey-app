@@ -85,21 +85,21 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 4rem;
+  font-size: 6rem;
   color: #5a4333;
   opacity: 0.8;
-  animation: fadeShrink 0.5s forwards;
+  animation: fadeShrink 1s forwards;
   pointer-events: none;
   will-change: transform, opacity;
 }
 
 @keyframes fadeShrink {
   from {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1.2);
     opacity: 1;
   }
   to {
-    transform: translate(-50%, -50%) scale(0.5);
+    transform: translate(-50%, -50%) scale(0.8);
     opacity: 0;
   }
 }
