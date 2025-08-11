@@ -30,20 +30,23 @@ export default function SwipeGame({ participantId }) {
   const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
-    // Fire a game start event when the component mounts
+    // Fire a game start event whenever the participant ID changes
     onGameStart(participantId);
 
-    fetch('/designs/index.json')
-      .then((res) => res.json())
-      .then((data) => {
+    async function loadDesigns() {
+      try {
+        const res = await fetch('/designs/index.json');
+        const data = await res.json();
         const subset = data.slice(0, 20);
         setDeck(subset);
         setInitialDeck(subset);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Failed to load designs', err);
         setDeck([]);
-      });
+      }
+    }
+
+    loadDesigns();
   }, [participantId]);
 
   /**
