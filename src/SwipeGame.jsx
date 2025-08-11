@@ -27,7 +27,12 @@ const ICON_MAP = {
 export default function SwipeGame({ participantId }) {
   const [deck, setDeck] = useState(null);
   const [initialDeck, setInitialDeck] = useState([]);
+
   const [feedbacks, setFeedbacks] = useState([]);
+  const [feedback, setFeedback] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [showTutorial, setShowTutorial] = useState(true);
+  const [tutorialDir, setTutorialDir] = useState(null);
 
   useEffect(() => {
     // Fire a game start event whenever the participant ID changes
@@ -40,6 +45,7 @@ export default function SwipeGame({ participantId }) {
         const subset = data.slice(0, 20);
         setDeck(subset);
         setInitialDeck(subset);
+        setShowTutorial(true);
       } catch (err) {
         console.error('Failed to load designs', err);
         setDeck([]);
@@ -48,6 +54,74 @@ export default function SwipeGame({ participantId }) {
 
     loadDesigns();
   }, [participantId]);
+
+  useEffect(() => {
+    if (!deck || !showTutorial) return;
+    async function runTutorial() {
+      const sequence = ['right', 'left', 'up', 'down'];
+      for (const dir of sequence) {
+        setTutorialDir(dir);
+        await new Promise((r) => setTimeout(r, 400));
+        setTutorialDir(null);
+        await new Promise((r) => setTimeout(r, 200));
+      }
+      setShowTutorial(false);
+    }
+    runTutorial();
+  }, [deck, showTutorial]);
+
+  /**
+   * Persist a swipe choice.
+   * @param {string} cardId
+   * @param {string} choice
+   * @returns {Promise<void>}
+   */
+  const saveSwipe = async (cardId, choice) => {
+    try {
+      if (supabase) {
+        await supabase.from('swipes').insert({
+          participant_id: participantId,
+          card_id: cardId,
+          choice,
+        });
+      } else {
+        await fetch('https://lzzgroksxrqkwyvykmka.supabase.co/rest/v1/swipes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ participant_id: participantId, card_id: cardId, choice }),
+        });
+      }
+      trackSwipe(participantId, cardId, choice);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  /**
+   * Remove a swipe record to support undo.
+   * @param {string} cardId
+   * @returns {Promise<void>}
+   */
+  const removeSwipe = async (cardId) => {
+    try {
+      if (supabase) {
+        await supabase
+          .from('swipes')
+          .delete()
+          .match({ participant_id: participantId, card_id: cardId });
+      } else {
+        await fetch(
+          `https://lzzgroksxrqkwyvykmka.supabase.co/rest/v1/swipes?participant_id=eq.${participantId}&card_id=eq.${cardId}`,
+          {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   /**
    * Handle swipe direction and record choice.
@@ -59,40 +133,41 @@ export default function SwipeGame({ participantId }) {
     if (!choice || !deck?.length) return;
 
     const current = deck[0];
+    setHistory((prev) => [...prev, { deck: [...deck], card: current }]);
 
+    // REVISIT:
     // Show quick emoji feedback
     const id = Date.now();
     setFeedbacks((prev) => [...prev, { icon: ICON_MAP[direction], id }]);
     setTimeout(() => {
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));
     }, 1500);
+    
+    setFeedback({ icon: ICON_MAP[direction], key: Date.now() });
+    setTimeout(() => setFeedback(null), 1000);
 
-    // Rotate current card to back if "down" (unsure), otherwise remove it
     setDeck((prev) => {
       const [first, ...rest] = prev;
       return direction === 'down' ? [...rest, first] : rest;
     });
 
-    // Persist swipe
-    try {
-      if (supabase) {
-        await supabase.from('swipes').insert({
-          participant_id: participantId,
-          card_id: current.id,
-          choice,
-        });
-      } else {
-        await fetch('https://lzzgroksxrqkwyvykmka.supabase.co/rest/v1/swipes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ participant_id: participantId, card_id: current.id, choice }),
-        });
-      }
+    await saveSwipe(current.id, choice);
+  };
 
-      // Emit analytics event for the swipe
-      trackSwipe(participantId, current.id, choice);
-    } catch (err) {
-      console.error(err);
+  /**
+   * Restore the previous deck state and remove persisted swipe.
+   * @returns {Promise<void>}
+   */
+  const handleUndo = async () => {
+    let lastEntry;
+    setHistory((prev) => {
+      if (!prev.length) return prev;
+      lastEntry = prev[prev.length - 1];
+      setDeck(lastEntry.deck);
+      return prev.slice(0, -1);
+    });
+    if (lastEntry) {
+      await removeSwipe(lastEntry.card.id);
     }
   };
 
@@ -106,7 +181,11 @@ export default function SwipeGame({ participantId }) {
         <p className="sg-subtitle">Thanks for swiping!</p>
         <button
           type="button"
-          onClick={() => setDeck(initialDeck)}
+          onClick={() => {
+            setDeck(initialDeck);
+            setHistory([]);
+            setShowTutorial(true);
+          }}
           className="lux-button-primary"
         >
           Play Again
@@ -120,25 +199,50 @@ export default function SwipeGame({ participantId }) {
   return (
     <div className="swipe-game">
       <h2 className="sg-title">{config.swipe_ritual.title}</h2>
-      <p className="sg-subtitle">{config.swipe_ritual.subtitle}</p>
 
       <div className="swipe-container">
-        <TinderCard key={current.id} onSwipe={handleSwipe}>
-          <div className="card">
-            <img src={
-              current.image_url} 
-              alt={`Design ${current.id}`} 
-              loading="lazy" 
+        {showTutorial ? (
+          <div
+            className={`card tutorial${
+              tutorialDir ? ` hint-${tutorialDir}` : ''
+            }`}
+          >
+            <img
+              src={current.image_url}
+              alt={`Design ${current.id}`}
+              loading="lazy"
               onError={(e) => {
                 e.currentTarget.src = '/vite.svg';
-              }}/>
+              }}
+            />
           </div>
-        </TinderCard>
+        ) : (
+          <TinderCard key={current.id} onSwipe={handleSwipe}>
+            <div className="card">
+              <img
+                src={current.image_url}
+                alt={`Design ${current.id}`}
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.src = '/vite.svg';
+                }}
+              />
+            </div>
+          </TinderCard>
+        )}
 
-        <span className="swipe-label left">Dislike</span>
-        <span className="swipe-label right">Like</span>
-        <span className="swipe-label up">Love</span>
-        <span className="swipe-label down">Unsure</span>
+        <span className={`swipe-label left${tutorialDir === 'left' ? ' active' : ''}`}>
+          Dislike
+        </span>
+        <span className={`swipe-label right${tutorialDir === 'right' ? ' active' : ''}`}>
+          Like
+        </span>
+        <span className={`swipe-label up${tutorialDir === 'up' ? ' active' : ''}`}>
+          Love
+        </span>
+        <span className={`swipe-label down${tutorialDir === 'down' ? ' active' : ''}`}>
+          Unsure
+        </span>
 
         {feedbacks.map((fb) => (
           <div key={fb.id} className="swipe-feedback" aria-live="polite">
@@ -146,6 +250,16 @@ export default function SwipeGame({ participantId }) {
           </div>
         ))}
       </div>
+
+      {history.length > 0 && (
+        <button
+          type="button"
+          onClick={handleUndo}
+          className="lux-button-secondary"
+        >
+          Undo
+        </button>
+      )}
     </div>
   );
 }
