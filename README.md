@@ -1,10 +1,13 @@
 # noemi-survey-app
 
-A React + Vite survey application that presents label designs in a Tinder-like swipe game. Swipes are stored in Supabase for later analysis.
+A React + Vite survey application that asks a few questions and then presents label designs in a Tinder-like swipe game. Swipe
+choices are written to Supabase for later analysis.
 
-## Prerequisites
+## Requirements
+
 - Node.js v20.11.1
 - pnpm v8.10.5
+- A Supabase project with `designs` and `swipes` tables
 
 ## Setup
 
@@ -17,22 +20,30 @@ A React + Vite survey application that presents label designs in a Tinder-like s
    VITE_SUPABASE_URL=<your-supabase-url>
    VITE_SUPABASE_ANON_KEY=<your-supabase-anon-key>
    ```
-   The app expects `designs` and `swipes` tables to exist in your Supabase project.
 3. Add label images under `public/designs` for the swipe game.
 
-## Available scripts
+## Project structure
 
-- `pnpm run dev` – start a local development server.
-- `pnpm run lint` – run ESLint to check code quality.
-- `pnpm run build` – create a production build in `dist/`.
-- `pnpm run preview` – serve the production build locally.
+- `src/` – application source code
+- `public/designs` – swipeable label images
+- `e2e/` – Playwright end-to-end tests
+- `docs/` – additional documentation
+
+## Development
+
+- `pnpm run dev` – start a local development server
+- `pnpm run build` – create a production build in `dist/`
+- `pnpm run preview` – serve the production build locally
+- `pnpm run lint` – run ESLint to check code quality
 
 ## Testing
 
-This project does not currently include automated tests. Use the linter to catch common issues:
+Playwright powers the end-to-end tests and a unit-test framework can be added as needed. Run the following before committing:
 
 ```bash
 pnpm run lint
+pnpm run test:e2e   # verify core user flows
+pnpm run test       # run unit tests if configured
 ```
 
 ## Deployment
@@ -45,3 +56,13 @@ The repository includes `netlify.toml` for Netlify deployments.
 4. Publish directory: `dist`.
 
 After deployment, the survey will be available at the Netlify-provided URL.
+
+## Contribution & acceptance criteria
+
+Pull requests are merged only when they meet all of the following:
+
+- Add unit tests for all new or changed logic.
+- Add or update end-to-end tests for any affected user flow.
+- Run `pnpm run lint`, all unit tests, and `pnpm run test:e2e`; all must pass.
+- Fix lint errors and address warnings when possible.
+- Follow the style and environment guidelines in `AGENTS.md`.
