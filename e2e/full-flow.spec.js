@@ -33,7 +33,9 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q3
-  await page.getByText('Serene self-care').click();
+  await page
+    .getByLabel('I take them consistently as part of my routine')
+    .check();
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q4
@@ -46,7 +48,7 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q6
-  await page.getByRole('textbox').fill('candles');
+  await page.getByLabel('Capsule or pill').check();
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q7
@@ -64,20 +66,30 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q10
+  await page.getByLabel('Very open').check();
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  // Q11
+  await page.getByLabel('Yes, definitely').check();
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  // Q12
   await page.getByLabel('Yes').check();
   await page.getByLabel('Email (optional)').fill('test@example.com');
-  await page.getByLabel('Instagram handle (optional)').fill('testhandle');
+  await page
+    .getByLabel('Instagram handle (optional)')
+    .fill('testhandle');
   await page.getByRole('button', { name: 'Reveal my archetype' }).click();
 
   await page.waitForSelector('.card img');
   await expect(
     page.getByRole('heading', { name: 'Swipe Ritual' })
   ).toBeVisible();
+  await page.waitForSelector('.card.tutorial', { state: 'detached' });
 
   const imgSrc = await page.locator('.card img').first().getAttribute('src');
   expect(imgSrc).toContain('/designs/');
 
-  // Perform a swipe to the right on the first card.
   const card = page.locator('.card').first();
   const box = await card.boundingBox();
   if (box) {

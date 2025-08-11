@@ -17,13 +17,13 @@
   font-family: 'Playfair Display', serif;
   line-height: 1.6;
   font-weight: 400;
-  color: #3b2f2f;
+  color: #1a2a4a;
   --ecru-1: hsl(193 100% 95%);
   --ecru-2: hsl(53 100% 91%);
-  --blue: 215 95% 78%;
-  --peach: 18 95% 78%;
-  --butter: 50 95% 80%;
-  --lilac: 285 85% 83%;
+  --blue: 215 80% 85%;
+  --peach: 18 80% 85%;
+  --butter: 50 85% 88%;
+  --lilac: 285 70% 88%;
   --d1: 12s;
   --d2: 14s;
   --d3: 16s;
@@ -36,11 +36,11 @@
 
 a {
   font-weight: 500;
-  color: #5a4333;
+  color: #274a82;
   text-decoration: inherit;
 }
 a:hover {
-  color: #7a5a44;
+  color: #3b5c94;
 }
 
 body {
@@ -48,7 +48,7 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  color: #3b2f2f;
+  color: #1a2a4a;
   background:
     radial-gradient(var(--r1) var(--r1) at var(--x1) var(--y1), hsl(var(--blue)  / 0.78) 0%, transparent 75%),
     radial-gradient(var(--r2) var(--r2) at var(--x2) var(--y2), hsl(var(--peach) / 0.76) 0%, transparent 76%),
@@ -67,13 +67,22 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-  color: #5a4333;
+  color: #274a82;
 }
 
 .lux-container {
   padding: 2rem;
   max-width: 600px;
   margin: 0 auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.survey-wrapper {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 button {
@@ -84,28 +93,31 @@ button {
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: background 0.25s;
+  background: transparent;
+  transition: background 0.25s, box-shadow 0.25s;
 }
 
 .lux-button-primary {
-  background: linear-gradient(135deg, #d4af37, #b8860b);
-  color: #1e1e1e;
+  background: linear-gradient(135deg, hsl(var(--blue) / 0.9), hsl(var(--lilac) / 0.9));
+  color: #1a2a4a;
+  box-shadow: 0 2px 4px hsl(var(--blue) / 0.25);
 }
 .lux-button-primary:hover {
-  background: linear-gradient(135deg, #e6c557, #c9a01e);
+  background: linear-gradient(135deg, hsl(var(--blue) / 0.95), hsl(var(--lilac) / 0.95));
 }
 
 .lux-button-secondary {
-  background: #1e1e1e;
+  background: linear-gradient(135deg, hsl(220 40% 25% / 0.9), hsl(220 45% 30% / 0.9));
   color: #fff;
+  box-shadow: 0 2px 4px hsl(220 40% 20% / 0.2);
 }
 .lux-button-secondary:hover {
-  background: #444;
+  background: linear-gradient(135deg, hsl(220 40% 30% / 0.9), hsl(220 45% 35% / 0.9));
 }
 
 button:focus,
 button:focus-visible {
-  outline: 2px solid #d4af37;
+  outline: 2px solid #274a82;
 }
 
 @media (prefers-reduced-motion: reduce) {
