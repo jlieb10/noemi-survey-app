@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from './analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../docs/noemi-survey-config.json';
@@ -19,6 +19,13 @@ const ICON_MAP = {
   down: '❓',
 };
 
+const KEY_MAP = {
+  ArrowRight: 'right',
+  ArrowLeft: 'left',
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+};
+
 /**
  * Swipe-based mini-game for rating cards.
  * @param {{ participantId: string }} props
@@ -27,7 +34,8 @@ const ICON_MAP = {
 export default function SwipeGame({ participantId }) {
   const [deck, setDeck] = useState(null);
   const [initialDeck, setInitialDeck] = useState([]);
-  const [feedback, setFeedback] = useState(null);
+
+  const [feedbacks, setFeedbacks] = useState([]);
   const [history, setHistory] = useState([]);
   const [showTutorial, setShowTutorial] = useState(true);
   const [tutorialDir, setTutorialDir] = useState(null);
@@ -74,7 +82,7 @@ export default function SwipeGame({ participantId }) {
    * @param {string} choice
    * @returns {Promise<void>}
    */
-  const saveSwipe = async (cardId, choice) => {
+  const saveSwipe = useCallback(async (cardId, choice) => {
     try {
       if (supabase) {
         await supabase.from('swipes').insert({
@@ -93,7 +101,7 @@ export default function SwipeGame({ participantId }) {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [participantId]);
 
   /**
    * Remove a swipe record to support undo.
@@ -126,15 +134,21 @@ export default function SwipeGame({ participantId }) {
    * @param {string} direction
    * @returns {Promise<void>}
    */
-  const handleSwipe = async (direction) => {
+  const handleSwipe = useCallback(async (direction) => {
     const choice = CHOICE_MAP[direction];
     if (!choice || !deck?.length) return;
 
     const current = deck[0];
     setHistory((prev) => [...prev, { deck: [...deck], card: current }]);
 
-    setFeedback({ icon: ICON_MAP[direction], key: Date.now() });
-    setTimeout(() => setFeedback(null), 1000);
+    // REVISIT:
+    // Show quick emoji feedback
+    const id = Date.now();
+    setFeedbacks((prev) => [...prev, { icon: ICON_MAP[direction], id }]);
+    setTimeout(() => {
+      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    }, 1500);
+    
 
     setDeck((prev) => {
       const [first, ...rest] = prev;
@@ -142,7 +156,7 @@ export default function SwipeGame({ participantId }) {
     });
 
     await saveSwipe(current.id, choice);
-  };
+  }, [deck, saveSwipe]);
 
   /**
    * Restore the previous deck state and remove persisted swipe.
@@ -160,6 +174,26 @@ export default function SwipeGame({ participantId }) {
       await removeSwipe(lastEntry.card.id);
     }
   };
+
+  /**
+   * Bind arrow key presses to swipe directions.
+   * @param {KeyboardEvent} e
+   */
+  const handleKeyDown = useCallback(
+    (e) => {
+      const direction = KEY_MAP[e.key];
+      if (direction) {
+        e.preventDefault();
+        handleSwipe(direction);
+      }
+    },
+    [handleSwipe],
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   if (deck === null) {
     return <p>Loading designs…</p>;
@@ -234,11 +268,11 @@ export default function SwipeGame({ participantId }) {
           Unsure
         </span>
 
-        {feedback && (
-          <div key={feedback.key} className="swipe-feedback" aria-live="polite">
-            {feedback.icon}
+        {feedbacks.map((fb) => (
+          <div key={fb.id} className="swipe-feedback" aria-live="polite">
+            {fb.icon}
           </div>
-        )}
+        ))}
       </div>
 
       {history.length > 0 && (

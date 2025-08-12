@@ -83,6 +83,12 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
   // After completion we should land on the Swipe Ritual game
   await page.waitForSelector('.card img');
   await expect(page.getByRole('heading', { name: 'Swipe Ritual' })).toBeVisible();
+
+  // Perform a right swipe on the first card via keyboard
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(500);
+
+  // Expect there are still cards left (the deck rotates or reduces)
   await page.waitForSelector('.card.tutorial', { state: 'detached' });
   const card = page.locator('.card').first();
   const box = await card.boundingBox();
@@ -93,5 +99,6 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
     await page.mouse.up();
     await page.waitForTimeout(500);
   }
+
   await expect(page.locator('.card')).toBeVisible();
 });

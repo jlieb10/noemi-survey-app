@@ -57,6 +57,13 @@ The repository includes `netlify.toml` for Netlify deployments.
 
 After deployment, the survey will be available at the Netlify-provided URL.
 
+## Quick Start
+1. pnpm install
+2. Create .env with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+3. Apply SQL in supabase/migrations/0001_init.sql
+4. pnpm dev
+5. npx playwright install && pnpm test:e2e
+
 ## Contribution & acceptance criteria
 
 Pull requests are merged only when they meet all of the following:
@@ -66,3 +73,4 @@ Pull requests are merged only when they meet all of the following:
 - Run `pnpm run lint`, all unit tests, and `pnpm run test:e2e`; all must pass.
 - Fix lint errors and address warnings when possible.
 - Follow the style and environment guidelines in `AGENTS.md`.
+
