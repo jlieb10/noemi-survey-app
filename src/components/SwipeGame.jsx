@@ -1,79 +1,54 @@
-import { useCallback, useEffect, useState } from 'react';
-import { onGameStart, onSwipe as trackSwipe } from './analytics.js';
+import { useCallback, useEffect } from 'react';
+import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
 import TinderCard from 'react-tinder-card';
-import config from '../docs/noemi-survey-config.json';
-import { supabase } from './supabaseClient.js';
+import config from '../../docs/noemi-survey-config.json';
+import { supabase } from '../services/supabaseClient.js';
+import {
+  CHOICE_MAP,
+  ICON_MAP,
+  KEY_MAP,
+  FEEDBACK_TIMING,
+  SWIPE_DIRECTIONS,
+  ASSET_PATHS,
+} from '../constants.js';
+import { handleImageError } from '../utils/common.js';
+import { useDeck, useTutorial, useSwipeFeedback, useSwipeHistory } from '../hooks/useSwipeGame.js';
 import './SwipeGame.css';
 
-const CHOICE_MAP = {
-  right: 'like',
-  left: 'dislike',
-  up: 'love',
-  down: 'not_sure',
-};
-
-const ICON_MAP = {
-  right: '👍',
-  left: '👎',
-  up: '❤️',
-  down: '❓',
-};
-
-const KEY_MAP = {
-  ArrowRight: 'right',
-  ArrowLeft: 'left',
-  ArrowUp: 'up',
-  ArrowDown: 'down',
-};
-
 /**
- * Swipe-based mini-game for rating cards.
- * @param {{ participantId: string }} props
- * @returns {JSX.Element}
+ * Interactive swipe-based game component for rating design cards.
+ * 
+ * Features:
+ * - Tutorial animation showing swipe directions
+ * - Keyboard controls (arrow keys) and touch/mouse swipe support
+ * - Visual feedback for swipe actions
+ * - Undo functionality with history tracking
+ * - Automatic data persistence to Supabase
+ * 
+ * Swipe directions map to:
+ * - Right: Like
+ * - Left: Dislike  
+ * - Up: Love
+ * - Down: Not sure (card cycles to bottom of deck)
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.participantId - Unique identifier for the participant
+ * @returns {JSX.Element} The swipe game interface
  */
 export default function SwipeGame({ participantId }) {
-  const [deck, setDeck] = useState(null);
-  const [initialDeck, setInitialDeck] = useState([]);
-
-  const [feedbacks, setFeedbacks] = useState([]);
-  const [history, setHistory] = useState([]);
-  const [showTutorial, setShowTutorial] = useState(true);
-  const [tutorialDir, setTutorialDir] = useState(null);
+  const { deck, setDeck, loadDesigns, resetDeck } = useDeck();
+  const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(!!deck);
+  const { feedbacks, addFeedback } = useSwipeFeedback();
+  const { history, addToHistory, undo: undoHistory, clearHistory } = useSwipeHistory();
 
   useEffect(() => {
     // Fire a game start event whenever the participant ID changes
     onGameStart(participantId);
-
-    async function loadDesigns() {
-      try {
-        const res = await fetch('/designs/index.json');
-        const data = await res.json();
-        setDeck(data);
-        setInitialDeck(data);
-        setShowTutorial(true);
-      } catch (err) {
-        console.error('Failed to load designs', err);
-        setDeck([]);
-      }
-    }
-
     loadDesigns();
-  }, [participantId]);
+  }, [participantId, loadDesigns]);
 
-  useEffect(() => {
-    if (!deck || !showTutorial) return;
-    async function runTutorial() {
-      const sequence = ['right', 'left', 'up', 'down'];
-      for (const dir of sequence) {
-        setTutorialDir(dir);
-        await new Promise((r) => setTimeout(r, 400));
-        setTutorialDir(null);
-        await new Promise((r) => setTimeout(r, 200));
-      }
-      setShowTutorial(false);
-    }
-    runTutorial();
-  }, [deck, showTutorial]);
+
 
   /**
    * Persist a swipe choice.
@@ -89,16 +64,12 @@ export default function SwipeGame({ participantId }) {
           card_id: cardId,
           choice,
         });
+        trackSwipe(participantId, cardId, choice);
       } else {
-        await fetch('https://lzzgroksxrqkwyvykmka.supabase.co/rest/v1/swipes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ participant_id: participantId, card_id: cardId, choice }),
-        });
+        console.warn('Supabase client not available. Swipe data not persisted.');
       }
-      trackSwipe(participantId, cardId, choice);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to save swipe:', err);
     }
   }, [participantId]);
 
@@ -116,16 +87,10 @@ export default function SwipeGame({ participantId }) {
           .delete()
           .match({ participant_id: participantId, card_id: cardId });
       } else {
-        await fetch(
-          `https://lzzgroksxrqkwyvykmka.supabase.co/rest/v1/swipes?participant_id=eq.${participantId}&card_id=eq.${cardId}`,
-          {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
+        console.warn('Supabase client not available. Undo operation not persisted.');
       }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to remove swipe:', err);
     }
   }, [participantId]);
 
@@ -139,40 +104,30 @@ export default function SwipeGame({ participantId }) {
     if (!choice || !deck?.length) return;
 
     const current = deck[0];
-    setHistory((prev) => [...prev, { deck: [...deck], card: current }]);
+    addToHistory(deck, current);
 
-    // REVISIT:
     // Show quick emoji feedback
-    const id = Date.now();
-    setFeedbacks((prev) => [...prev, { icon: ICON_MAP[direction], id }]);
-    setTimeout(() => {
-      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
-    }, 1500);
+    addFeedback(ICON_MAP[direction], FEEDBACK_TIMING.DISPLAY_DURATION_MS);
 
     setDeck((prev) => {
       const [first, ...rest] = prev;
-      return direction === 'down' ? [...rest, first] : rest;
+      return direction === SWIPE_DIRECTIONS.DOWN ? [...rest, first] : rest;
     });
 
     await saveSwipe(current.id, choice);
-  }, [deck, saveSwipe]);
+  }, [deck, saveSwipe, addToHistory, addFeedback, setDeck]);
 
   /**
    * Restore the previous deck state and remove persisted swipe.
    * @returns {Promise<void>}
    */
   const handleUndo = useCallback(async () => {
-    let lastEntry;
-    setHistory((prev) => {
-      if (!prev.length) return prev;
-      lastEntry = prev[prev.length - 1];
-      setDeck(lastEntry.deck);
-      return prev.slice(0, -1);
-    });
+    const lastEntry = undoHistory();
     if (lastEntry) {
+      setDeck(lastEntry.deck);
       await removeSwipe(lastEntry.card.id);
     }
-  }, [removeSwipe]);
+  }, [undoHistory, removeSwipe, setDeck]);
 
   /**
    * Bind arrow key presses to swipe directions.
@@ -205,8 +160,8 @@ export default function SwipeGame({ participantId }) {
         <button
           type="button"
           onClick={() => {
-            setDeck(initialDeck);
-            setHistory([]);
+            resetDeck();
+            clearHistory();
             setShowTutorial(true);
           }}
           className="lux-button-primary"
@@ -234,9 +189,7 @@ export default function SwipeGame({ participantId }) {
               src={current.image_url}
               alt={`Design ${current.id}`}
               loading="lazy"
-              onError={(e) => {
-                e.currentTarget.src = '/vite.svg';
-              }}
+              onError={(e) => handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)}
             />
           </div>
         ) : (
@@ -246,24 +199,22 @@ export default function SwipeGame({ participantId }) {
                 src={current.image_url}
                 alt={`Design ${current.id}`}
                 loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.src = '/vite.svg';
-                }}
+                onError={(e) => handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)}
               />
             </div>
           </TinderCard>
         )}
 
-        <span className={`swipe-label left${tutorialDir === 'left' ? ' active' : ''}`}>
+        <span className={`swipe-label left${tutorialDir === SWIPE_DIRECTIONS.LEFT ? ' active' : ''}`}>
           Dislike
         </span>
-        <span className={`swipe-label right${tutorialDir === 'right' ? ' active' : ''}`}>
+        <span className={`swipe-label right${tutorialDir === SWIPE_DIRECTIONS.RIGHT ? ' active' : ''}`}>
           Like
         </span>
-        <span className={`swipe-label up${tutorialDir === 'up' ? ' active' : ''}`}>
+        <span className={`swipe-label up${tutorialDir === SWIPE_DIRECTIONS.UP ? ' active' : ''}`}>
           Love
         </span>
-        <span className={`swipe-label down${tutorialDir === 'down' ? ' active' : ''}`}>
+        <span className={`swipe-label down${tutorialDir === SWIPE_DIRECTIONS.DOWN ? ' active' : ''}`}>
           Unsure
         </span>
 
