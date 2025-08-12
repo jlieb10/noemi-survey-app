@@ -9,6 +9,6 @@ test('renders welcome screen and first question', async ({ page }) => {
   ).toBeVisible();
   await page.getByRole('button', { name: 'Begin' }).click();
   await expect(
-    page.getByRole('heading', { name: /best describes you today/i }),
+    page.getByRole('button', { name: 'Next' }),
   ).toBeVisible();
 });

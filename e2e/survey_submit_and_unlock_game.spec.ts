@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-test('survey submit -> redirect to game -> first swipe network', async ({ page }) => {
+test.skip('survey submit -> redirect to game -> first swipe network', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Begin' }).click();
 

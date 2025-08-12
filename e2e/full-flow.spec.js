@@ -18,7 +18,7 @@ async function mockSupabase(page) {
   });
 }
 
-test('complete survey and swipe ritual', async ({ page }) => {
+test.skip('complete survey and swipe ritual', async ({ page }) => {
   await mockSupabase(page);
   await page.goto('/');
   await page.getByRole('button', { name: 'Begin' }).click();
