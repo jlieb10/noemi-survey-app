@@ -10,7 +10,6 @@ export async function getUserLocation() {
   try {
     // Try multiple free geolocation services for reliability
     const services = [
-      'https://ipapi.co/json/',
     const ipinfoApiKey = process.env.IPINFO_API_KEY;
     const services = [
       'https://ipapi.co/json/',
