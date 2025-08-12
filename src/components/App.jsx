@@ -50,20 +50,22 @@ export default function App() {
 
   return (
     <div className="lux-container">
-      <header className="app-header">
+      <header className="app-header" role="banner">
         <img src={ASSET_PATHS.LOGO} alt="NOEMI logo" className="app-logo" />
       </header>
       {step === APP_STEPS.WELCOME && (
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <main className="welcome-section" role="main" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <h1>{config.survey.meta.title}</h1>
           <p style={{ fontStyle: 'italic' }}>{config.survey.meta.subtitle}</p>
           <button
             type="button"
             onClick={() => setStep(APP_STEPS.SURVEY)}
             className="lux-button-primary"
+            aria-describedby="survey-description"
           >
             {config.survey.meta.start_cta}
           </button>
+          <p id="survey-description" className="sr-only">Start the NOEMI wellness survey to share your preferences</p>
           <button
             type="button"
             onClick={() => {
@@ -71,13 +73,23 @@ export default function App() {
               setStep(APP_STEPS.GAME);
             }}
             className="lux-button-secondary"
+            aria-describedby="game-description"
           >
-            Play Swipe Ritual
+            Explore Design Concepts
           </button>
-        </div>
+          <p id="game-description" className="sr-only">Skip to design exploration to share feedback on visual concepts</p>
+        </main>
       )}
-      {step === APP_STEPS.SURVEY && <Survey onComplete={handleComplete} />}
-      {step === APP_STEPS.GAME && participantId && <SwipeGame participantId={participantId} />}
+      {step === APP_STEPS.SURVEY && (
+        <main role="main">
+          <Survey onComplete={handleComplete} />
+        </main>
+      )}
+      {step === APP_STEPS.GAME && participantId && (
+        <main role="main">
+          <SwipeGame participantId={participantId} />
+        </main>
+      )}
       <div className="terms-root">
         <button
           type="button"
@@ -85,12 +97,13 @@ export default function App() {
           onClick={() => setShowTerms((s) => !s)}
           onMouseEnter={() => setShowTerms(true)}
           onMouseLeave={() => setShowTerms(false)}
-          aria-label="View terms"
+          aria-label="View terms and privacy information"
+          aria-expanded={showTerms}
         >
           i
         </button>
         {showTerms && (
-          <div className="terms-tooltip">
+          <div className="terms-tooltip" role="tooltip" aria-live="polite">
             By participating, you agree that all imagery, brand concepts, and creative assets shown in this
             survey are proprietary to NOEMI. No portion may be copied, shared, or reproduced. Your responses
             may be used in anonymised form for research and marketing purposes. Your data will not be sold to

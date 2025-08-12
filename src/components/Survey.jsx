@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import config from '../../docs/noemi-survey-config.json';
 import { supabase } from '../services/supabaseClient.js';
 import { onSurveyStart, onQuestionAnswered, onSurveyComplete } from '../services/analytics.js';
+import { getCachedUserLocation } from '../utils/geolocation.js';
 import {
   DEFAULT_PARTICIPANT_IDS,
   SURVEY_CONSTANTS,
@@ -20,14 +21,20 @@ export default function Survey({ onComplete }) {
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
   // Timer for auto-advancing on single-select
   const autoNextRef = useRef(null);
 
   const current = questions[index];
 
-  // Fire survey start once on mount
+  // Fire survey start once on mount and get user location
   useEffect(() => {
     onSurveyStart();
+    
+    // Get user location for analytics
+    getCachedUserLocation().then(location => {
+      setUserLocation(location);
+    });
   }, []);
 
   // Clear any pending auto-advance timer on unmount
@@ -130,7 +137,12 @@ export default function Survey({ onComplete }) {
       if (supabase) {
         const { data, error: insertError } = await supabase
           .from('participants')
-          .insert({ email, answers, marketing_opt_in: marketing })
+          .insert({ 
+            email, 
+            answers, 
+            marketing_opt_in: marketing,
+            location_data: userLocation 
+          })
           .select()
           .single();
         if (insertError) throw insertError;
@@ -177,17 +189,32 @@ export default function Survey({ onComplete }) {
         return (
           <fieldset className="stack" aria-labelledby={`${q.id}-label`}>
             <legend id={`${q.id}-label`} className="sr-only">{q.prompt}</legend>
-            {q.options.map((opt) => (
-              <label key={opt.id} className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <input
-                  type="checkbox"
-                  checked={(answers[q.id] || []).includes(opt.id)}
-                  onChange={() => handleMultiChange(q.id, opt.id, q.max_select, q.exclusive_option_id)}
-                />
-                <span>{opt.label}</span>
-              </label>
-            ))}
-            {renderOtherOption(q, q.max_select)}
+            <div 
+              className={q.ui_hint === 'ingredient_grid' ? 'ingredient-grid' : 'stack'}
+              style={q.ui_hint === 'ingredient_grid' ? {
+                display: 'grid',
+                gridTemplateColumns: q.layout === 'two_columns' ? '1fr 1fr' : '1fr',
+                gap: 'var(--space-2)',
+                marginBottom: 'var(--space-3)'
+              } : {}}
+            >
+              {q.options.map((opt) => (
+                <label key={opt.id} className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                  <input
+                    type="checkbox"
+                    checked={(answers[q.id] || []).includes(opt.id)}
+                    onChange={() => handleMultiChange(q.id, opt.id, q.max_select, q.exclusive_option_id)}
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </div>
+            {q.ui_hint !== 'ingredient_grid' && renderOtherOption(q, q.max_select)}
+            {q.max_select && (
+              <p style={{ fontSize: '0.8rem', fontStyle: 'italic', marginTop: 'var(--space-2)' }}>
+                Select up to {q.max_select} {q.ui_hint === 'ingredient_grid' ? 'ingredients' : 'options'}
+              </p>
+            )}
           </fieldset>
         );
       case 'image_select':
@@ -365,19 +392,40 @@ export default function Survey({ onComplete }) {
   };
 
   return (
-    <div className="survey-wrapper stack">
-      <div className="stack" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button type="button" onClick={handleBack} disabled={index === 0} aria-label="Go back" className="lux-button-secondary">Back</button>
-        <span>Question {index + 1} of {questions.length}</span>
+    <div className="survey-wrapper stack" role="main">
+      {/* Progress bar */}
+      <div className="survey-progress" style={{ marginBottom: '1rem' }}>
+        <progress 
+          value={index + 1} 
+          max={questions.length} 
+          style={{ width: '100%', height: '8px' }}
+          aria-label={`Survey progress: Question ${index + 1} of ${questions.length}`}
+        />
+        <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>
+          Question {index + 1} of {questions.length}
+        </p>
       </div>
+      
+      <nav className="survey-navigation" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button 
+          type="button" 
+          onClick={handleBack} 
+          disabled={index === 0} 
+          aria-label={`Go back to question ${index}`}
+          className="lux-button-secondary"
+        >
+          Back
+        </button>
+      </nav>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleNext();
         }}
         className="stack"
+        aria-labelledby="current-question"
       >
-        <h2 className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt}</h2>
+        <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt}</h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <div className="stack" style={{ display: 'flex', gap: 'var(--space-3)' }}>

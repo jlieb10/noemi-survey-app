@@ -304,6 +304,32 @@ button:focus-visible {
   height: auto;
 }
 
+/* Ingredient grid styling */
+.ingredient-grid label {
+  background: var(--color-surface-elevated);
+  border: 1px solid rgba(198, 162, 90, 0.2);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.ingredient-grid label:hover {
+  border-color: rgba(198, 162, 90, 0.4);
+  background: rgba(198, 162, 90, 0.05);
+}
+
+.ingredient-grid input[type="checkbox"]:checked + span {
+  color: var(--color-gold);
+  font-weight: 500;
+}
+
+.ingredient-grid label:has(input[type="checkbox"]:checked) {
+  border-color: var(--color-gold);
+  background: rgba(198, 162, 90, 0.1);
+  box-shadow: 0 2px 4px rgba(198, 162, 90, 0.1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   body {
     transition: none !important;

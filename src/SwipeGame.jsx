@@ -41,6 +41,7 @@ export default function SwipeGame({ participantId }) {
   const [feedbacks, setFeedbacks] = useState([]);
   const [history, setHistory] = useState([]);
   const [showTutorial, setShowTutorial] = useState(true);
+  const [showIntro, setShowIntro] = useState(true);
   const [tutorialDir, setTutorialDir] = useState(null);
   const instagramHandle = config.brand?.instagram || '@noemi';
   const current = deck?.[0];
@@ -55,6 +56,7 @@ export default function SwipeGame({ participantId }) {
         const data = await res.json();
         setDeck(data);
         setInitialDeck(data);
+        setShowIntro(true);
         setShowTutorial(true);
       } catch (err) {
         console.error('Failed to load designs', err);
@@ -64,6 +66,21 @@ export default function SwipeGame({ participantId }) {
 
     loadDesigns();
   }, [participantId]);
+
+  // Preload next 5-10 images for smoother experience
+  useEffect(() => {
+    if (!deck?.length) return;
+    
+    const preloadCount = Math.min(5, deck.length - 1);
+    const imagesToPreload = deck.slice(1, preloadCount + 1);
+    
+    imagesToPreload.forEach(card => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = card.image_url;
+      // Images will be cached by browser for faster loading
+    });
+  }, [deck]);
 
   useEffect(() => {
     if (!deck || !showTutorial) return;
@@ -264,6 +281,27 @@ export default function SwipeGame({ participantId }) {
     return <p>Loading designs…</p>;
   }
 
+  if (showIntro) {
+    return (
+      <div className="swipe-game">
+        <div className="intro-splash" style={{ textAlign: 'center', padding: '2rem' }}>
+          <h2 className="sg-title">{config.design_feedback.title}</h2>
+          <p className="sg-subtitle" style={{ fontSize: '1.1rem', margin: '1.5rem 0', lineHeight: 1.6 }}>
+            {config.design_feedback.intro}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowIntro(false)}
+            className="lux-button-primary"
+            style={{ marginTop: '1rem' }}
+          >
+            Begin Design Exploration
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!deck.length) {
     return (
       <div className="swipe-game">
@@ -273,6 +311,7 @@ export default function SwipeGame({ participantId }) {
           onClick={() => {
             setDeck(initialDeck);
             setHistory([]);
+            setShowIntro(true);
             setShowTutorial(true);
           }}
           className="lux-button-primary"
@@ -285,7 +324,7 @@ export default function SwipeGame({ participantId }) {
 
   return (
     <div className="swipe-game">
-      <h2 className="sg-title">{config.swipe_ritual.title}</h2>
+      <h2 className="sg-title">{config.design_feedback.title}</h2>
       <p className="sg-instructions">Swipe right to like, left to dislike, up to love, down if unsure. You can undo the last swipe.</p>
       {total > 0 && (
         <progress className="sg-progress" value={total - deck.length} max={total} aria-label="Swipe progress" />
