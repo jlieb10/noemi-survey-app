@@ -367,7 +367,9 @@ export default function SwipeGame({ participantId }) {
               tutorialDir ? ` hint-${tutorialDir}` : ''
             }`}
           >
-            <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
+            <div className="card">
+              <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
+            </div>
           </div>
         ) : (
           <TinderCard key={current.id} onSwipe={handleSwipe}>
