@@ -108,6 +108,7 @@ export default function SwipeGame({ participantId }) {
    * @param {string} cardId
    * @returns {Promise<void>}
    */
+
   const removeSwipe = useCallback(async (cardId) => {
     try {
       if (supabase) {
@@ -173,6 +174,72 @@ export default function SwipeGame({ participantId }) {
       await removeSwipe(lastEntry.card.id);
     }
   }, [removeSwipe]);
+
+  /**
+   * Bind arrow key presses to swipe directions.
+   * @param {KeyboardEvent} e
+   */
+  const handleKeyDown = useCallback(
+    (e) => {
+      const direction = KEY_MAP[e.key];
+      if (direction) {
+        e.preventDefault();
+        handleSwipe(direction);
+      }
+    },
+    [handleSwipe],
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  /**
+   * Handle swipe direction and record choice.
+   * @param {string} direction
+   * @returns {Promise<void>}
+   */
+  const handleSwipe = useCallback(async (direction) => {
+    const choice = CHOICE_MAP[direction];
+    if (!choice || !deck?.length) return;
+
+    const current = deck[0];
+    setHistory((prev) => [...prev, { deck: [...deck], card: current }]);
+
+    // REVISIT:
+    // Show quick emoji feedback
+    const id = Date.now();
+    setFeedbacks((prev) => [...prev, { icon: ICON_MAP[direction], id }]);
+    setTimeout(() => {
+      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    }, 1500);
+    
+
+    setDeck((prev) => {
+      const [first, ...rest] = prev;
+      return direction === 'down' ? [...rest, first] : rest;
+    });
+
+    await saveSwipe(current.id, choice);
+  }, [deck, saveSwipe]);
+
+  /**
+   * Restore the previous deck state and remove persisted swipe.
+   * @returns {Promise<void>}
+   */
+  const handleUndo = async () => {
+    let lastEntry;
+    setHistory((prev) => {
+      if (!prev.length) return prev;
+      lastEntry = prev[prev.length - 1];
+      setDeck(lastEntry.deck);
+      return prev.slice(0, -1);
+    });
+    if (lastEntry) {
+      await removeSwipe(lastEntry.card.id);
+    }
+  };
 
   /**
    * Bind arrow key presses to swipe directions.
