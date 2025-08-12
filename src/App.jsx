@@ -6,6 +6,7 @@ import config from '../docs/noemi-survey-config.json';
 /**
  * Root component orchestrating survey and game flow.
  * Use `?dev=true` in the URL to start directly at the survey.
+ * Use `?play=true` in the URL to start directly at the game.
  */
 export default function App() {
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
