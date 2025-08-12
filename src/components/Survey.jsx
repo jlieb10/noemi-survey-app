@@ -79,6 +79,15 @@ export default function Survey({ onComplete }) {
     });
   };
 
+  const shouldShowOtherOption = (q) => {
+    // If 'allow_other' is explicitly set, use that value
+    if (typeof q.allow_other === 'boolean') {
+      return q.allow_other;
+    }
+    // Fallback to previous behavior: exclude 'Other' for ingredient grids
+    return q.ui_hint !== 'ingredient_grid';
+  };
+
   const renderOtherOption = (q, limit) => (
     <label className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
       <input
