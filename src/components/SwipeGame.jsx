@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../../docs/noemi-survey-config.json';
-import { supabase, apiConfig } from '../services/supabaseClient.js';
+import { supabase } from '../services/supabaseClient.js';
 import {
   CHOICE_MAP,
   ICON_MAP,
@@ -11,9 +11,8 @@ import {
   SWIPE_DIRECTIONS,
   ASSET_PATHS,
 } from '../constants.js';
-import { handleImageError } from '../utils/common.js';
 import { useDeck, useTutorial, useSwipeFeedback, useSwipeHistory } from '../hooks/useSwipeGame.js';
-import DesignCanvas from './DesignCanvas.jsx';
+import DesignCanvas from '../DesignCanvas.jsx';
 import './SwipeGame.css';
 
 // Story share configuration and helpers
@@ -129,13 +128,6 @@ export default function SwipeGame({ participantId }) {
       if (supabase) {
         await supabase.from('swipes').insert({ participant_id: participantId, card_id: cardId, choice });
         trackSwipe(participantId, cardId, choice);
-      } else if (apiConfig?.baseUrl) {
-        await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.swipes}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ participant_id: participantId, card_id: cardId, choice }),
-        });
-        trackSwipe(participantId, cardId, choice);
       } else {
         console.warn('Supabase client not available. Swipe data not persisted.');
       }
@@ -149,11 +141,6 @@ export default function SwipeGame({ participantId }) {
     try {
       if (supabase) {
         await supabase.from('swipes').delete().match({ participant_id: participantId, card_id: cardId });
-      } else if (apiConfig?.baseUrl) {
-        await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.swipes}?participant_id=eq.${participantId}&card_id=eq.${cardId}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-        });
       } else {
         console.warn('Supabase client not available. Undo operation not persisted.');
       }

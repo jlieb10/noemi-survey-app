@@ -2,7 +2,7 @@
  * Custom hooks for managing swipe game state and behavior.
  */
 import { useState, useEffect, useCallback } from 'react';
-import { ASSET_PATHS, SWIPE_DIRECTIONS, TUTORIAL_TIMING } from '../constants.js';
+import { ASSET_PATHS, SWIPE_DIRECTIONS, TUTORIAL_TIMING, FEEDBACK_TIMING } from '../constants.js';
 import { delay } from '../utils/common.js';
 
 /**
