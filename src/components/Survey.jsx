@@ -203,7 +203,12 @@ export default function Survey({ onComplete }) {
                   {...(opt.image.height ? { height: opt.image.height } : {})}
                   style={{
                     width: '100%',
-                    height: 'auto',
+                  onError={(e) => {
+                    e.currentTarget.src = '/vite.svg';
+                  }}
+                  style={{
+                    width: '100%',
+                    height: opt.image.height ? opt.image.height : 'auto',
                     borderRadius: '12px',
                     border: (answers[q.id] || []).includes(opt.id) ? '2px solid #C6A25A' : '2px solid transparent',
                   }}
