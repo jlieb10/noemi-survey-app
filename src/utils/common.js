@@ -76,7 +76,7 @@ export function delay(ms) {
  * @returns {string} A unique identifier based on timestamp and random number
  */
 export function generateTempId() {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 /**
