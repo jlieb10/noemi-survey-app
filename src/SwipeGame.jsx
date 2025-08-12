@@ -286,7 +286,6 @@ export default function SwipeGame({ participantId }) {
       <div className="swipe-game">
         <div className="intro-splash" style={{ textAlign: 'center', padding: '2rem' }}>
           <h2 className="sg-title">{config.design_feedback.title}</h2>
-          <h2 className="sg-title">{config.design_feedback?.title ?? ""}</h2>
           <p className="sg-subtitle" style={{ fontSize: '1.1rem', margin: '1.5rem 0', lineHeight: 1.6 }}>
             {config.design_feedback?.intro ?? ""}
           </p>
