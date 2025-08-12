@@ -243,6 +243,7 @@ export default function SwipeGame({ participantId }) {
             resetDeck();
             clearHistory();
             // Do not show intro again after reset
+            setShowIntro(false);
             setShowTutorial(true);
           }}
           className="lux-button-primary"
