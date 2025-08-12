@@ -86,7 +86,7 @@ export function useTutorial(shouldShowTutorial) {
 export function useSwipeFeedback() {
   const [feedbacks, setFeedbacks] = useState([]);
 
-  const addFeedback = useCallback((icon, duration = 1500) => {
+  const addFeedback = useCallback((icon, duration = FEEDBACK_TIMING.DISPLAY_DURATION_MS) => {
     const id = Date.now();
     setFeedbacks((prev) => [...prev, { icon, id }]);
     setTimeout(() => {
