@@ -15,9 +15,23 @@ export default function DesignCanvas({ src, alt }) {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+      // Set consistent canvas dimensions (e.g., 400x400 or maintain aspect ratio within bounds)
+      const maxWidth = 400;
+      const maxHeight = 400;
+      
+      let { width, height } = img;
+      
+      // Calculate scaling to fit within bounds while maintaining aspect ratio
+      const scale = Math.min(maxWidth / width, maxHeight / height);
+      
+      if (scale < 1) {
+        width *= scale;
+        height *= scale;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
     };
     img.onerror = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);

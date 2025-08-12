@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../../docs/noemi-survey-config.json';
@@ -113,6 +113,7 @@ export default function SwipeGame({ participantId }) {
   const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(deck !== null);
   const { feedbacks, addFeedback } = useSwipeFeedback();
   const { history, addToHistory, undo: undoHistory, clearHistory } = useSwipeHistory();
+  const [showIntro, setShowIntro] = useState(true);
   const instagramHandle = config.brand?.instagram || '@noemi';
   const current = deck?.[0];
 
@@ -211,6 +212,27 @@ export default function SwipeGame({ participantId }) {
 
   if (deck === null) return <p>Loading designs…</p>;
 
+  if (showIntro) {
+    return (
+      <div className="swipe-game">
+        <div className="intro-splash" style={{ textAlign: 'center', padding: '2rem' }}>
+          <h2 className="sg-title">{config.design_feedback?.title || 'Design Exploration'}</h2>
+          <p className="sg-subtitle" style={{ fontSize: '1.1rem', margin: '1.5rem 0', lineHeight: 1.6 }}>
+            {config.design_feedback?.intro || "We're seeking your intuitive response to design concepts. Swipe to share your preferences and help shape our visual identity."}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowIntro(false)}
+            className="lux-button-primary"
+            style={{ marginTop: '1rem' }}
+          >
+            Begin Design Exploration
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!deck.length) {
     return (
       <div className="swipe-game">
@@ -220,6 +242,8 @@ export default function SwipeGame({ participantId }) {
           onClick={() => {
             resetDeck();
             clearHistory();
+            // Do not show intro again after reset
+            setShowIntro(false);
             setShowTutorial(true);
           }}
           className="lux-button-primary"
@@ -232,7 +256,7 @@ export default function SwipeGame({ participantId }) {
 
   return (
     <div className="swipe-game">
-      <h2 className="sg-title">{config.swipe_ritual.title}</h2>
+      <h2 className="sg-title">{config.design_feedback?.title || 'Design Exploration'}</h2>
       <p className="sg-instructions">Swipe right to like, left to dislike, up to love, down if unsure. You can undo the last swipe.</p>
       {total > 0 && (
         <progress className="sg-progress" value={total - deck.length} max={total} aria-label="Swipe progress" />

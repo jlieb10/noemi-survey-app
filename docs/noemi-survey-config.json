@@ -30,8 +30,29 @@
     { "id": "Q8", "type": "single_select", "prompt": "Do you enjoy subtle scent/flavour cues in a ritual?", "required": true, "ui_hint": "chips", "options": [{"id":"yes","label":"Yes"},{"id":"sometimes","label":"Sometimes"},{"id":"no","label":"No"}]},
     { "id": "Q9", "type": "single_select", "prompt": "Would you subscribe if it genuinely helped?", "required": true, "ui_hint": "chips", "options": [{"id":"yes","label":"Yes"},{"id":"maybe","label":"Maybe after a month"},{"id":"no","label":"Prefer one‑off"}]},
     { "id": "Q10", "type": "single_select", "prompt": "Monthly budget ceiling for a premium base formula:", "required": true, "ui_hint": "chips", "options": [{"id":"lt50","label":"< £50"},{"id":"50_80","label":"£50–£80"},{"id":"80_100","label":"£80–£100"},{"id":"100p","label":"£100+"}]},
-    { "id": "Q11", "type": "short_text_one_word", "prompt": "Any ingredients or constraints to avoid?", "required": false, "max_chars": 120, "placeholder": "e.g., allergens, caffeine‑free, vegan only" },
+    { "id": "Q11", "type": "multi_select", "prompt": "Which ingredients interest you for wellness support?", "required": false, "ui_hint": "ingredient_grid", "max_select": 8, "layout": "two_columns", "options": [
+      {"id":"adaptogen_ashwagandha","label":"Ashwagandha"},
+      {"id":"adaptogen_rhodiola","label":"Rhodiola"},
+      {"id":"adaptogen_reishi","label":"Reishi"},
+      {"id":"botanical_turmeric","label":"Turmeric"},
+      {"id":"botanical_ginger","label":"Ginger"},
+      {"id":"botanical_ginkgo","label":"Ginkgo Biloba"},
+      {"id":"botanical_ginseng","label":"Ginseng"},
+      {"id":"botanical_echinacea","label":"Echinacea"},
+      {"id":"vitamin_d","label":"Vitamin D3"},
+      {"id":"vitamin_b_complex","label":"B-Complex"},
+      {"id":"vitamin_c","label":"Vitamin C"},
+      {"id":"mineral_magnesium","label":"Magnesium"},
+      {"id":"mineral_zinc","label":"Zinc"},
+      {"id":"omega_3","label":"Omega-3"},
+      {"id":"probiotic","label":"Probiotics"},
+      {"id":"collagen","label":"Collagen"},
+      {"id":"coq10","label":"CoQ10"},
+      {"id":"botanical_chamomile","label":"Chamomile"},
+      {"id":"botanical_lavender","label":"Lavender"},
+      {"id":"botanical_valerian","label":"Valerian Root"}
+    ]},
     { "id": "Q12", "type": "gate_opt_in", "prompt": "Would you like early access to the private circle?", "required": false, "ui_hint": "chips", "options": [{"id":"yes","label":"Yes, keep me posted"},{"id":"no","label":"No thanks"}], "follow_ups_if_yes": [{"id":"email","label":"Email","max_chars":120},{"id":"instagram","label":"Instagram","max_chars":60}]}
   ],
-  "swipe_ritual": { "title": "Swipe Ritual", "subtitle": "Help us refine what feels most NOEMI" }
+  "design_feedback": { "title": "Design Exploration", "subtitle": "Help us refine what feels most NOEMI", "intro": "We're seeking your intuitive response to design concepts. Swipe to share your preferences and help shape our visual identity." }
 }
