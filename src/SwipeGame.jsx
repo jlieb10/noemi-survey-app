@@ -324,7 +324,11 @@ export default function SwipeGame({ participantId }) {
 //                   e.currentTarget.src = '/vite.svg';
 //                 }}
 //               />
-              */
+            <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
+          </div>
+        ) : (
+          <TinderCard key={current.id} onSwipe={handleSwipe}>
+            <div className="card">
               <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
             </div>
           </TinderCard>
