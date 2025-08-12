@@ -20,6 +20,7 @@ export default function Survey({ onComplete }) {
   // Fire survey start once on mount
   useEffect(() => {
     onSurveyStart();
+
   }, []);
 
   const handleChange = (id, value) => {
