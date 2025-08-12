@@ -26,9 +26,14 @@ export default function DesignCanvas({ src, alt }) {
   }, [src]);
 
   useEffect(() => {
-    const prevent = (e) => {
+    const prevent = async (e) => {
       if (e.key === 'PrintScreen') {
         e.preventDefault();
+        try {
+          await navigator.clipboard.writeText('');
+        } catch {
+          /* noop */
+        }
       }
     };
     window.addEventListener('keydown', prevent);
