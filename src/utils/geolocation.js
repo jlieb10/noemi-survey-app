@@ -15,7 +15,11 @@ export async function getUserLocation() {
       ipinfoApiKey ? `https://ipinfo.io/json?token=${ipinfoApiKey}` : null,
       'https://api.ipify.org?format=json' // fallback to just IP
     ].filter(Boolean);
-
+    // Only use public/free geolocation services in client-side code
+    const services = [
+      'https://ipapi.co/json/',
+      'https://api.ipify.org?format=json' // fallback to just IP
+    ];
     for (const service of services) {
       try {
         const response = await fetch(service);
