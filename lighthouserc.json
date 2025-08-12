@@ -8,7 +8,7 @@
         ]
       },
       "numberOfRuns": 1,
-      "chromePath": "/root/.cache/ms-playwright/chromium-1181/chrome-linux/chrome"
+      "numberOfRuns": 1
     },
     "assert": {
       "assertions": {
