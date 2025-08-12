@@ -298,39 +298,35 @@ export default function SwipeGame({ participantId }) {
               tutorialDir ? ` hint-${tutorialDir}` : ''
             }`}
           >
-            /**
-//             <img
-//               src={current.image_url}
-//               alt={`Design ${current.id}`}
-//               loading="lazy"
-//               decoding="async"
-//               onError={(e) => {
-//                 e.currentTarget.src = '/vite.svg';
-//               }}
-//             />
-            */
+            {/* 
+             <img
+               src={current.image_url}
+               alt={`Design ${current.id}`}
+               loading="lazy"
+               decoding="async"
+               onError={(e) => {
+                 e.currentTarget.src = '/vite.svg';
+               }}
+             />
+            */}
             <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
           </div>
         ) : (
           <TinderCard key={current.id} onSwipe={handleSwipe}>
             <div className="card">
-            /**            
-//               <img
-//                 src={current.image_url}
-//                 alt={`Design ${current.id}`}
-//                 loading="lazy"
-//                 decoding="async"
-//                 onError={(e) => {
-//                   e.currentTarget.src = '/vite.svg';
-//                 }}
-//               />
+            {/* 
+               <img
+                 src={current.image_url}
+                 alt={`Design ${current.id}`}
+                 loading="lazy"
+                 decoding="async"
+                 onError={(e) => {
+                   e.currentTarget.src = '/vite.svg';
+                 }}
+               />
+            */}
             <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
           </div>
-        ) : (
-          <TinderCard key={current.id} onSwipe={handleSwipe}>
-            <div className="card">
-              <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
-            </div>
           </TinderCard>
         )}
 
