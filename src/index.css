@@ -64,6 +64,37 @@ body {
     --x4 var(--d4) ease-in-out, --y4 var(--d4) ease-in-out, --r4 var(--d4) ease-in-out;
 }
 
+.terms-root {
+  position: fixed;
+  bottom: 0.25rem;
+  right: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.terms-button {
+  opacity: 0.2;
+  padding: 0.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.terms-button:hover {
+  opacity: 0.6;
+}
+
+.terms-tooltip {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 0;
+  max-width: 240px;
+  background: rgba(255 255 255 / 0.95);
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+  font-size: 0.7rem;
+}
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
