@@ -324,7 +324,7 @@ export default function SwipeGame({ participantId }) {
 
   return (
     <div className="swipe-game">
-      <h2 className="sg-title">{config.design_feedback.title}</h2>
+      <h2 className="sg-title">{config.design_feedback?.title}</h2>
       <p className="sg-instructions">Swipe right to like, left to dislike, up to love, down if unsure. You can undo the last swipe.</p>
       {total > 0 && (
         <progress className="sg-progress" value={total - deck.length} max={total} aria-label="Swipe progress" />
