@@ -209,7 +209,11 @@ export default function Survey({ onComplete }) {
                 </label>
               ))}
             </div>
-            {q.ui_hint !== 'ingredient_grid' && renderOtherOption(q, q.max_select)}
+            {/* 
+              The rendering of the 'Other' option is now configurable via the 'allow_other' property on the question object.
+              If 'allow_other' is not specified, fallback to the previous behaviour: exclude 'Other' for ingredient grids.
+            */}
+            {(typeof q.allow_other === 'boolean' ? q.allow_other : q.ui_hint !== 'ingredient_grid') && renderOtherOption(q, q.max_select)}
             {q.max_select && (
               <p style={{ fontSize: '0.8rem', fontStyle: 'italic', marginTop: 'var(--space-2)' }}>
                 Select up to {q.max_select} {q.ui_hint === 'ingredient_grid' ? 'ingredients' : 'options'}
