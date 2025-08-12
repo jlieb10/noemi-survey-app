@@ -120,6 +120,16 @@ button:focus-visible {
   outline: 2px solid #274a82;
 }
 
+.app-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.app-logo {
+  max-width: 150px;
+  height: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   body {
     transition: none !important;

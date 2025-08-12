@@ -27,6 +27,9 @@ export default function App() {
 
   return (
     <div className="lux-container">
+      <header className="app-header">
+        <img src="/logo.png" alt="NOEMI logo" className="app-logo" />
+      </header>
       {step === 'welcome' && (
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <h1>{config.survey.meta.title}</h1>
