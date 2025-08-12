@@ -1,44 +1,65 @@
 import { useState } from 'react';
 import Survey from './Survey.jsx';
 import SwipeGame from './SwipeGame.jsx';
-import config from '../docs/noemi-survey-config.json';
+import config from '../../docs/noemi-survey-config.json';
+import {
+  URL_PARAMS,
+  STORAGE_KEYS,
+  APP_STEPS,
+  DEFAULT_PARTICIPANT_IDS,
+  ASSET_PATHS,
+} from '../constants.js';
+import { getStorageItem, hasUrlParam, setStorageItem } from '../utils/common.js';
 
 /**
  * Root component orchestrating survey and game flow.
  * Use `?dev=true` in the URL to start directly at the survey.
  * Use `?play=true` in the URL to start directly at the game.
+ * Supports multiple entry modes:
+ * - Normal flow: Welcome -> Survey -> Game
+ * - Dev mode (?dev=true): Starts directly at survey
+ * - Play mode (?play=true): Starts directly at game with guest ID
+ * 
+ * Manages participant state and persists the participant ID across sessions.
+ * 
+ * @component
+ * @returns {JSX.Element} The main application interface
  */
 export default function App() {
-  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const devMode = urlParams?.get('dev') === 'true';
-  const playMode = urlParams?.get('play') === 'true';
-  const storedId = typeof window !== 'undefined' && !devMode ? localStorage.getItem('participant_id') : null;
-  const initialStep = devMode ? 'survey' : playMode ? 'game' : storedId ? 'game' : 'welcome';
-  const initialId = storedId || (playMode ? 'guest' : null);
+  const devMode = hasUrlParam(URL_PARAMS.DEV_MODE, 'true');
+  const playMode = hasUrlParam(URL_PARAMS.PLAY_MODE, 'true');
+  const storedId = !devMode ? getStorageItem(STORAGE_KEYS.PARTICIPANT_ID) : null;
+  
+  const initialStep = devMode ? APP_STEPS.SURVEY : playMode ? APP_STEPS.GAME : storedId ? APP_STEPS.GAME : APP_STEPS.WELCOME;
+  const initialId = storedId || (playMode ? DEFAULT_PARTICIPANT_IDS.GUEST : null);
   const [step, setStep] = useState(initialStep);
   const [participantId, setParticipantId] = useState(initialId);
   const [showTerms, setShowTerms] = useState(false);
 
+  /**
+   * Handles survey completion and transitions to the game.
+   * Persists the participant ID to localStorage for future sessions.
+   * 
+   * @param {string} id - The participant ID from the survey submission
+   */
   const handleComplete = (id) => {
     setParticipantId(id);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('participant_id', id);
-    }
-    setStep('game');
+    setStorageItem(STORAGE_KEYS.PARTICIPANT_ID, id);
+    setStep(APP_STEPS.GAME);
   };
 
   return (
     <div className="lux-container">
       <header className="app-header">
-        <img src="/logo.png" alt="NOEMI logo" className="app-logo" />
+        <img src={ASSET_PATHS.LOGO} alt="NOEMI logo" className="app-logo" />
       </header>
-      {step === 'welcome' && (
+      {step === APP_STEPS.WELCOME && (
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <h1>{config.survey.meta.title}</h1>
           <p style={{ fontStyle: 'italic' }}>{config.survey.meta.subtitle}</p>
           <button
             type="button"
-            onClick={() => setStep('survey')}
+            onClick={() => setStep(APP_STEPS.SURVEY)}
             className="lux-button-primary"
           >
             {config.survey.meta.start_cta}
@@ -46,8 +67,8 @@ export default function App() {
           <button
             type="button"
             onClick={() => {
-              setParticipantId(storedId || 'guest');
-              setStep('game');
+              setParticipantId(storedId || DEFAULT_PARTICIPANT_IDS.GUEST);
+              setStep(APP_STEPS.GAME);
             }}
             className="lux-button-secondary"
           >
@@ -55,8 +76,8 @@ export default function App() {
           </button>
         </div>
       )}
-      {step === 'survey' && <Survey onComplete={handleComplete} />}
-      {step === 'game' && participantId && <SwipeGame participantId={participantId} />}
+      {step === APP_STEPS.SURVEY && <Survey onComplete={handleComplete} />}
+      {step === APP_STEPS.GAME && participantId && <SwipeGame participantId={participantId} />}
       <div className="terms-root">
         <button
           type="button"

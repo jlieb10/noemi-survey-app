@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import App from './App.jsx';
+import App from './components/App.jsx';
 
 /**
  * Ensure terms tooltip appears when triggered.

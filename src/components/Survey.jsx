@@ -1,7 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import config from '../docs/noemi-survey-config.json';
-import { supabase } from './supabaseClient.js';
-import { onSurveyStart, onQuestionAnswered, onSurveyComplete } from './analytics.js';
+import config from '../../docs/noemi-survey-config.json';
+import { supabase } from '../services/supabaseClient.js';
+import { onSurveyStart, onQuestionAnswered, onSurveyComplete } from '../services/analytics.js';
+import {
+  DEFAULT_PARTICIPANT_IDS,
+  SURVEY_CONSTANTS,
+  ASSET_PATHS,
+} from '../constants.js';
+import { handleImageError } from '../utils/common.js';
 
 /**
  * Renders the survey and collects responses.
@@ -70,11 +76,11 @@ export default function Survey({ onComplete }) {
     <label className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
       <input
         type="checkbox"
-        checked={(answers[q.id] || []).includes('other')}
-        onChange={() => handleMultiChange(q.id, 'other', limit, q.exclusive_option_id)}
+        checked={(answers[q.id] || []).includes(SURVEY_CONSTANTS.OTHER_OPTION_ID)}
+        onChange={() => handleMultiChange(q.id, SURVEY_CONSTANTS.OTHER_OPTION_ID, limit, q.exclusive_option_id)}
       />
       <span>Other</span>
-      {(answers[q.id] || []).includes('other') && (
+      {(answers[q.id] || []).includes(SURVEY_CONSTANTS.OTHER_OPTION_ID) && (
         <input
           type="text"
           value={answers[`${q.id}_other`] || ''}
@@ -115,10 +121,10 @@ export default function Survey({ onComplete }) {
     setError(null);
     try {
       // Extract opt‑in details from the gate question (Q12).
-      const gate = answers.Q12 && typeof answers.Q12 === 'object' ? answers.Q12 : {};
+      const gate = answers[SURVEY_CONSTANTS.GATE_QUESTION_ID] && typeof answers[SURVEY_CONSTANTS.GATE_QUESTION_ID] === 'object' ? answers[SURVEY_CONSTANTS.GATE_QUESTION_ID] : {};
       const email = gate.email || null;
       const marketing = gate.join === 'yes';
-      let participantId = 'local-test';
+      let participantId = DEFAULT_PARTICIPANT_IDS.LOCAL_TEST;
 
       // Persist to Supabase if a client is available.
       if (supabase) {
@@ -137,7 +143,7 @@ export default function Survey({ onComplete }) {
     } catch (err) {
       setError(err.message || 'An unexpected error occurred');
       // Even on error, navigate forward in dev/local mode.
-      onComplete('local-test');
+      onComplete(DEFAULT_PARTICIPANT_IDS.LOCAL_TEST);
     } finally {
       setLoading(false);
     }
@@ -204,9 +210,7 @@ export default function Survey({ onComplete }) {
                 <img
                   src={`${config.survey.meta.assets_base}${opt.image.src}`}
                   alt={opt.image.alt}
-                  onError={(e) => {
-                    e.currentTarget.src = '/vite.svg';
-                  }}
+                  onError={(e) => handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)}
                   style={{
                     width: '100%',
                     borderRadius: '12px',
