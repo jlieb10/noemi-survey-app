@@ -234,6 +234,8 @@ export default function SwipeGame({ participantId }) {
               src={current.image_url}
               alt={`Design ${current.id}`}
               loading="lazy"
+              width="300"
+              height="300"
               onError={(e) => {
                 e.currentTarget.src = '/vite.svg';
               }}
@@ -246,6 +248,8 @@ export default function SwipeGame({ participantId }) {
                 src={current.image_url}
                 alt={`Design ${current.id}`}
                 loading="lazy"
+                width="300"
+                height="300"
                 onError={(e) => {
                   e.currentTarget.src = '/vite.svg';
                 }}

@@ -29,7 +29,13 @@ export default function App() {
   return (
     <div className="lux-container">
       <header className="app-header">
-        <img src="/logo.png" alt="NOEMI logo" className="app-logo" />
+        <img
+          src="/logo.png"
+          alt="NOEMI logo"
+          className="app-logo"
+          width="128"
+          height="128"
+        />
       </header>
       {step === 'welcome' && (
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>

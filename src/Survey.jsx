@@ -156,11 +156,14 @@ export default function Survey({ onComplete }) {
                 <img
                   src={`${config.survey.meta.assets_base}${opt.image.src}`}
                   alt={opt.image.alt}
+                  width="300"
+                  height="300"
                   onError={(e) => {
                     e.currentTarget.src = '/vite.svg';
                   }}
                   style={{
                     width: '100%',
+                    height: 'auto',
                     borderRadius: '12px',
                     border: (answers[q.id] || []).includes(opt.id) ? '2px solid #C6A25A' : '2px solid transparent',
                   }}
