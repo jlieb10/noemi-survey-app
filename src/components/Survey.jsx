@@ -28,17 +28,28 @@ export default function Survey({ onComplete }) {
   // Fire survey start once on mount
   useEffect(() => {
     onSurveyStart();
-
   }, []);
 
   // Clear any pending auto-advance timer on unmount
   useEffect(() => () => clearTimeout(autoNextRef.current), []);
 
+  /**
+   * Handle answer changes for single-value questions.
+   * @param {string} id - Question ID
+   * @param {any} value - Answer value
+   */
   const handleChange = (id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
     onQuestionAnswered(id, value);
   };
 
+  /**
+   * Handle answer changes for multi-select questions with validation.
+   * @param {string} id - Question ID
+   * @param {string} optId - Option ID being toggled
+   * @param {number} max - Maximum selections allowed
+   * @param {string} exclusiveId - ID of exclusive option if any
+   */
   const handleMultiChange = (id, optId, max, exclusiveId) => {
     setAnswers((prev) => {
       const arr = Array.isArray(prev[id]) ? prev[id] : [];
@@ -85,6 +96,9 @@ export default function Survey({ onComplete }) {
     </label>
   );
 
+  /**
+   * Navigate to the next question or submit if on the last question.
+   */
   const handleNext = () => {
     if (index < questions.length - 1) setIndex((i) => i + 1);
     else handleSubmit();

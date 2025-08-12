@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../../docs/noemi-survey-config.json';
-import { supabase } from '../services/supabaseClient.js';
+import { supabase, apiConfig } from '../services/supabaseClient.js';
 import {
   CHOICE_MAP,
   ICON_MAP,
@@ -16,29 +16,101 @@ import { useDeck, useTutorial, useSwipeFeedback, useSwipeHistory } from '../hook
 import DesignCanvas from './DesignCanvas.jsx';
 import './SwipeGame.css';
 
+// Story share configuration and helpers
+const STORY_CONFIG = {
+  width: 1080,
+  height: 1920,
+  maxImageSize: 900,
+  logoWidth: 240,
+  imageY: 300,
+  gradient: { start: '#e0d7ff', end: '#ffe3e3' },
+  text: {
+    color: '#5a4333',
+    title: 'I loved this design…',
+    subtitle: 'Cast your vote now',
+    titleFont: '48px serif',
+    subtitleFont: '36px sans-serif',
+    urlFont: '28px sans-serif',
+  },
+};
+
+const createStoryCanvas = () => {
+  const story = document.createElement('canvas');
+  story.width = STORY_CONFIG.width;
+  story.height = STORY_CONFIG.height;
+  const ctx = story.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, story.width, story.height);
+  gradient.addColorStop(0, STORY_CONFIG.gradient.start);
+  gradient.addColorStop(1, STORY_CONFIG.gradient.end);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, story.width, story.height);
+  return { ctx, story };
+};
+
+const drawScaledImage = async (ctx, src, maxSize, y) => {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = src;
+  });
+  const scale = Math.min(maxSize / img.width, maxSize / img.height);
+  const w = img.width * scale;
+  const h = img.height * scale;
+  const x = (STORY_CONFIG.width - w) / 2;
+  ctx.drawImage(img, x, y, w, h);
+};
+
+const drawLogo = async (ctx) => {
+  const logo = new Image();
+  logo.crossOrigin = 'anonymous';
+  await new Promise((resolve) => {
+    logo.onload = resolve;
+    logo.onerror = resolve;
+    logo.src = '/logo.png';
+  });
+  const lw = STORY_CONFIG.logoWidth;
+  const lh = (logo.height / logo.width) * lw || 80;
+  ctx.drawImage(logo, STORY_CONFIG.width - lw - 40, STORY_CONFIG.height - lh - 40, lw, lh);
+};
+
+const addStoryText = (ctx, instagramHandle) => {
+  ctx.fillStyle = STORY_CONFIG.text.color;
+  ctx.textAlign = 'center';
+  ctx.font = STORY_CONFIG.text.titleFont;
+  ctx.fillText(STORY_CONFIG.text.title, STORY_CONFIG.width / 2, 120);
+  ctx.fillText(STORY_CONFIG.text.subtitle, STORY_CONFIG.width / 2, 180);
+  ctx.font = STORY_CONFIG.text.subtitleFont;
+  ctx.fillText(instagramHandle, STORY_CONFIG.width / 2, STORY_CONFIG.height - 120);
+  const surveyUrl = window.location.origin;
+  ctx.font = STORY_CONFIG.text.urlFont;
+  ctx.fillText(surveyUrl, STORY_CONFIG.width / 2, STORY_CONFIG.height - 60);
+};
+
 /**
  * Interactive swipe-based game component for rating design cards.
- * 
+ *
  * Features:
  * - Tutorial animation showing swipe directions
  * - Keyboard controls (arrow keys) and touch/mouse swipe support
  * - Visual feedback for swipe actions
  * - Undo functionality with history tracking
  * - Automatic data persistence to Supabase
- * 
+ *
  * Swipe directions map to:
  * - Right: Like
- * - Left: Dislike  
+ * - Left: Dislike
  * - Up: Love
  * - Down: Not sure (card cycles to bottom of deck)
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {string} props.participantId - Unique identifier for the participant
  * @returns {JSX.Element} The swipe game interface
  */
 export default function SwipeGame({ participantId }) {
-  const { deck, setDeck, loadDesigns, resetDeck } = useDeck();
+  const { deck, setDeck, loadDesigns, resetDeck, total } = useDeck();
   const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(deck !== null);
   const { feedbacks, addFeedback } = useSwipeFeedback();
   const { history, addToHistory, undo: undoHistory, clearHistory } = useSwipeHistory();
@@ -51,19 +123,17 @@ export default function SwipeGame({ participantId }) {
     loadDesigns();
   }, [participantId, loadDesigns]);
 
-  /**
-   * Persist a swipe choice.
-   * @param {string} cardId
-   * @param {string} choice
-   * @returns {Promise<void>}
-   */
+  // Persist a swipe choice
   const saveSwipe = useCallback(async (cardId, choice) => {
     try {
       if (supabase) {
-        await supabase.from('swipes').insert({
-          participant_id: participantId,
-          card_id: cardId,
-          choice,
+        await supabase.from('swipes').insert({ participant_id: participantId, card_id: cardId, choice });
+        trackSwipe(participantId, cardId, choice);
+      } else if (apiConfig?.baseUrl) {
+        await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.swipes}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ participant_id: participantId, card_id: cardId, choice }),
         });
         trackSwipe(participantId, cardId, choice);
       } else {
@@ -74,19 +144,16 @@ export default function SwipeGame({ participantId }) {
     }
   }, [participantId]);
 
-  /**
-   * Remove a swipe record to support undo.
-   * @param {string} cardId
-   * @returns {Promise<void>}
-   */
-
+  // Remove a swipe record (undo)
   const removeSwipe = useCallback(async (cardId) => {
     try {
       if (supabase) {
-        await supabase
-          .from('swipes')
-          .delete()
-          .match({ participant_id: participantId, card_id: cardId });
+        await supabase.from('swipes').delete().match({ participant_id: participantId, card_id: cardId });
+      } else if (apiConfig?.baseUrl) {
+        await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.swipes}?participant_id=eq.${participantId}&card_id=eq.${cardId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+        });
       } else {
         console.warn('Supabase client not available. Undo operation not persisted.');
       }
@@ -95,11 +162,7 @@ export default function SwipeGame({ participantId }) {
     }
   }, [participantId]);
 
-  /**
-   * Handle swipe direction and record choice.
-   * @param {string} direction
-   * @returns {Promise<void>}
-   */
+  // Handle swipe action
   const handleSwipe = useCallback(async (direction) => {
     const choice = CHOICE_MAP[direction];
     if (!choice || !deck?.length) return;
@@ -118,10 +181,7 @@ export default function SwipeGame({ participantId }) {
     await saveSwipe(current.id, choice);
   }, [deck, saveSwipe, addToHistory, addFeedback, setDeck]);
 
-  /**
-   * Restore the previous deck state and remove persisted swipe.
-   * @returns {Promise<void>}
-   */
+  // Undo last swipe
   const handleUndo = useCallback(async () => {
     const lastEntry = undoHistory();
     if (lastEntry) {
@@ -130,90 +190,39 @@ export default function SwipeGame({ participantId }) {
     }
   }, [undoHistory, removeSwipe, setDeck]);
 
-  /**
-   * Bind arrow key presses to swipe directions.
-   * @param {KeyboardEvent} e
-   */
-  const handleKeyDown = useCallback(
-    (e) => {
-      const direction = KEY_MAP[e.key];
-      if (direction) {
-        e.preventDefault();
-        handleSwipe(direction);
-      }
-    },
-    [handleSwipe],
-  );
+  // Keyboard controls
+  const handleKeyDown = useCallback((e) => {
+    const direction = KEY_MAP[e.key];
+    if (direction) {
+      e.preventDefault();
+      handleSwipe(direction);
+    }
+  }, [handleSwipe]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // Share to Instagram story-like image
   const handleShare = useCallback(async () => {
     if (!current) return;
     try {
-      const story = document.createElement('canvas');
-      story.width = 1080;
-      story.height = 1920;
-      const ctx = story.getContext('2d');
-      const gradient = ctx.createLinearGradient(0, 0, story.width, story.height);
-      gradient.addColorStop(0, '#e0d7ff');
-      gradient.addColorStop(1, '#ffe3e3');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, story.width, story.height);
-
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = current.image_url;
-      });
-      const maxSize = 900;
-      const scale = Math.min(maxSize / img.width, maxSize / img.height);
-      const w = img.width * scale;
-      const h = img.height * scale;
-      const x = (story.width - w) / 2;
-      const y = 300;
-      ctx.drawImage(img, x, y, w, h);
-
-      const logo = new Image();
-      logo.crossOrigin = 'anonymous';
-      await new Promise((resolve) => {
-        logo.onload = resolve;
-        logo.onerror = resolve;
-        logo.src = '/logo.png';
-      });
-      const lw = 240;
-      const lh = (logo.height / logo.width) * lw || 80;
-      ctx.drawImage(logo, story.width - lw - 40, story.height - lh - 40, lw, lh);
-
-      ctx.fillStyle = '#5a4333';
-      ctx.font = '48px serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('I loved this design…', story.width / 2, 120);
-      ctx.fillText('Cast your vote now', story.width / 2, 180);
-
-      ctx.font = '36px sans-serif';
-      ctx.fillText(instagramHandle, story.width / 2, story.height - 120);
-      const surveyUrl = window.location.origin;
-      ctx.font = '28px sans-serif';
-      ctx.fillText(surveyUrl, story.width / 2, story.height - 60);
-
+      const { ctx, story } = createStoryCanvas();
+      await drawScaledImage(ctx, current.image_url, STORY_CONFIG.maxImageSize, STORY_CONFIG.imageY);
+      await drawLogo(ctx);
+      addStoryText(ctx, instagramHandle);
       const blob = await new Promise((resolve) => story.toBlob(resolve, 'image/png'));
       if (navigator.share && blob) {
         const file = new File([blob], 'story.png', { type: 'image/png' });
         await navigator.share({ files: [file], title: 'NOEMI design', text: 'Check this out' });
       }
     } catch (err) {
-      console.error('Share failed', err);
+      console.error('Share failed:', err);
     }
   }, [current, instagramHandle]);
 
-  if (deck === null) {
-    return <p>Loading designs…</p>;
-  }
+  if (deck === null) return <p>Loading designs…</p>;
 
   if (!deck.length) {
     return (
@@ -244,23 +253,19 @@ export default function SwipeGame({ participantId }) {
 
       <div className="swipe-container">
         {showTutorial ? (
-          <div
-            className={`card tutorial${
-              tutorialDir ? ` hint-${tutorialDir}` : ''
-            }`}
-          >
-            <DesignCanvas 
-              src={current.image_url} 
-              alt={`Design ${current.id}`} 
+          <div className={`card tutorial${tutorialDir ? ` hint-${tutorialDir}` : ''}`}>
+            <DesignCanvas
+              src={current.image_url}
+              alt={`Design ${current.id}`}
               fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
             />
           </div>
         ) : (
           <TinderCard key={current.id} onSwipe={handleSwipe}>
             <div className="card">
-              <DesignCanvas 
-                src={current.image_url} 
-                alt={`Design ${current.id}`} 
+              <DesignCanvas
+                src={current.image_url}
+                alt={`Design ${current.id}`}
                 fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
               />
             </div>
@@ -276,18 +281,10 @@ export default function SwipeGame({ participantId }) {
           IG
         </button>
 
-        <span className={`swipe-label left${tutorialDir === SWIPE_DIRECTIONS.LEFT ? ' active' : ''}`}>
-          Dislike
-        </span>
-        <span className={`swipe-label right${tutorialDir === SWIPE_DIRECTIONS.RIGHT ? ' active' : ''}`}>
-          Like
-        </span>
-        <span className={`swipe-label up${tutorialDir === SWIPE_DIRECTIONS.UP ? ' active' : ''}`}>
-          Love
-        </span>
-        <span className={`swipe-label down${tutorialDir === SWIPE_DIRECTIONS.DOWN ? ' active' : ''}`}>
-          Unsure
-        </span>
+        <span className={`swipe-label left${tutorialDir === SWIPE_DIRECTIONS.LEFT ? ' active' : ''}`}>Dislike</span>
+        <span className={`swipe-label right${tutorialDir === SWIPE_DIRECTIONS.RIGHT ? ' active' : ''}`}>Like</span>
+        <span className={`swipe-label up${tutorialDir === SWIPE_DIRECTIONS.UP ? ' active' : ''}`}>Love</span>
+        <span className={`swipe-label down${tutorialDir === SWIPE_DIRECTIONS.DOWN ? ' active' : ''}`}>Unsure</span>
 
         {feedbacks.map((fb) => (
           <div key={fb.id} className="swipe-feedback" aria-live="polite">
@@ -297,11 +294,7 @@ export default function SwipeGame({ participantId }) {
       </div>
 
       {history.length > 0 && (
-        <button
-          type="button"
-          onClick={handleUndo}
-          className="lux-button-secondary"
-        >
+        <button type="button" onClick={handleUndo} className="lux-button-secondary">
           Undo
         </button>
       )}

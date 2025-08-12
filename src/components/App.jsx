@@ -12,8 +12,9 @@ import {
 import { getStorageItem, hasUrlParam, setStorageItem } from '../utils/common.js';
 
 /**
- * Root application component that orchestrates the survey and swipe game flow.
- * 
+ * Root component orchestrating survey and game flow.
+ * Use `?dev=true` in the URL to start directly at the survey.
+ * Use `?play=true` in the URL to start directly at the game.
  * Supports multiple entry modes:
  * - Normal flow: Welcome -> Survey -> Game
  * - Dev mode (?dev=true): Starts directly at survey
