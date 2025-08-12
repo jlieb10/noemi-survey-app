@@ -1,5 +1,12 @@
 [build]
   command = "pnpm run build"
   publish = "dist"
+
 [build.environment]
   NODE_VERSION = "20.11.1"
+  PNPM_VERSION = "8.10.5"
+  # Skip Playwright browser installation on Netlify
+  SKIP_PLAYWRIGHT = "true"
+  # Prevent Playwright from downloading browsers during build
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+  PLAYWRIGHT_BROWSERS_PATH = "0"
