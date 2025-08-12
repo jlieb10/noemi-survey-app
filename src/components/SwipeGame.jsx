@@ -38,7 +38,7 @@ import './SwipeGame.css';
  */
 export default function SwipeGame({ participantId }) {
   const { deck, setDeck, loadDesigns, resetDeck } = useDeck();
-  const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(!!deck);
+  const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(deck !== null);
   const { feedbacks, addFeedback } = useSwipeFeedback();
   const { history, addToHistory, undo: undoHistory, clearHistory } = useSwipeHistory();
 
