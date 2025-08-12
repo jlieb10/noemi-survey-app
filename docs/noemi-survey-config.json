@@ -2,6 +2,7 @@
   "version": "1.0.1",
   "brand": {
     "name": "NOEMI",
+    "instagram": "@noemi",
     "voice": {
       "tone": ["luxury","elegant","inclusive","mystical"],
       "keywords": ["self-care","wellness","functional beauty","ritual","alchemy"]
