@@ -12,7 +12,6 @@ export async function getUserLocation() {
     const services = [
       'https://ipapi.co/json/',
       'https://ipinfo.io/json',
-      'https://api.ipify.org?format=json' // fallback to just IP
     const ipinfoApiKey = process.env.IPINFO_API_KEY;
     const services = [
       'https://ipapi.co/json/',
