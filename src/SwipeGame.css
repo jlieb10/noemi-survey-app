@@ -42,10 +42,11 @@
   overflow: hidden;
 }
 
-.card img {
+.card canvas {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  user-select: none;
 }
 
 .swipe-label {
@@ -99,6 +100,19 @@
   animation: fadeShrink 1s forwards;
   pointer-events: none;
   will-change: transform, opacity;
+}
+
+.instagram-share-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
 .card.tutorial {
