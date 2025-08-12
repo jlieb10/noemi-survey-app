@@ -36,7 +36,6 @@ export default function SwipeGame({ participantId }) {
   const [initialDeck, setInitialDeck] = useState([]);
 
   const [feedbacks, setFeedbacks] = useState([]);
-  const [feedback, setFeedback] = useState(null);
   const [history, setHistory] = useState([]);
   const [showTutorial, setShowTutorial] = useState(true);
   const [tutorialDir, setTutorialDir] = useState(null);
@@ -83,7 +82,7 @@ export default function SwipeGame({ participantId }) {
    * @param {string} choice
    * @returns {Promise<void>}
    */
-  const saveSwipe = async (cardId, choice) => {
+  const saveSwipe = useCallback(async (cardId, choice) => {
     try {
       if (supabase) {
         await supabase.from('swipes').insert({
@@ -102,14 +101,14 @@ export default function SwipeGame({ participantId }) {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [participantId]);
 
   /**
    * Remove a swipe record to support undo.
    * @param {string} cardId
    * @returns {Promise<void>}
    */
-  const removeSwipe = async (cardId) => {
+  const removeSwipe = useCallback(async (cardId) => {
     try {
       if (supabase) {
         await supabase
@@ -128,7 +127,7 @@ export default function SwipeGame({ participantId }) {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [participantId]);
 
   /**
    * Handle swipe direction and record choice.
@@ -149,9 +148,6 @@ export default function SwipeGame({ participantId }) {
     setTimeout(() => {
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));
     }, 1500);
-    
-    setFeedback({ icon: ICON_MAP[direction], key: Date.now() });
-    setTimeout(() => setFeedback(null), 1000);
 
     setDeck((prev) => {
       const [first, ...rest] = prev;
@@ -159,13 +155,13 @@ export default function SwipeGame({ participantId }) {
     });
 
     await saveSwipe(current.id, choice);
-  };
+  }, [deck, saveSwipe]);
 
   /**
    * Restore the previous deck state and remove persisted swipe.
    * @returns {Promise<void>}
    */
-  const handleUndo = async () => {
+  const handleUndo = useCallback(async () => {
     let lastEntry;
     setHistory((prev) => {
       if (!prev.length) return prev;
@@ -176,7 +172,7 @@ export default function SwipeGame({ participantId }) {
     if (lastEntry) {
       await removeSwipe(lastEntry.card.id);
     }
-  }, [deck, participantId]);
+  }, [removeSwipe]);
 
   /**
    * Bind arrow key presses to swipe directions.
