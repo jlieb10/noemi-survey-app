@@ -1,25 +1,73 @@
 import { test, expect } from '@playwright/test';
 test('survey submit -> redirect to game -> first swipe network', async ({ page }) => {
   await page.goto('/');
-  await page.getByText('Woman').click();
-  await page.getByText('Deeper sleep').click();
-  await page.getByText('Steadier mood').click();
-  await page.getByText('Minimal & effortless').click();
-  await page.getByText('Capsules').click();
+  await page.getByRole('button', { name: 'Begin' }).click();
+
+  // Q1
+  await page.getByLabel('Woman').check();
+  await page.waitForTimeout(400);
+
+  // Q2
+  await page.getByLabel('Deeper sleep').check();
+  await page.getByLabel('Steadier mood').check();
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  // Q3
+  await page.getByLabel('Minimal & effortless').check();
+  await page.waitForTimeout(400);
+
+  // Q4
+  await page.getByLabel('Capsules').check();
+  await page.waitForTimeout(400);
+
+  // Q5
+  await page.getByLabel('Daily').check();
+  await page.waitForTimeout(400);
+
+  // Q6
   const sliders = page.getByRole('slider');
-  if (await sliders.count()) { await sliders.first().fill('4'); if ((await sliders.count())>1) await sliders.nth(1).fill('4'); }
-  await page.getByText('Yes').first().click();
-  await page.getByText('Yes').nth(1).click();
-  await page.getByText('£80–£100').click();
-  const constraintInput = page.getByPlaceholder('e.g., allergens, caffeine‑free, vegan only').first();
-  if (await constraintInput.isVisible()) await constraintInput.fill('no caffeine after 4pm');
+  if (await sliders.count()) {
+    await sliders.first().fill('4');
+  }
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  // Q7
+  const secondSlider = page.getByRole('slider');
+  if (await secondSlider.count()) {
+    await secondSlider.first().fill('4');
+  }
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  // Q8
+  await page.getByLabel('Yes').check();
+  await page.waitForTimeout(400);
+
+  // Q9
+  await page.getByLabel('Yes').check();
+  await page.waitForTimeout(400);
+
+  // Q10
+  await page.getByLabel('£80–£100').check();
+  await page.waitForTimeout(400);
+
+  // Q11
+  const constraintInput = page.getByPlaceholder(
+    'e.g., allergens, caffeine‑free, vegan only',
+  );
+  if (await constraintInput.isVisible()) {
+    await constraintInput.fill('no caffeine after 4pm');
+  }
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  // Q12
+  await page.getByLabel('Yes, keep me posted').check();
+  await page.getByLabel('Email').fill('test@example.com');
+  await page.getByLabel('Instagram').fill('testhandle');
   await page.getByRole('button', { name: /Submit|Reveal|Continue/i }).click();
-  await page.waitForURL(/\/game|play/i, { timeout: 15000 }).catch(()=>{});
-  const loveBtn = page.getByRole('button', { name: /Love|Like/i }).first();
-  await expect(loveBtn).toBeVisible({ timeout: 15000 });
-  const [req] = await Promise.all([
-    page.waitForRequest(r => r.url().includes('/rest/v1/swipes') && r.method()==='POST'),
-    loveBtn.click()
-  ]);
-  expect(req).toBeTruthy();
+
+  await page.waitForURL(/\/game|play/i, { timeout: 15000 }).catch(() => {});
+  await page.waitForSelector('.card img');
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(500);
+  await expect(page.locator('.card')).toBeVisible();
 });

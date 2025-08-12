@@ -24,62 +24,66 @@ test('complete survey and swipe ritual', async ({ page }) => {
   await page.getByRole('button', { name: 'Begin' }).click();
 
   // Q1
-  await page.getByLabel('Mood').check();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('Woman').check();
+  await page.waitForTimeout(400);
 
   // Q2
-  await page.getByLabel('Coffee/Tea').check();
-  await page.getByLabel('Skincare').check();
+  await page.getByLabel('Deeper sleep').check();
+  await page.getByLabel('Steadier mood').check();
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q3
-  await page
-    .getByLabel('I take them consistently as part of my routine')
-    .check();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('Minimal & effortless').check();
+  await page.waitForTimeout(400);
 
   // Q4
-  await page.getByLabel('I use them daily').check();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('Capsules').check();
+  await page.waitForTimeout(400);
 
   // Q5
-  await page.getByLabel('Magnesium').check();
-  await page.getByLabel('Vitamin D').check();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('Daily').check();
+  await page.waitForTimeout(400);
 
   // Q6
-  await page.getByLabel('Capsule or pill').check();
+  const slider1 = page.getByRole('slider').first();
+  if (await slider1.isVisible()) {
+    await slider1.fill('4');
+  }
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q7
-  await page.getByLabel('Better sleep').check();
-  await page.getByLabel('More energy').check();
-  await page.getByLabel('Mood boost').check();
+  const slider2 = page.getByRole('slider').first();
+  if (await slider2.isVisible()) {
+    await slider2.fill('4');
+  }
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q8
-  await page.getByLabel('Ritual & mystic').check();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('Yes').check();
+  await page.waitForTimeout(400);
 
   // Q9
-  await page.getByLabel('Fashion').check();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('Yes').check();
+  await page.waitForTimeout(400);
 
   // Q10
-  await page.getByLabel('Very open').check();
-  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('£80–£100').check();
+  await page.waitForTimeout(400);
 
   // Q11
-  await page.getByLabel('Yes, definitely').check();
+  const constraintInput = page.getByPlaceholder(
+    'e.g., allergens, caffeine‑free, vegan only',
+  );
+  if (await constraintInput.isVisible()) {
+    await constraintInput.fill('no caffeine');
+  }
   await page.getByRole('button', { name: 'Next' }).click();
 
   // Q12
-  await page.getByLabel('Yes').check();
-  await page.getByLabel('Email (optional)').fill('test@example.com');
-  await page
-    .getByLabel('Instagram handle (optional)')
-    .fill('testhandle');
-  await page.getByRole('button', { name: 'Reveal my archetype' }).click();
+  await page.getByLabel('Yes, keep me posted').check();
+  await page.getByLabel('Email').fill('test@example.com');
+  await page.getByLabel('Instagram').fill('testhandle');
+  await page.getByRole('button', { name: /Continue|Reveal/i }).click();
 
   await page.waitForSelector('.card img');
   await expect(

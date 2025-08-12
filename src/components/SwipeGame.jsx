@@ -13,6 +13,7 @@ import {
 } from '../constants.js';
 import { handleImageError } from '../utils/common.js';
 import { useDeck, useTutorial, useSwipeFeedback, useSwipeHistory } from '../hooks/useSwipeGame.js';
+import DesignCanvas from './DesignCanvas.jsx';
 import './SwipeGame.css';
 
 /**
@@ -41,14 +42,14 @@ export default function SwipeGame({ participantId }) {
   const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(deck !== null);
   const { feedbacks, addFeedback } = useSwipeFeedback();
   const { history, addToHistory, undo: undoHistory, clearHistory } = useSwipeHistory();
+  const instagramHandle = config.brand?.instagram || '@noemi';
+  const current = deck?.[0];
 
   useEffect(() => {
     // Fire a game start event whenever the participant ID changes
     onGameStart(participantId);
     loadDesigns();
   }, [participantId, loadDesigns]);
-
-
 
   /**
    * Persist a swipe choice.
@@ -149,6 +150,67 @@ export default function SwipeGame({ participantId }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  const handleShare = useCallback(async () => {
+    if (!current) return;
+    try {
+      const story = document.createElement('canvas');
+      story.width = 1080;
+      story.height = 1920;
+      const ctx = story.getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, story.width, story.height);
+      gradient.addColorStop(0, '#e0d7ff');
+      gradient.addColorStop(1, '#ffe3e3');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, story.width, story.height);
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = current.image_url;
+      });
+      const maxSize = 900;
+      const scale = Math.min(maxSize / img.width, maxSize / img.height);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      const x = (story.width - w) / 2;
+      const y = 300;
+      ctx.drawImage(img, x, y, w, h);
+
+      const logo = new Image();
+      logo.crossOrigin = 'anonymous';
+      await new Promise((resolve) => {
+        logo.onload = resolve;
+        logo.onerror = resolve;
+        logo.src = '/logo.png';
+      });
+      const lw = 240;
+      const lh = (logo.height / logo.width) * lw || 80;
+      ctx.drawImage(logo, story.width - lw - 40, story.height - lh - 40, lw, lh);
+
+      ctx.fillStyle = '#5a4333';
+      ctx.font = '48px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('I loved this design…', story.width / 2, 120);
+      ctx.fillText('Cast your vote now', story.width / 2, 180);
+
+      ctx.font = '36px sans-serif';
+      ctx.fillText(instagramHandle, story.width / 2, story.height - 120);
+      const surveyUrl = window.location.origin;
+      ctx.font = '28px sans-serif';
+      ctx.fillText(surveyUrl, story.width / 2, story.height - 60);
+
+      const blob = await new Promise((resolve) => story.toBlob(resolve, 'image/png'));
+      if (navigator.share && blob) {
+        const file = new File([blob], 'story.png', { type: 'image/png' });
+        await navigator.share({ files: [file], title: 'NOEMI design', text: 'Check this out' });
+      }
+    } catch (err) {
+      console.error('Share failed', err);
+    }
+  }, [current, instagramHandle]);
+
   if (deck === null) {
     return <p>Loading designs…</p>;
   }
@@ -172,11 +234,13 @@ export default function SwipeGame({ participantId }) {
     );
   }
 
-  const current = deck[0];
-
   return (
     <div className="swipe-game">
       <h2 className="sg-title">{config.swipe_ritual.title}</h2>
+      <p className="sg-instructions">Swipe right to like, left to dislike, up to love, down if unsure. You can undo the last swipe.</p>
+      {total > 0 && (
+        <progress className="sg-progress" value={total - deck.length} max={total} aria-label="Swipe progress" />
+      )}
 
       <div className="swipe-container">
         {showTutorial ? (
@@ -185,25 +249,32 @@ export default function SwipeGame({ participantId }) {
               tutorialDir ? ` hint-${tutorialDir}` : ''
             }`}
           >
-            <img
-              src={current.image_url}
-              alt={`Design ${current.id}`}
-              loading="lazy"
-              onError={(e) => handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)}
+            <DesignCanvas 
+              src={current.image_url} 
+              alt={`Design ${current.id}`} 
+              fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
             />
           </div>
         ) : (
           <TinderCard key={current.id} onSwipe={handleSwipe}>
             <div className="card">
-              <img
-                src={current.image_url}
-                alt={`Design ${current.id}`}
-                loading="lazy"
-                onError={(e) => handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)}
+              <DesignCanvas 
+                src={current.image_url} 
+                alt={`Design ${current.id}`} 
+                fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
               />
             </div>
           </TinderCard>
         )}
+
+        <button
+          type="button"
+          aria-label="Share to Instagram"
+          className="instagram-share-btn"
+          onClick={handleShare}
+        >
+          IG
+        </button>
 
         <span className={`swipe-label left${tutorialDir === SWIPE_DIRECTIONS.LEFT ? ' active' : ''}`}>
           Dislike
