@@ -16,6 +16,7 @@ export default function App() {
   const initialId = storedId || (playMode ? 'guest' : null);
   const [step, setStep] = useState(initialStep);
   const [participantId, setParticipantId] = useState(initialId);
+  const [showTerms, setShowTerms] = useState(false);
 
   const handleComplete = (id) => {
     setParticipantId(id);
@@ -55,6 +56,26 @@ export default function App() {
       )}
       {step === 'survey' && <Survey onComplete={handleComplete} />}
       {step === 'game' && participantId && <SwipeGame participantId={participantId} />}
+      <div className="terms-root">
+        <button
+          type="button"
+          className="terms-button"
+          onClick={() => setShowTerms((s) => !s)}
+          onMouseEnter={() => setShowTerms(true)}
+          onMouseLeave={() => setShowTerms(false)}
+          aria-label="View terms"
+        >
+          i
+        </button>
+        {showTerms && (
+          <div className="terms-tooltip">
+            By participating, you agree that all imagery, brand concepts, and creative assets shown in this
+            survey are proprietary to NOEMI. No portion may be copied, shared, or reproduced. Your responses
+            may be used in anonymised form for research and marketing purposes. Your data will not be sold to
+            third parties.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
