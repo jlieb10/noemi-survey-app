@@ -7,7 +7,6 @@
           "--no-sandbox"
         ]
       },
-      "numberOfRuns": 1,
       "numberOfRuns": 1
     },
     "assert": {
