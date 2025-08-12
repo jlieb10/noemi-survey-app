@@ -199,6 +199,8 @@ export default function Survey({ onComplete }) {
                   onError={(e) => handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)}
                   width="300"
                   height="300"
+                  {...(opt.image.width ? { width: opt.image.width } : {})}
+                  {...(opt.image.height ? { height: opt.image.height } : {})}
                   style={{
                     width: '100%',
                     height: 'auto',
