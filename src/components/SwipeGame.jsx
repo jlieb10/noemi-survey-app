@@ -1,6 +1,16 @@
+<<<<<<< HEAD
 import { useCallback, useEffect } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
 import TinderCard from 'react-tinder-card';
+=======
+import { useCallback, useEffect, useState } from 'react';
+import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
+import TinderCard from 'react-tinder-card';
+<<<<<<<< HEAD:src/SwipeGame.jsx
+import config from '../docs/noemi-survey-config.json';
+import { supabase } from './supabaseClient.js';
+========
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
 import config from '../../docs/noemi-survey-config.json';
 import { supabase } from '../services/supabaseClient.js';
 import {
@@ -14,6 +24,10 @@ import {
 import { handleImageError } from '../utils/common.js';
 import { useDeck, useTutorial, useSwipeFeedback, useSwipeHistory } from '../hooks/useSwipeGame.js';
 import DesignCanvas from './DesignCanvas.jsx';
+<<<<<<< HEAD
+=======
+>>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1):src/components/SwipeGame.jsx
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
 import './SwipeGame.css';
 
 /**
@@ -38,12 +52,30 @@ import './SwipeGame.css';
  * @returns {JSX.Element} The swipe game interface
  */
 export default function SwipeGame({ participantId }) {
+<<<<<<< HEAD
   const { deck, setDeck, loadDesigns, resetDeck } = useDeck();
   const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(deck !== null);
+=======
+<<<<<<<< HEAD:src/SwipeGame.jsx
+  const [deck, setDeck] = useState(null);
+  const [initialDeck, setInitialDeck] = useState([]);
+
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [showTutorial, setShowTutorial] = useState(true);
+  const [tutorialDir, setTutorialDir] = useState(null);
+========
+  const { deck, setDeck, loadDesigns, resetDeck, total } = useDeck();
+  const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(!!deck);
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
   const { feedbacks, addFeedback } = useSwipeFeedback();
   const { history, addToHistory, undo: undoHistory, clearHistory } = useSwipeHistory();
   const instagramHandle = config.brand?.instagram || '@noemi';
   const current = deck?.[0];
+<<<<<<< HEAD
+=======
+>>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1):src/components/SwipeGame.jsx
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
 
   useEffect(() => {
     // Fire a game start event whenever the participant ID changes
@@ -79,7 +111,10 @@ export default function SwipeGame({ participantId }) {
    * @param {string} cardId
    * @returns {Promise<void>}
    */
+<<<<<<< HEAD
 
+=======
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
   const removeSwipe = useCallback(async (cardId) => {
     try {
       if (supabase) {
@@ -105,7 +140,15 @@ export default function SwipeGame({ participantId }) {
     if (!choice || !deck?.length) return;
 
     const current = deck[0];
+<<<<<<< HEAD
     addToHistory(deck, current);
+=======
+<<<<<<<< HEAD:src/SwipeGame.jsx
+    setHistory((prev) => [...prev, { deck: [...deck], card: current }]);
+========
+    addToHistory(deck, current);
+>>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1):src/components/SwipeGame.jsx
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
 
     // Show quick emoji feedback
     addFeedback(ICON_MAP[direction], FEEDBACK_TIMING.DISPLAY_DURATION_MS);
@@ -116,7 +159,15 @@ export default function SwipeGame({ participantId }) {
     });
 
     await saveSwipe(current.id, choice);
+<<<<<<< HEAD
   }, [deck, saveSwipe, addToHistory, addFeedback, setDeck]);
+=======
+<<<<<<<< HEAD:src/SwipeGame.jsx
+  }, [deck, saveSwipe]);
+========
+  }, [deck, saveSwipe, addToHistory, addFeedback, setDeck]);
+>>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1):src/components/SwipeGame.jsx
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
 
   /**
    * Restore the previous deck state and remove persisted swipe.
@@ -150,6 +201,7 @@ export default function SwipeGame({ participantId }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+<<<<<<< HEAD
   const handleShare = useCallback(async () => {
     if (!current) return;
     try {
@@ -211,6 +263,8 @@ export default function SwipeGame({ participantId }) {
     }
   }, [current, instagramHandle]);
 
+=======
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
   if (deck === null) {
     return <p>Loading designs…</p>;
   }
@@ -234,6 +288,7 @@ export default function SwipeGame({ participantId }) {
     );
   }
 
+<<<<<<< HEAD
   return (
     <div className="swipe-game">
       <h2 className="sg-title">{config.swipe_ritual.title}</h2>
@@ -241,6 +296,13 @@ export default function SwipeGame({ participantId }) {
       {total > 0 && (
         <progress className="sg-progress" value={total - deck.length} max={total} aria-label="Swipe progress" />
       )}
+=======
+  const current = deck[0];
+
+  return (
+    <div className="swipe-game">
+      <h2 className="sg-title">{config.swipe_ritual.title}</h2>
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
 
       <div className="swipe-container">
         {showTutorial ? (
@@ -249,24 +311,68 @@ export default function SwipeGame({ participantId }) {
               tutorialDir ? ` hint-${tutorialDir}` : ''
             }`}
           >
+<<<<<<< HEAD
             <DesignCanvas 
               src={current.image_url} 
               alt={`Design ${current.id}`} 
               fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
+=======
+<<<<<<<< HEAD:src/SwipeGame.jsx
+            <img
+              src={current.image_url}
+              alt={`Design ${current.id}`}
+              loading="lazy"
+              width="300"
+              height="300"
+              onError={(e) => {
+                e.currentTarget.src = '/vite.svg';
+              }}
+========
+            <DesignCanvas 
+              src={current.image_url} 
+              alt={`Design ${current.id}`}
+              fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
+>>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1):src/components/SwipeGame.jsx
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
             />
           </div>
         ) : (
           <TinderCard key={current.id} onSwipe={handleSwipe}>
             <div className="card">
+<<<<<<< HEAD
               <DesignCanvas 
                 src={current.image_url} 
                 alt={`Design ${current.id}`} 
                 fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
+=======
+<<<<<<<< HEAD:src/SwipeGame.jsx
+              <img
+                src={current.image_url}
+                alt={`Design ${current.id}`}
+                loading="lazy"
+                width="300"
+                height="300"
+                onError={(e) => {
+                  e.currentTarget.src = '/vite.svg';
+                }}
+========
+              <DesignCanvas 
+                src={current.image_url} 
+                alt={`Design ${current.id}`}
+                fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
+>>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1):src/components/SwipeGame.jsx
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
               />
             </div>
           </TinderCard>
         )}
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/SwipeGame.jsx
+        <span className={`swipe-label left${tutorialDir === 'left' ? ' active' : ''}`}>
+========
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
         <button
           type="button"
           aria-label="Share to Instagram"
@@ -277,6 +383,10 @@ export default function SwipeGame({ participantId }) {
         </button>
 
         <span className={`swipe-label left${tutorialDir === SWIPE_DIRECTIONS.LEFT ? ' active' : ''}`}>
+<<<<<<< HEAD
+=======
+>>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1):src/components/SwipeGame.jsx
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
           Dislike
         </span>
         <span className={`swipe-label right${tutorialDir === SWIPE_DIRECTIONS.RIGHT ? ' active' : ''}`}>

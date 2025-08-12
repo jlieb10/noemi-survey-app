@@ -28,7 +28,6 @@ export default function Survey({ onComplete }) {
   // Fire survey start once on mount
   useEffect(() => {
     onSurveyStart();
-
   }, []);
 
   // Clear any pending auto-advance timer on unmount
@@ -201,11 +200,6 @@ export default function Survey({ onComplete }) {
                   height="300"
                   {...(opt.image.width ? { width: opt.image.width } : {})}
                   {...(opt.image.height ? { height: opt.image.height } : {})}
-                  style={{
-                    width: '100%',
-                  onError={(e) => {
-                    e.currentTarget.src = '/vite.svg';
-                  }}
                   style={{
                     width: '100%',
                     height: opt.image.height ? opt.image.height : 'auto',

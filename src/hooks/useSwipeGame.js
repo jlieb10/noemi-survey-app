@@ -86,7 +86,11 @@ export function useTutorial(shouldShowTutorial) {
 export function useSwipeFeedback() {
   const [feedbacks, setFeedbacks] = useState([]);
 
+<<<<<<< HEAD
   const addFeedback = useCallback((icon, duration = FEEDBACK_TIMING.DISPLAY_DURATION_MS) => {
+=======
+  const addFeedback = useCallback((icon, duration = 1500) => {
+>>>>>>> e718470 (Complete comprehensive codebase cleanup and refactoring - Phase 1)
     const id = Date.now();
     setFeedbacks((prev) => [...prev, { icon, id }]);
     setTimeout(() => {
