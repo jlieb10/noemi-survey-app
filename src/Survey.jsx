@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
 import { onSurveyStart, onQuestionAnswered, onSurveyComplete } from './analytics.js';
@@ -14,6 +14,8 @@ export default function Survey({ onComplete }) {
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Timer for auto-advancing on single-select
+  const autoNextRef = useRef(null);
 
   const current = questions[index];
 
@@ -22,6 +24,9 @@ export default function Survey({ onComplete }) {
     onSurveyStart();
 
   }, []);
+
+  // Clear any pending auto-advance timer on unmount
+  useEffect(() => () => clearTimeout(autoNextRef.current), []);
 
   const handleChange = (id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
@@ -51,23 +56,23 @@ export default function Survey({ onComplete }) {
   };
 
   const renderOtherOption = (q, limit) => (
-    <label style={{ display: 'block', marginTop: '0.5rem' }}>
+    <label className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
       <input
         type="checkbox"
         checked={(answers[q.id] || []).includes('other')}
         onChange={() => handleMultiChange(q.id, 'other', limit, q.exclusive_option_id)}
-      />{' '}
-      Other
+      />
+      <span>Other</span>
       {(answers[q.id] || []).includes('other') && (
         <input
           type="text"
           value={answers[`${q.id}_other`] || ''}
           onChange={(e) => handleChange(`${q.id}_other`, e.target.value)}
           style={{
-            marginLeft: '0.5rem',
-            padding: '0.25rem',
+            marginLeft: 'var(--space-2)',
+            padding: 'var(--space-1)',
             border: '1px solid #ccc',
-            borderRadius: '4px',
+            borderRadius: 'var(--radius-sm)',
           }}
         />
       )}
@@ -77,6 +82,13 @@ export default function Survey({ onComplete }) {
   const handleNext = () => {
     if (index < questions.length - 1) setIndex((i) => i + 1);
     else handleSubmit();
+  };
+
+  /**
+   * Navigate back to the previous question.
+   */
+  const handleBack = () => {
+    setIndex((i) => Math.max(0, i - 1));
   };
 
   /**
@@ -120,21 +132,43 @@ export default function Survey({ onComplete }) {
   const renderQuestion = (q) => {
     switch (q.type) {
       case 'single_select':
+        return (
+          <fieldset className="stack" role="radiogroup" aria-labelledby={`${q.id}-label`}>
+            <legend id={`${q.id}-label`} className="sr-only">{q.prompt}</legend>
+            {q.options.map((opt) => (
+              <label key={opt.id} className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <input
+                  type="radio"
+                  name={q.id}
+                  value={opt.id}
+                  checked={answers[q.id] === opt.id}
+                  onChange={() => {
+                    handleChange(q.id, opt.id);
+                    clearTimeout(autoNextRef.current);
+                    autoNextRef.current = setTimeout(() => handleNext(), 300);
+                  }}
+                />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </fieldset>
+        );
       case 'multi_select':
         return (
-          <div>
+          <fieldset className="stack" aria-labelledby={`${q.id}-label`}>
+            <legend id={`${q.id}-label`} className="sr-only">{q.prompt}</legend>
             {q.options.map((opt) => (
-              <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
+              <label key={opt.id} className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                 <input
                   type="checkbox"
                   checked={(answers[q.id] || []).includes(opt.id)}
                   onChange={() => handleMultiChange(q.id, opt.id, q.max_select, q.exclusive_option_id)}
-                />{' '}
-                {opt.label}
+                />
+                <span>{opt.label}</span>
               </label>
             ))}
             {renderOtherOption(q, q.max_select)}
-          </div>
+          </fieldset>
         );
       case 'image_select':
         return (
@@ -165,7 +199,7 @@ export default function Survey({ onComplete }) {
                     border: (answers[q.id] || []).includes(opt.id) ? '2px solid #C6A25A' : '2px solid transparent',
                   }}
                 />
-                <div style={{ textAlign: 'center', marginTop: '0.25rem' }}>{opt.label}</div>
+                <div style={{ textAlign: 'center', marginTop: 'var(--space-1)' }}>{opt.label}</div>
               </label>
             ))}
           </div>
@@ -185,7 +219,7 @@ export default function Survey({ onComplete }) {
         return (
           <div>
             {q.options.map((opt) => (
-              <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
+              <label key={opt.id} className="stack" style={{ display: 'block' }}>
                 <input
                   type="checkbox"
                   checked={(answers[q.id] || []).includes(opt.id)}
@@ -207,7 +241,7 @@ export default function Survey({ onComplete }) {
         return (
           <div>
             {q.options.map((opt) => (
-              <label key={opt.id} style={{ display: 'block', marginTop: '0.5rem' }}>
+              <label key={opt.id} className="stack" style={{ display: 'block' }}>
                 <input
                   type="checkbox"
                   checked={val.join === opt.id}
@@ -217,16 +251,16 @@ export default function Survey({ onComplete }) {
               </label>
             ))}
             {val.join === 'yes' && q.follow_ups_if_yes && (
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div className="stack" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                 {q.follow_ups_if_yes.map((fu) => (
-                  <label key={fu.id} style={{ display: 'block' }}>
+                  <label key={fu.id} className="stack" style={{ display: 'block' }}>
                     {fu.label}
                     <input
                       type={fu.type === 'email' ? 'email' : 'text'}
                       value={val[fu.id] || ''}
                       onChange={(e) => handleChange(q.id, { ...val, [fu.id]: e.target.value })}
                       maxLength={fu.max_chars}
-                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
+                      style={{ width: '100%', padding: 'var(--space-2)', border: '1px solid #ccc', borderRadius: 'var(--radius-sm)' }}
                     />
                   </label>
                 ))}
@@ -241,36 +275,26 @@ export default function Survey({ onComplete }) {
   };
 
   return (
-    <div className="survey-wrapper">
-      <div style={{ marginBottom: '1rem' }}>Question {index + 1} of {questions.length}</div>
+    <div className="survey-wrapper stack">
+      <div className="stack" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button type="button" onClick={handleBack} disabled={index === 0} aria-label="Go back" className="lux-button-secondary">Back</button>
+        <span>Question {index + 1} of {questions.length}</span>
+      </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleNext();
         }}
-        style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+        className="stack"
       >
-        <h2 style={{ marginBottom: '0.5rem' }}>{current.prompt}</h2>
+        <h2 className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt}</h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button
-            type="submit"
-            disabled={loading}
-            className="lux-button-primary"
-          >
-            {loading
-              ? 'Submitting…'
-              : index === questions.length - 1
-              ? config.survey.meta.end_cta
-              : 'Next'}
+        <div className="stack" style={{ display: 'flex', gap: 'var(--space-3)' }}>
+          <button type="submit" disabled={loading} className="lux-button-primary">
+            {loading ? 'Submitting…' : index === questions.length - 1 ? config.survey.meta.end_cta : 'Next'}
           </button>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleNext}
-            className="lux-button-secondary"
-          >
+          <button type="button" disabled={loading} onClick={handleNext} className="lux-button-secondary">
             Skip
           </button>
         </div>
