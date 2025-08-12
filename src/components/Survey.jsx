@@ -197,8 +197,11 @@ export default function Survey({ onComplete }) {
                   src={`${config.survey.meta.assets_base}${opt.image.src}`}
                   alt={opt.image.alt}
                   onError={(e) => handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)}
+                  width="300"
+                  height="300"
                   style={{
                     width: '100%',
+                    height: 'auto',
                     borderRadius: '12px',
                     border: (answers[q.id] || []).includes(opt.id) ? '2px solid #C6A25A' : '2px solid transparent',
                   }}
