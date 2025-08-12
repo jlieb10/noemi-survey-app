@@ -34,6 +34,8 @@ const KEY_MAP = {
 export default function SwipeGame({ participantId }) {
   const [deck, setDeck] = useState(null);
   const [initialDeck, setInitialDeck] = useState([]);
+  // Total cards for progress display
+  const total = initialDeck.length;
 
   const [feedbacks, setFeedbacks] = useState([]);
   const [history, setHistory] = useState([]);
@@ -222,6 +224,10 @@ export default function SwipeGame({ participantId }) {
   return (
     <div className="swipe-game">
       <h2 className="sg-title">{config.swipe_ritual.title}</h2>
+      <p className="sg-instructions">Swipe right to like, left to dislike, up to love, down if unsure. You can undo the last swipe.</p>
+      {total > 0 && (
+        <progress className="sg-progress" value={total - deck.length} max={total} aria-label="Swipe progress" />
+      )}
 
       <div className="swipe-container">
         {showTutorial ? (
@@ -234,6 +240,7 @@ export default function SwipeGame({ participantId }) {
               src={current.image_url}
               alt={`Design ${current.id}`}
               loading="lazy"
+              decoding="async"
               onError={(e) => {
                 e.currentTarget.src = '/vite.svg';
               }}
@@ -246,6 +253,7 @@ export default function SwipeGame({ participantId }) {
                 src={current.image_url}
                 alt={`Design ${current.id}`}
                 loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   e.currentTarget.src = '/vite.svg';
                 }}
