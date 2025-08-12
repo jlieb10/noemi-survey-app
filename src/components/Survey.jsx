@@ -287,6 +287,78 @@ export default function Survey({ onComplete }) {
           </div>
         );
       }
+      case 'scale': {
+        const currentValue = answers[q.id] || null;
+        return (
+          <fieldset className="scale-question" aria-labelledby={`${q.id}-label`}>
+            <legend id={`${q.id}-label`} className="sr-only">{q.prompt}</legend>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 'var(--space-3)',
+              margin: 'var(--space-4) 0'
+            }}>
+              <span style={{ 
+                fontSize: '0.9rem', 
+                color: 'var(--color-text-secondary)', 
+                minWidth: '60px',
+                textAlign: 'right'
+              }}>
+                {q.left}
+              </span>
+              <div style={{ 
+                display: 'flex', 
+                gap: 'var(--space-2)',
+                flex: 1,
+                justifyContent: 'center'
+              }}>
+                {Array.from({ length: q.max - q.min + 1 }, (_, i) => {
+                  const value = q.min + i;
+                  return (
+                    <label 
+                      key={value}
+                      style={{ 
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                        padding: 'var(--space-2)'
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name={q.id}
+                        value={value}
+                        checked={currentValue === value}
+                        onChange={() => handleChange(q.id, value)}
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          marginBottom: 'var(--space-1)'
+                        }}
+                      />
+                      <span style={{ 
+                        fontSize: '0.8rem',
+                        color: 'var(--color-text-secondary)'
+                      }}>
+                        {value}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              <span style={{ 
+                fontSize: '0.9rem', 
+                color: 'var(--color-text-secondary)', 
+                minWidth: '60px',
+                textAlign: 'left'
+              }}>
+                {q.right}
+              </span>
+            </div>
+          </fieldset>
+        );
+      }
       default:
         return <p>Unsupported question type: {q.type}</p>;
     }

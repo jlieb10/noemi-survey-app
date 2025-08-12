@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/check-env.mjs && vite build",
     "lint": "eslint . --fix",
     "preview": "vite preview",
     "test": "vitest run --environment jsdom src",
     "test:e2e": "playwright test",
-    "postinstall": "bash -lc \"if [ -z \\\"\\\" ]; then npx playwright install; fi\""
+    "postinstall": "node scripts/setup-playwright.mjs"
   },
   "dependencies": {
     "@react-spring/web": "^9.7.5",
