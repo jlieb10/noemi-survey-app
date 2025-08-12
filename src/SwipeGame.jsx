@@ -3,6 +3,7 @@ import { onGameStart, onSwipe as trackSwipe } from './analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../docs/noemi-survey-config.json';
 import { supabase } from './supabaseClient.js';
+import DesignCanvas from './DesignCanvas.jsx';
 import './SwipeGame.css';
 
 const CHOICE_MAP = {
@@ -41,6 +42,8 @@ export default function SwipeGame({ participantId }) {
   const [history, setHistory] = useState([]);
   const [showTutorial, setShowTutorial] = useState(true);
   const [tutorialDir, setTutorialDir] = useState(null);
+  const instagramHandle = config.brand?.instagram || '@noemi';
+  const current = deck?.[0];
 
   useEffect(() => {
     // Fire a game start event whenever the participant ID changes
@@ -140,8 +143,8 @@ export default function SwipeGame({ participantId }) {
     const choice = CHOICE_MAP[direction];
     if (!choice || !deck?.length) return;
 
-    const current = deck[0];
-    setHistory((prev) => [...prev, { deck: [...deck], card: current }]);
+    const card = deck[0];
+    setHistory((prev) => [...prev, { deck: [...deck], card }]);
 
     // REVISIT:
     // Show quick emoji feedback
@@ -156,7 +159,7 @@ export default function SwipeGame({ participantId }) {
       return direction === 'down' ? [...rest, first] : rest;
     });
 
-    await saveSwipe(current.id, choice);
+    await saveSwipe(card.id, choice);
   }, [deck, saveSwipe]);
 
   /**
@@ -196,6 +199,67 @@ export default function SwipeGame({ participantId }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  const handleShare = useCallback(async () => {
+    if (!current) return;
+    try {
+      const story = document.createElement('canvas');
+      story.width = 1080;
+      story.height = 1920;
+      const ctx = story.getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, story.width, story.height);
+      gradient.addColorStop(0, '#e0d7ff');
+      gradient.addColorStop(1, '#ffe3e3');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, story.width, story.height);
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = current.image_url;
+      });
+      const maxSize = 900;
+      const scale = Math.min(maxSize / img.width, maxSize / img.height);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      const x = (story.width - w) / 2;
+      const y = 300;
+      ctx.drawImage(img, x, y, w, h);
+
+      const logo = new Image();
+      logo.crossOrigin = 'anonymous';
+      await new Promise((resolve) => {
+        logo.onload = resolve;
+        logo.onerror = resolve;
+        logo.src = '/logo.png';
+      });
+      const lw = 240;
+      const lh = (logo.height / logo.width) * lw || 80;
+      ctx.drawImage(logo, story.width - lw - 40, story.height - lh - 40, lw, lh);
+
+      ctx.fillStyle = '#5a4333';
+      ctx.font = '48px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('I loved this design…', story.width / 2, 120);
+      ctx.fillText('Cast your vote now', story.width / 2, 180);
+
+      ctx.font = '36px sans-serif';
+      ctx.fillText(instagramHandle, story.width / 2, story.height - 120);
+      const surveyUrl = window.location.origin;
+      ctx.font = '28px sans-serif';
+      ctx.fillText(surveyUrl, story.width / 2, story.height - 60);
+
+      const blob = await new Promise((resolve) => story.toBlob(resolve, 'image/png'));
+      if (navigator.share && blob) {
+        const file = new File([blob], 'story.png', { type: 'image/png' });
+        await navigator.share({ files: [file], title: 'NOEMI design', text: 'Check this out' });
+      }
+    } catch (err) {
+      console.error('Share failed', err);
+    }
+  }, [current, instagramHandle]);
+
   if (deck === null) {
     return <p>Loading designs…</p>;
   }
@@ -219,8 +283,6 @@ export default function SwipeGame({ participantId }) {
     );
   }
 
-  const current = deck[0];
-
   return (
     <div className="swipe-game">
       <h2 className="sg-title">{config.swipe_ritual.title}</h2>
@@ -236,31 +298,46 @@ export default function SwipeGame({ participantId }) {
               tutorialDir ? ` hint-${tutorialDir}` : ''
             }`}
           >
-            <img
-              src={current.image_url}
-              alt={`Design ${current.id}`}
-              loading="lazy"
-              decoding="async"
-              onError={(e) => {
-                e.currentTarget.src = '/vite.svg';
-              }}
-            />
+            /**
+//             <img
+//               src={current.image_url}
+//               alt={`Design ${current.id}`}
+//               loading="lazy"
+//               decoding="async"
+//               onError={(e) => {
+//                 e.currentTarget.src = '/vite.svg';
+//               }}
+//             />
+            */
+            <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
           </div>
         ) : (
           <TinderCard key={current.id} onSwipe={handleSwipe}>
             <div className="card">
-              <img
-                src={current.image_url}
-                alt={`Design ${current.id}`}
-                loading="lazy"
-                decoding="async"
-                onError={(e) => {
-                  e.currentTarget.src = '/vite.svg';
-                }}
-              />
+            /**            
+//               <img
+//                 src={current.image_url}
+//                 alt={`Design ${current.id}`}
+//                 loading="lazy"
+//                 decoding="async"
+//                 onError={(e) => {
+//                   e.currentTarget.src = '/vite.svg';
+//                 }}
+//               />
+              */
+              <DesignCanvas src={current.image_url} alt={`Design ${current.id}`} />
             </div>
           </TinderCard>
         )}
+
+        <button
+          type="button"
+          aria-label="Share to Instagram"
+          className="instagram-share-btn"
+          onClick={handleShare}
+        >
+          IG
+        </button>
 
         <span className={`swipe-label left${tutorialDir === 'left' ? ' active' : ''}`}>
           Dislike
