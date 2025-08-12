@@ -22,7 +22,6 @@ export default function Survey({ onComplete }) {
   // Fire survey start once on mount
   useEffect(() => {
     onSurveyStart();
-
   }, []);
 
   // Clear any pending auto-advance timer on unmount

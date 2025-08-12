@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from './analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../docs/noemi-survey-config.json';
-import { supabase } from './supabaseClient.js';
+import { supabase, apiConfig } from './supabaseClient.js';
 import DesignCanvas from './DesignCanvas.jsx';
 import './SwipeGame.css';
 
@@ -25,6 +25,116 @@ const KEY_MAP = {
   ArrowLeft: 'left',
   ArrowUp: 'up',
   ArrowDown: 'down',
+};
+
+// Story share configuration
+const STORY_CONFIG = {
+  width: 1080,
+  height: 1920,
+  maxImageSize: 900,
+  logoWidth: 240,
+  imageY: 300,
+  gradient: {
+    start: '#e0d7ff',
+    end: '#ffe3e3'
+  },
+  text: {
+    color: '#5a4333',
+    title: 'I loved this design…',
+    subtitle: 'Cast your vote now',
+    titleFont: '48px serif',
+    subtitleFont: '36px sans-serif',
+    urlFont: '28px sans-serif'
+  }
+};
+
+/**
+ * Create a story canvas with gradient background
+ * @returns {object} Canvas context and canvas element
+ */
+const createStoryCanvas = () => {
+  const story = document.createElement('canvas');
+  story.width = STORY_CONFIG.width;
+  story.height = STORY_CONFIG.height;
+  const ctx = story.getContext('2d');
+  
+  const gradient = ctx.createLinearGradient(0, 0, story.width, story.height);
+  gradient.addColorStop(0, STORY_CONFIG.gradient.start);
+  gradient.addColorStop(1, STORY_CONFIG.gradient.end);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, story.width, story.height);
+  
+  return { ctx, story };
+};
+
+/**
+ * Load and draw an image with scaling
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @param {string} src - Image source URL
+ * @param {number} maxSize - Maximum size for scaling
+ * @param {number} y - Y position
+ * @returns {Promise<void>}
+ */
+const drawScaledImage = async (ctx, src, maxSize, y) => {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = src;
+  });
+  
+  const scale = Math.min(maxSize / img.width, maxSize / img.height);
+  const w = img.width * scale;
+  const h = img.height * scale;
+  const x = (STORY_CONFIG.width - w) / 2;
+  
+  ctx.drawImage(img, x, y, w, h);
+};
+
+/**
+ * Draw logo on canvas
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @returns {Promise<void>}
+ */
+const drawLogo = async (ctx) => {
+  const logo = new Image();
+  logo.crossOrigin = 'anonymous';
+  
+  await new Promise((resolve) => {
+    logo.onload = resolve;
+    logo.onerror = resolve;
+    logo.src = '/logo.png';
+  });
+  
+  const lw = STORY_CONFIG.logoWidth;
+  const lh = (logo.height / logo.width) * lw || 80;
+  ctx.drawImage(logo, STORY_CONFIG.width - lw - 40, STORY_CONFIG.height - lh - 40, lw, lh);
+};
+
+/**
+ * Add text content to story canvas
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @param {string} instagramHandle - Instagram handle to display
+ */
+const addStoryText = (ctx, instagramHandle) => {
+  ctx.fillStyle = STORY_CONFIG.text.color;
+  ctx.textAlign = 'center';
+  
+  // Title text
+  ctx.font = STORY_CONFIG.text.titleFont;
+  ctx.fillText(STORY_CONFIG.text.title, STORY_CONFIG.width / 2, 120);
+  ctx.fillText(STORY_CONFIG.text.subtitle, STORY_CONFIG.width / 2, 180);
+  
+  // Instagram handle
+  ctx.font = STORY_CONFIG.text.subtitleFont;
+  ctx.fillText(instagramHandle, STORY_CONFIG.width / 2, STORY_CONFIG.height - 120);
+  
+  // Survey URL
+  const surveyUrl = window.location.origin;
+  ctx.font = STORY_CONFIG.text.urlFont;
+  ctx.fillText(surveyUrl, STORY_CONFIG.width / 2, STORY_CONFIG.height - 60);
 };
 
 /**
@@ -94,8 +204,8 @@ export default function SwipeGame({ participantId }) {
           card_id: cardId,
           choice,
         });
-      } else {
-        await fetch('https://lzzgroksxrqkwyvykmka.supabase.co/rest/v1/swipes', {
+      } else if (apiConfig.baseUrl) {
+        await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.swipes}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ participant_id: participantId, card_id: cardId, choice }),
@@ -103,7 +213,7 @@ export default function SwipeGame({ participantId }) {
       }
       trackSwipe(participantId, cardId, choice);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to save swipe:', err);
     }
   }, [participantId]);
 
@@ -120,9 +230,9 @@ export default function SwipeGame({ participantId }) {
           .from('swipes')
           .delete()
           .match({ participant_id: participantId, card_id: cardId });
-      } else {
+      } else if (apiConfig.baseUrl) {
         await fetch(
-          `https://lzzgroksxrqkwyvykmka.supabase.co/rest/v1/swipes?participant_id=eq.${participantId}&card_id=eq.${cardId}`,
+          `${apiConfig.baseUrl}${apiConfig.endpoints.swipes}?participant_id=eq.${participantId}&card_id=eq.${cardId}`,
           {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -130,7 +240,7 @@ export default function SwipeGame({ participantId }) {
         );
       }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to remove swipe:', err);
     }
   }, [participantId]);
 
@@ -201,54 +311,13 @@ export default function SwipeGame({ participantId }) {
 
   const handleShare = useCallback(async () => {
     if (!current) return;
+    
     try {
-      const story = document.createElement('canvas');
-      story.width = 1080;
-      story.height = 1920;
-      const ctx = story.getContext('2d');
-      const gradient = ctx.createLinearGradient(0, 0, story.width, story.height);
-      gradient.addColorStop(0, '#e0d7ff');
-      gradient.addColorStop(1, '#ffe3e3');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, story.width, story.height);
-
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = current.image_url;
-      });
-      const maxSize = 900;
-      const scale = Math.min(maxSize / img.width, maxSize / img.height);
-      const w = img.width * scale;
-      const h = img.height * scale;
-      const x = (story.width - w) / 2;
-      const y = 300;
-      ctx.drawImage(img, x, y, w, h);
-
-      const logo = new Image();
-      logo.crossOrigin = 'anonymous';
-      await new Promise((resolve) => {
-        logo.onload = resolve;
-        logo.onerror = resolve;
-        logo.src = '/logo.png';
-      });
-      const lw = 240;
-      const lh = (logo.height / logo.width) * lw || 80;
-      ctx.drawImage(logo, story.width - lw - 40, story.height - lh - 40, lw, lh);
-
-      ctx.fillStyle = '#5a4333';
-      ctx.font = '48px serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('I loved this design…', story.width / 2, 120);
-      ctx.fillText('Cast your vote now', story.width / 2, 180);
-
-      ctx.font = '36px sans-serif';
-      ctx.fillText(instagramHandle, story.width / 2, story.height - 120);
-      const surveyUrl = window.location.origin;
-      ctx.font = '28px sans-serif';
-      ctx.fillText(surveyUrl, story.width / 2, story.height - 60);
+      const { ctx, story } = createStoryCanvas();
+      
+      await drawScaledImage(ctx, current.image_url, STORY_CONFIG.maxImageSize, STORY_CONFIG.imageY);
+      await drawLogo(ctx);
+      addStoryText(ctx, instagramHandle);
 
       const blob = await new Promise((resolve) => story.toBlob(resolve, 'image/png'));
       if (navigator.share && blob) {
@@ -256,7 +325,7 @@ export default function SwipeGame({ participantId }) {
         await navigator.share({ files: [file], title: 'NOEMI design', text: 'Check this out' });
       }
     } catch (err) {
-      console.error('Share failed', err);
+      console.error('Share failed:', err);
     }
   }, [current, instagramHandle]);
 
