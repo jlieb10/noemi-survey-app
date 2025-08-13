@@ -2,14 +2,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
 const baseConfig = {
   plugins: [react()],
 };
 
 // Only add test configuration when running Vitest
-if (process.env.VITEST) {
+if (typeof process !== 'undefined' && process.env.VITEST) {
   baseConfig.test = {
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.js'],
@@ -36,5 +34,7 @@ if (process.env.VITEST) {
         }
       }
     }
-  }
-});
+  };
+}
+
+export default defineConfig(baseConfig);

@@ -1,5 +1,4 @@
 /* eslint-env node */
-/* global process */
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 
