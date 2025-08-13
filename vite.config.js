@@ -4,7 +4,13 @@ import react from '@vitejs/plugin-react';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  test: {
+const baseConfig = {
+  plugins: [react()],
+};
+
+// Only add test configuration when running Vitest
+if (process.env.VITEST) {
+  baseConfig.test = {
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.js'],
     coverage: {
