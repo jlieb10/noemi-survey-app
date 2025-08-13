@@ -263,7 +263,7 @@ export default function Survey({ onComplete }) {
             >
               <option value="">Select an option</option>
               {subQ.options.map((option, index) => (
-                <option key={index} value={option.toLowerCase().replace(/[^a-z0-9]/g, '_')}>
+                <option key={index} value={normalizeOptionValue(option)}>
                   {option}
                 </option>
               ))}
