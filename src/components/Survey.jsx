@@ -708,7 +708,7 @@ export default function Survey({ onComplete }) {
         className="stack"
         aria-labelledby="current-question"
       >
-        <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt || current.title}</h2>
+        <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt || current.title || "Untitled Question"}</h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {validationError && <p style={{ color: 'red', marginTop: 'var(--space-2)' }}>{validationError}</p>}
