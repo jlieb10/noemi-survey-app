@@ -28,6 +28,15 @@ export default function Survey({ onComplete }) {
 
   const current = questions[index];
 
+  /**
+   * Normalizes option values for consistent handling
+   * @param {string} option - The option string to normalize
+   * @returns {string} Normalized option value
+   */
+  const normalizeOptionValue = (option) => {
+    return option.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  };
+
   // Fire survey start once on mount and get user location
   useEffect(() => {
     onSurveyStart();
@@ -119,20 +128,25 @@ export default function Survey({ onComplete }) {
   );
 
   /**
-   * Validates Q1 to ensure both email and consent are provided
-   * @returns {boolean} True if validation passes, false otherwise
+   * Handle Q1 submission with email and consent validation
+   * Following the specific flow requested: check both fields, proceed if valid, repeat if invalid
+   * @returns {boolean} True if Q1 validation passes and can proceed, false to repeat Q1
    */
-  const validateQ1 = () => {
-    if (current.id !== 'q1') return true; // Only validate Q1
+  const handleQ1Submission = () => {
+    if (current.id !== 'q1') return true; // Only apply to Q1
     
     const email = answers['q1d'];
     const consent = answers['q1d_consent'];
     
+    const hasConsent = consent !== false; // Default true unless explicitly unchecked
     const hasEmail = email && email.trim() !== '';
-    // Consent defaults to true unless explicitly set to false
-    const hasConsent = consent !== false;
     
-    if (!hasEmail || !hasConsent) {
+    if (hasConsent && hasEmail) {
+      // Proceed to next survey section
+      setValidationError(null);
+      return true;
+    } else {
+      // Show Q1 again and display an error message
       let errorMessage = 'Please provide ';
       const missing = [];
       
@@ -141,20 +155,17 @@ export default function Survey({ onComplete }) {
       
       errorMessage += missing.join(' and ') + ' to continue.';
       setValidationError(errorMessage);
-      return false;
+      return false; // Repeat current question (Q1)
     }
-    
-    setValidationError(null);
-    return true;
   };
 
   /**
    * Navigate to the next question or submit if on the last question.
    */
   const handleNext = () => {
-    // Validate Q1 before proceeding
-    if (!validateQ1()) {
-      return; // Don't advance if validation fails
+    // Process Q1 submission with specific validation flow
+    if (!handleQ1Submission()) {
+      return; // Repeat Q1 if validation fails
     }
     
     if (index < questions.length - 1) setIndex((i) => i + 1);
