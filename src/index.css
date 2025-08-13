@@ -336,3 +336,67 @@ button:focus-visible {
   }
 }
 
+/* Back Link Component Styles */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+}
+
+.back-link:hover:not(.disabled) {
+  color: var(--color-text-secondary);
+  background: rgba(198, 162, 90, 0.05);
+  transform: translateX(-2px);
+}
+
+.back-link:focus:not(.disabled) {
+  outline: 2px solid rgba(198, 162, 90, 0.4);
+  outline-offset: 2px;
+  color: var(--color-text-secondary);
+}
+
+.back-link.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.back-link .back-arrow {
+  font-size: 1.1em;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.back-link:hover:not(.disabled) .back-arrow {
+  transform: translateX(-2px);
+}
+
+.back-link .back-text {
+  font-size: 0.85rem;
+  letter-spacing: 0.025em;
+}
+
+/* Responsive adjustments for back link */
+@media (max-width: 480px) {
+  .back-link {
+    font-size: 0.8rem;
+    padding: var(--space-1) var(--space-2);
+  }
+  
+  .back-link .back-text {
+    font-size: 0.8rem;
+  }
+}
+

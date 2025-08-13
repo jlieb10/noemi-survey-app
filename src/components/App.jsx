@@ -66,18 +66,6 @@ export default function App() {
             {config.survey.meta.start_cta}
           </button>
           <p id="survey-description" className="sr-only">Start the NOEMI wellness survey to share your preferences</p>
-          <button
-            type="button"
-            onClick={() => {
-              setParticipantId(storedId || DEFAULT_PARTICIPANT_IDS.GUEST);
-              setStep(APP_STEPS.GAME);
-            }}
-            className="lux-button-secondary"
-            aria-describedby="game-description"
-          >
-            Explore Design Concepts
-          </button>
-          <p id="game-description" className="sr-only">Skip to design exploration to share feedback on visual concepts</p>
         </main>
       )}
       {step === APP_STEPS.SURVEY && (
