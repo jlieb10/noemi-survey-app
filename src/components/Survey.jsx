@@ -219,7 +219,10 @@ export default function Survey({ onComplete }) {
               id={subQ.id}
               type="number"
               value={currentValue}
-              onChange={(e) => handleChange(subQ.id, parseInt(e.target.value) || '')}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                handleChange(subQ.id, isNaN(val) ? '' : val);
+              }}
               placeholder={subQ.placeholder}
               min={subQ.min}
               max={subQ.max}
