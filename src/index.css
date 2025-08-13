@@ -368,7 +368,7 @@ button:focus-visible {
 }
 
 .back-link.disabled {
-  color: #ccc;
+  color: var(--color-text-muted);
   cursor: not-allowed;
   opacity: 0.5;
 }
