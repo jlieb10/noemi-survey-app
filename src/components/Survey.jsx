@@ -645,17 +645,6 @@ export default function Survey({ onComplete }) {
         </p>
       </div>
       
-      <nav className="survey-navigation" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button 
-          type="button" 
-          onClick={handleBack} 
-          disabled={index === 0} 
-          aria-label={`Go back to question ${index}`}
-          className="lux-button-secondary"
-        >
-          Back
-        </button>
-      </nav>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -664,16 +653,35 @@ export default function Survey({ onComplete }) {
         className="stack"
         aria-labelledby="current-question"
       >
-        <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt}</h2>
+        <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt || current.title}</h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <div className="stack" style={{ display: 'flex', gap: 'var(--space-3)' }}>
-          <button type="submit" disabled={loading} className="lux-button-primary">
-            {loading ? 'Submitting…' : index === questions.length - 1 ? config.survey.meta.end_cta : 'Next'}
-          </button>
-          <button type="button" disabled={loading} onClick={handleNext} className="lux-button-secondary">
-            Skip
-          </button>
+        
+        {/* Action buttons area */}
+        <div className="survey-actions" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', marginTop: 'var(--space-5)' }}>
+          {/* Primary action buttons */}
+          <div className="primary-actions" style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'center' }}>
+            <button type="submit" disabled={loading} className="lux-button-primary">
+              {loading ? 'Submitting…' : index === questions.length - 1 ? config.survey.meta.end_cta : 'Next'}
+            </button>
+            <button type="button" disabled={loading} onClick={handleNext} className="lux-button-secondary">
+              Skip
+            </button>
+          </div>
+          
+          {/* Secondary navigation */}
+          {index > 0 && (
+            <div className="secondary-actions" style={{ display: 'flex', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                onClick={handleBack} 
+                className="lux-button-tertiary"
+                aria-label={`Go back to question ${index}`}
+              >
+                ← Back
+              </button>
+            </div>
+          )}
         </div>
       </form>
     </div>

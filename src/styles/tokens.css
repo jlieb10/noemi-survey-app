@@ -1,4 +1,4 @@
-/* Design tokens for spacing, typography and radii */
+/* Enhanced luxury color palette and surfaces */
 :root {
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -21,8 +21,9 @@
   --color-text-primary: #1a2a4a;
   --color-text-secondary: #5a4333;
   --color-text-muted: #8B7355;
-  --color-surface: rgba(255, 255, 255, 0.85);
-  --color-surface-elevated: rgba(255, 255, 255, 0.95);
+  /* Lower opacity for better contrast with opalescent background */
+  --color-surface: rgba(255, 255, 255, 0.75);
+  --color-surface-elevated: rgba(255, 255, 255, 0.90);
 }
 
 .stack > * + * {
