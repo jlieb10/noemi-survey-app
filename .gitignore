@@ -26,5 +26,10 @@ dist-ssr
 # Local Netlify folder
 .netlify
 
+# Test coverage
+coverage/
+
 # Playwright test artifacts
 /test-results/
+/e2e-results/
+/playwright-report/

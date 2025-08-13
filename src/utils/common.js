@@ -85,7 +85,7 @@ export function generateTempId() {
  * @param {string} fallbackSrc - The fallback image source
  */
 export function handleImageError(event, fallbackSrc) {
-  if (event.currentTarget && event.currentTarget.src !== fallbackSrc) {
+  if (event && event.currentTarget && event.currentTarget.src !== fallbackSrc) {
     event.currentTarget.src = fallbackSrc;
   }
 }
