@@ -20,17 +20,92 @@
     "consent": { "show_at_start": true, "checkbox_label": "I agree to the mini terms & privacy notice", "required": true }
   },
   "questions": [
-    { "id": "Q1", "type": "single_select", "prompt": "Which best describes you today?", "required": true, "ui_hint": "chips", "options": [{"id":"woman","label":"Woman"},{"id":"man","label":"Man"},{"id":"nb","label":"Non‑binary"},{"id":"na","label":"Prefer not to say"}]},
-    { "id": "Q2", "type": "multi_select", "prompt": "What do you most want from your ritual?", "required": true, "ui_hint": "chips", "max_select": 3, "options": [{"id":"sleep","label":"Deeper sleep"},{"id":"mood","label":"Steadier mood"},{"id":"stress","label":"Less stress"},{"id":"energy","label":"Calm energy"},{"id":"glow","label":"Glowing skin"}]},
-    { "id": "Q3", "type": "single_select", "prompt": "Your style of self‑care:", "required": true, "ui_hint": "chips", "options": [{"id":"minimal","label":"Minimal & effortless"},{"id":"sensory","label":"Considered & sensory"},{"id":"clinical","label":"Clinical & evidence‑led"},{"id":"mixed","label":"Mixed / depends"}]},
-    { "id": "Q4", "type": "single_select", "prompt": "Preferred format:", "required": true, "ui_hint": "chips", "options": [{"id":"capsules","label":"Capsules"},{"id":"elixir","label":"Elixir/Tonic"},{"id":"powder","label":"Powder to mix"},{"id":"none","label":"No preference"}]},
-    { "id": "Q5", "type": "single_select", "prompt": "How often would you take it?", "required": true, "ui_hint": "chips", "options": [{"id":"daily","label":"Daily"},{"id":"most_days","label":"Most days"},{"id":"few_week","label":"A few times a week"}]},
-    { "id": "Q6", "type": "scale", "prompt": "“Functional beauty” grounded in evidence appeals to me.", "required": true, "min": 1, "max": 5, "left": "No", "right": "Very much" },
-    { "id": "Q7", "type": "scale", "prompt": "Openness to botanicals (standardised, precise doses):", "required": true, "min": 1, "max": 5, "left": "Skeptical", "right": "All for it" },
-    { "id": "Q8", "type": "single_select", "prompt": "Do you enjoy subtle scent/flavour cues in a ritual?", "required": true, "ui_hint": "chips", "options": [{"id":"yes","label":"Yes"},{"id":"sometimes","label":"Sometimes"},{"id":"no","label":"No"}]},
-    { "id": "Q9", "type": "single_select", "prompt": "Would you subscribe if it genuinely helped?", "required": true, "ui_hint": "chips", "options": [{"id":"yes","label":"Yes"},{"id":"maybe","label":"Maybe after a month"},{"id":"no","label":"Prefer one‑off"}]},
-    { "id": "Q10", "type": "single_select", "prompt": "Monthly budget ceiling for a premium base formula:", "required": true, "ui_hint": "chips", "options": [{"id":"lt50","label":"< £50"},{"id":"50_80","label":"£50–£80"},{"id":"80_100","label":"£80–£100"},{"id":"100p","label":"£100+"}]},
-    { "id": "Q11", "type": "multi_select", "prompt": "Which ingredients interest you for wellness support?", "required": false, "ui_hint": "ingredient_grid", "max_select": 8, "layout": "two_columns", "options": [
+    {
+      "id": "q1",
+      "title": "All About You",
+      "type": "group",
+      "sub_questions": [
+        {
+          "id": "q1a",
+          "label": "Your name",
+          "type": "short_text",
+          "placeholder": "First and last",
+          "required": true
+        },
+        {
+          "id": "q1b",
+          "label": "Your age",
+          "type": "number",
+          "min": 16,
+          "max": 99,
+          "placeholder": "e.g., 32",
+          "required": true
+        },
+        {
+          "id": "q1c",
+          "label": "How do you identify?",
+          "type": "select",
+          "options": [
+            "Woman",
+            "Man",
+            "Non‑binary",
+            "Prefer not to say",
+            "Self‑describe"
+          ],
+          "required": true
+        },
+        {
+          "id": "q1d",
+          "label": "Email for exclusive offers and insights",
+          "type": "email",
+          "marketing_consent": {
+            "default_checked": true,
+            "tooltip": "We'll only send you NOEMI news and offers. You can unsubscribe anytime."
+          },
+          "required": false
+        },
+        {
+          "id": "q1e",
+          "label": "I currently buy or use… (select all that apply)",
+          "type": "checkbox",
+          "options": [
+            "Vitamins",
+            "Nutritional supplements",
+            "Wellness supplements",
+            "Functional medicines",
+            "Functional foods",
+            "None of the above, but I'm curious",
+            "None of the above and not interested"
+          ],
+          "required": true
+        },
+        {
+          "id": "q1f",
+          "label": "My wellness indulgences include… (select all that apply)",
+          "type": "checkbox",
+          "options": [
+            "Yoga or Pilates classes",
+            "Luxury candles or aromatherapy",
+            "At‑home spa rituals (baths, scrubs, masks)",
+            "Energy healing or breathwork",
+            "Meditation apps or mindfulness tools",
+            "Other spiritual or wellness practices",
+            "None of the above"
+          ],
+          "required": true
+        }
+      ]
+    },
+    { "id": "q2", "type": "multi_select", "prompt": "What do you most want from your ritual?", "required": true, "ui_hint": "chips", "max_select": 3, "options": [{"id":"sleep","label":"Deeper sleep"},{"id":"mood","label":"Steadier mood"},{"id":"stress","label":"Less stress"},{"id":"energy","label":"Calm energy"},{"id":"glow","label":"Glowing skin"}]},
+    { "id": "q3", "type": "single_select", "prompt": "Your style of self‑care:", "required": true, "ui_hint": "chips", "options": [{"id":"minimal","label":"Minimal & effortless"},{"id":"sensory","label":"Considered & sensory"},{"id":"clinical","label":"Clinical & evidence‑led"},{"id":"mixed","label":"Mixed / depends"}]},
+    { "id": "q4", "type": "single_select", "prompt": "Preferred format:", "required": true, "ui_hint": "chips", "options": [{"id":"capsules","label":"Capsules"},{"id":"elixir","label":"Elixir/Tonic"},{"id":"powder","label":"Powder to mix"},{"id":"none","label":"No preference"}]},
+    { "id": "q5", "type": "single_select", "prompt": "How often would you take it?", "required": true, "ui_hint": "chips", "options": [{"id":"daily","label":"Daily"},{"id":"most_days","label":"Most days"},{"id":"few_week","label":"A few times a week"}]},
+    { "id": "q6", "type": "scale", "prompt": "“Functional beauty” grounded in evidence appeals to me.", "required": true, "min": 1, "max": 5, "left": "No", "right": "Very much" },
+    { "id": "q7", "type": "scale", "prompt": "Openness to botanicals (standardised, precise doses):", "required": true, "min": 1, "max": 5, "left": "Skeptical", "right": "All for it" },
+    { "id": "q8", "type": "single_select", "prompt": "Do you enjoy subtle scent/flavour cues in a ritual?", "required": true, "ui_hint": "chips", "options": [{"id":"yes","label":"Yes"},{"id":"sometimes","label":"Sometimes"},{"id":"no","label":"No"}]},
+    { "id": "q9", "type": "single_select", "prompt": "Would you subscribe if it genuinely helped?", "required": true, "ui_hint": "chips", "options": [{"id":"yes","label":"Yes"},{"id":"maybe","label":"Maybe after a month"},{"id":"no","label":"Prefer one‑off"}]},
+    { "id": "q10", "type": "single_select", "prompt": "Monthly budget ceiling for a premium base formula:", "required": true, "ui_hint": "chips", "options": [{"id":"lt50","label":"< £50"},{"id":"50_80","label":"£50–£80"},{"id":"80_100","label":"£80–£100"},{"id":"100p","label":"£100+"}]},
+    { "id": "q11", "type": "multi_select", "prompt": "Which ingredients interest you for wellness support?", "required": false, "ui_hint": "ingredient_grid", "max_select": 8, "layout": "two_columns", "options": [
       {"id":"adaptogen_ashwagandha","label":"Ashwagandha"},
       {"id":"adaptogen_rhodiola","label":"Rhodiola"},
       {"id":"adaptogen_reishi","label":"Reishi"},
@@ -51,8 +126,7 @@
       {"id":"botanical_chamomile","label":"Chamomile"},
       {"id":"botanical_lavender","label":"Lavender"},
       {"id":"botanical_valerian","label":"Valerian Root"}
-    ]},
-    { "id": "Q12", "type": "gate_opt_in", "prompt": "Would you like early access to the private circle?", "required": false, "ui_hint": "chips", "options": [{"id":"yes","label":"Yes, keep me posted"},{"id":"no","label":"No thanks"}], "follow_ups_if_yes": [{"id":"email","label":"Email","max_chars":120},{"id":"instagram","label":"Instagram","max_chars":60}]}
+    ]}
   ],
   "design_feedback": { "title": "Design Exploration", "subtitle": "Help us refine what feels most NOEMI", "intro": "We're seeking your intuitive response to design concepts. Swipe to share your preferences and help shape our visual identity." }
 }

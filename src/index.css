@@ -330,6 +330,65 @@ button:focus-visible {
   box-shadow: 0 2px 4px rgba(198, 162, 90, 0.1);
 }
 
+/* Survey group and sub-question styling */
+.group-question {
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  border: 1px solid rgba(198, 162, 90, 0.2);
+  box-shadow: 0 4px 12px rgba(198, 162, 90, 0.1);
+}
+
+.group-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: var(--space-4);
+  line-height: 1.3;
+}
+
+.sub-question {
+  margin-bottom: var(--space-4);
+}
+
+.sub-question-label {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+  font-size: 1rem;
+}
+
+.required-indicator {
+  color: var(--color-gold);
+  font-weight: bold;
+}
+
+.marketing-consent-info {
+  margin-left: var(--space-1);
+  cursor: help;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.marketing-consent-info:hover {
+  opacity: 1;
+}
+
+.checkbox-options label:hover {
+  background-color: rgba(198, 162, 90, 0.05);
+}
+
+/* Enhanced input focus states for group questions */
+.sub-question input:focus,
+.sub-question select:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(198, 162, 90, 0.1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   body {
     transition: none !important;

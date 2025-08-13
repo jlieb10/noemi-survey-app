@@ -75,6 +75,6 @@ export const ASSET_PATHS = {
 
 // Survey-specific constants
 export const SURVEY_CONSTANTS = {
-  GATE_QUESTION_ID: 'Q12',
+  GATE_QUESTION_ID: 'q1d', // Email consent is now part of q1
   OTHER_OPTION_ID: 'other',
 };
