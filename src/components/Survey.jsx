@@ -21,6 +21,7 @@ export default function Survey({ onComplete }) {
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [validationError, setValidationError] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   // Timer for auto-advancing on single-select
   const autoNextRef = useRef(null);
@@ -48,6 +49,11 @@ export default function Survey({ onComplete }) {
   const handleChange = (id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
     onQuestionAnswered(id, value);
+    
+    // Clear validation error when Q1 fields are updated
+    if ((id === 'q1d' || id === 'q1d_consent') && validationError) {
+      setValidationError(null);
+    }
   };
 
   /**
@@ -113,9 +119,44 @@ export default function Survey({ onComplete }) {
   );
 
   /**
+   * Validates Q1 to ensure both email and consent are provided
+   * @returns {boolean} True if validation passes, false otherwise
+   */
+  const validateQ1 = () => {
+    if (current.id !== 'q1') return true; // Only validate Q1
+    
+    const email = answers['q1d'];
+    const consent = answers['q1d_consent'];
+    
+    const hasEmail = email && email.trim() !== '';
+    // Consent defaults to true unless explicitly set to false
+    const hasConsent = consent !== false;
+    
+    if (!hasEmail || !hasConsent) {
+      let errorMessage = 'Please provide ';
+      const missing = [];
+      
+      if (!hasEmail) missing.push('your email');
+      if (!hasConsent) missing.push('consent for marketing communications');
+      
+      errorMessage += missing.join(' and ') + ' to continue.';
+      setValidationError(errorMessage);
+      return false;
+    }
+    
+    setValidationError(null);
+    return true;
+  };
+
+  /**
    * Navigate to the next question or submit if on the last question.
    */
   const handleNext = () => {
+    // Validate Q1 before proceeding
+    if (!validateQ1()) {
+      return; // Don't advance if validation fails
+    }
+    
     if (index < questions.length - 1) setIndex((i) => i + 1);
     else handleSubmit();
   };
@@ -659,6 +700,7 @@ export default function Survey({ onComplete }) {
         <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt || current.title}</h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
+        {validationError && <p style={{ color: 'red', marginTop: 'var(--space-2)' }}>{validationError}</p>}
         
         {/* Action buttons area */}
         <div className="survey-actions" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', marginTop: 'var(--space-5)' }}>
