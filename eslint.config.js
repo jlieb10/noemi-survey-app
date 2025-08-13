@@ -27,7 +27,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.test.{js,jsx}', '**/test-setup.js'],
+    files: ['**/*.test.{js,jsx}', '**/test-setup.js', 'vite.config.js', 'playwright.config.js', 'eslint.config.js'],
     languageOptions: {
       globals: {
         ...globals.browser,
