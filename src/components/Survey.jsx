@@ -424,7 +424,7 @@ export default function Survey({ onComplete }) {
         <BackLink
           onClick={handleBack}
           disabled={index === 0}
-          ariaLabel={`Go back to question ${index}`}
+          ariaLabel={index > 0 ? `Go back to question ${index}` : undefined}
         />
       </nav>
       <form
