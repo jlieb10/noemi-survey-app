@@ -3,6 +3,7 @@ import config from '../../docs/noemi-survey-config.json';
 import { supabase } from '../services/supabaseClient.js';
 import { onSurveyStart, onQuestionAnswered, onSurveyComplete } from '../services/analytics.js';
 import { getCachedUserLocation } from '../utils/geolocation.js';
+import BackLink from './BackLink.jsx';
 import {
   DEFAULT_PARTICIPANT_IDS,
   SURVEY_CONSTANTS,
@@ -419,16 +420,12 @@ export default function Survey({ onComplete }) {
         </p>
       </div>
       
-      <nav className="survey-navigation" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button 
-          type="button" 
-          onClick={handleBack} 
-          disabled={index === 0} 
-          aria-label={`Go back to question ${index}`}
-          className="lux-button-secondary"
-        >
-          Back
-        </button>
+      <nav className="survey-navigation" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
+        <BackLink
+          onClick={handleBack}
+          disabled={index === 0}
+          ariaLabel={index > 0 ? `Go back to question ${index}` : undefined}
+        />
       </nav>
       <form
         onSubmit={(e) => {
@@ -441,12 +438,9 @@ export default function Survey({ onComplete }) {
         <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt}</h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <div className="stack" style={{ display: 'flex', gap: 'var(--space-3)' }}>
+        <div className="stack" style={{ display: 'flex', justifyContent: 'center' }}>
           <button type="submit" disabled={loading} className="lux-button-primary">
             {loading ? 'Submitting…' : index === questions.length - 1 ? config.survey.meta.end_cta : 'Next'}
-          </button>
-          <button type="button" disabled={loading} onClick={handleNext} className="lux-button-secondary">
-            Skip
           </button>
         </div>
       </form>
