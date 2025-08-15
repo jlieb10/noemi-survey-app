@@ -11,8 +11,6 @@ export default defineConfig([
     files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
     extends: [
       js.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
     ],
     plugins: {
       react,
@@ -22,7 +20,10 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      jsx: true,
+      globals: {
+        ...globals.browser,
+        ...globals.es2021,
+      },
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
@@ -51,16 +52,25 @@ export default defineConfig([
   },
   {
     files: ['**/*.test.{js,jsx,ts,tsx}', '**/test-setup.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        global: 'readonly',
+      },
+    },
     rules: {
       'no-console': 'off',
     },
   },
   {
-    files: ['vite.config.js', 'playwright.config.js'],
+    files: ['vite.config.js', 'playwright.config.js', 'scripts/**/*.{js,mjs}'],
     languageOptions: {
       globals: {
         ...globals.node,
       },
+    },
+    rules: {
+      'no-console': 'off',
     },
   },
 ])
