@@ -55,4 +55,3 @@ document.body.addEventListener('transitionend', (e) => {
 setTimeout(() => {
   [1, 2, 3, 4].forEach(setBlob);
 }, 60);
-

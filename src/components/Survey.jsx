@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import config from '../../docs/noemi-survey-config.json';
 import { supabase } from '../services/supabaseClient.js';
-import { onSurveyStart, onQuestionAnswered, onSurveyComplete } from '../services/analytics.js';
+import {
+  onSurveyStart,
+  onQuestionAnswered,
+  onSurveyComplete,
+} from '../services/analytics.js';
 import { getCachedUserLocation } from '../utils/geolocation.js';
 import BackLink from './BackLink.jsx';
 import {
@@ -40,7 +44,11 @@ export default function Survey({ onComplete }) {
     try {
       const saved = localStorage.getItem(AUTOSAVE_KEY);
       if (saved) {
-        const { answers: savedAnswers, index: savedIndex, timestamp } = JSON.parse(saved);
+        const {
+          answers: savedAnswers,
+          index: savedIndex,
+          timestamp,
+        } = JSON.parse(saved);
         console.log('Loaded autosaved data from', new Date(timestamp));
         setAnswers(savedAnswers);
         setIndex(savedIndex);
@@ -59,7 +67,7 @@ export default function Survey({ onComplete }) {
         answers,
         index,
         timestamp,
-        version: '1.0'
+        version: '1.0',
       };
       localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(saveData));
       setLastSaveTime(timestamp);
@@ -77,26 +85,26 @@ export default function Survey({ onComplete }) {
       console.log('Attempting incremental database save...');
       const email = answers['q1d'] || null;
       const marketing = answers['q1d_consent'] !== false;
-      
+
       // Create a partial submission record
       const { data, error: insertError } = await supabase
         .from('participants')
-        .insert({ 
-          email, 
-          answers, 
+        .insert({
+          email,
+          answers,
           marketing_opt_in: marketing,
           location_data: userLocation,
           is_complete: false, // Mark as incomplete
-          progress: `${index + 1}/${questions.length}`
+          progress: `${index + 1}/${questions.length}`,
         })
         .select()
         .single();
-        
+
       if (insertError) {
         console.error('Incremental save error:', insertError);
         return;
       }
-      
+
       console.log('Incremental database save successful:', data?.id);
     } catch (err) {
       console.error('Failed incremental database save:', err);
@@ -108,7 +116,7 @@ export default function Survey({ onComplete }) {
     if (Object.keys(answers).length > 0) {
       // Save to localStorage immediately when answers change
       saveToLocalStorage();
-      
+
       // Schedule database save
       clearTimeout(autosaveRef.current);
       autosaveRef.current = setTimeout(() => {
@@ -143,9 +151,9 @@ export default function Survey({ onComplete }) {
   // Fire survey start once on mount and get user location
   useEffect(() => {
     onSurveyStart();
-    
+
     // Get user location for analytics
-    getCachedUserLocation().then(location => {
+    getCachedUserLocation().then((location) => {
       setUserLocation(location);
     });
   }, []);
@@ -161,7 +169,7 @@ export default function Survey({ onComplete }) {
   const handleChange = (id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
     onQuestionAnswered(id, value);
-    
+
     // Clear validation error when Q1 fields are updated
     if ((id === 'q1d' || id === 'q1d_consent') && validationError) {
       setValidationError(null);
@@ -207,11 +215,23 @@ export default function Survey({ onComplete }) {
   };
 
   const renderOtherOption = (q, limit) => (
-    <label className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+    <label
+      className="stack"
+      style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}
+    >
       <input
         type="checkbox"
-        checked={(answers[q.id] || []).includes(SURVEY_CONSTANTS.OTHER_OPTION_ID)}
-        onChange={() => handleMultiChange(q.id, SURVEY_CONSTANTS.OTHER_OPTION_ID, limit, q.exclusive_option_id)}
+        checked={(answers[q.id] || []).includes(
+          SURVEY_CONSTANTS.OTHER_OPTION_ID
+        )}
+        onChange={() =>
+          handleMultiChange(
+            q.id,
+            SURVEY_CONSTANTS.OTHER_OPTION_ID,
+            limit,
+            q.exclusive_option_id
+          )
+        }
       />
       <span>Other</span>
       {(answers[q.id] || []).includes(SURVEY_CONSTANTS.OTHER_OPTION_ID) && (
@@ -237,13 +257,13 @@ export default function Survey({ onComplete }) {
    */
   const handleQ1Submission = () => {
     if (current.id !== 'q1') return true; // Only apply to Q1
-    
+
     const email = answers['q1d'];
     const consent = answers['q1d_consent'];
-    
+
     const hasConsent = consent !== false; // Default true unless explicitly unchecked
     const hasEmail = email && email.trim() !== '';
-    
+
     if (hasConsent && hasEmail) {
       // Proceed to next survey section
       setValidationError(null);
@@ -252,10 +272,10 @@ export default function Survey({ onComplete }) {
       // Show Q1 again and display an error message
       let errorMessage = 'Please provide ';
       const missing = [];
-      
+
       if (!hasEmail) missing.push('your email');
       if (!hasConsent) missing.push('consent for marketing communications');
-      
+
       errorMessage += missing.join(' and ') + ' to continue.';
       setValidationError(errorMessage);
       return false; // Repeat current question (Q1)
@@ -270,7 +290,7 @@ export default function Survey({ onComplete }) {
     if (!handleQ1Submission()) {
       return; // Repeat Q1 if validation fails
     }
-    
+
     if (index < questions.length - 1) setIndex((i) => i + 1);
     else handleSubmit();
   };
@@ -298,16 +318,21 @@ export default function Survey({ onComplete }) {
 
       // Persist to Supabase if a client is available.
       if (supabase) {
-        console.log('Attempting to save complete survey data:', { email, marketing, answers: Object.keys(answers).length, location: !!userLocation });
+        console.log('Attempting to save complete survey data:', {
+          email,
+          marketing,
+          answers: Object.keys(answers).length,
+          location: !!userLocation,
+        });
         const { data, error: insertError } = await supabase
           .from('participants')
-          .insert({ 
-            email, 
-            answers, 
+          .insert({
+            email,
+            answers,
             marketing_opt_in: marketing,
             location_data: userLocation,
             is_complete: true,
-            progress: `${questions.length}/${questions.length}`
+            progress: `${questions.length}/${questions.length}`,
           })
           .select()
           .single();
@@ -344,7 +369,11 @@ export default function Survey({ onComplete }) {
   const renderSubQuestion = (subQ) => {
     const currentValue = answers[subQ.id] || '';
     const isCheckbox = subQ.type === 'checkbox';
-    const currentArray = isCheckbox ? (Array.isArray(currentValue) ? currentValue : []) : null;
+    const currentArray = isCheckbox
+      ? Array.isArray(currentValue)
+        ? currentValue
+        : []
+      : null;
 
     switch (subQ.type) {
       case 'short_text':
@@ -352,7 +381,12 @@ export default function Survey({ onComplete }) {
           <div key={subQ.id} className="sub-question">
             <label htmlFor={subQ.id} className="sub-question-label">
               {subQ.label}
-              {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+              {subQ.required && (
+                <span className="required-indicator" aria-label="required">
+                  {' '}
+                  *
+                </span>
+              )}
             </label>
             <input
               id={subQ.id}
@@ -380,7 +414,12 @@ export default function Survey({ onComplete }) {
           <div key={subQ.id} className="sub-question">
             <label htmlFor={subQ.id} className="sub-question-label">
               {subQ.label}
-              {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+              {subQ.required && (
+                <span className="required-indicator" aria-label="required">
+                  {' '}
+                  *
+                </span>
+              )}
             </label>
             <input
               id={subQ.id}
@@ -413,7 +452,12 @@ export default function Survey({ onComplete }) {
           <div key={subQ.id} className="sub-question">
             <label htmlFor={subQ.id} className="sub-question-label">
               {subQ.label}
-              {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+              {subQ.required && (
+                <span className="required-indicator" aria-label="required">
+                  {' '}
+                  *
+                </span>
+              )}
             </label>
             <select
               id={subQ.id}
@@ -446,9 +490,17 @@ export default function Survey({ onComplete }) {
           <div key={subQ.id} className="sub-question">
             <label htmlFor={subQ.id} className="sub-question-label">
               {subQ.label}
-              {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+              {subQ.required && (
+                <span className="required-indicator" aria-label="required">
+                  {' '}
+                  *
+                </span>
+              )}
               {subQ.marketing_consent && (
-                <span className="marketing-consent-info" title={subQ.marketing_consent.tooltip}>
+                <span
+                  className="marketing-consent-info"
+                  title={subQ.marketing_consent.tooltip}
+                >
                   ℹ️
                 </span>
               )}
@@ -472,22 +524,36 @@ export default function Survey({ onComplete }) {
               }}
             />
             {subQ.marketing_consent && (
-              <div className="marketing-consent" style={{ marginTop: 'var(--space-2)', fontSize: '0.875rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer' }}>
+              <div
+                className="marketing-consent"
+                style={{ marginTop: 'var(--space-2)', fontSize: '0.875rem' }}
+              >
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                    cursor: 'pointer',
+                  }}
+                >
                   <input
                     type="checkbox"
                     checked={answers[`${subQ.id}_consent`] !== false}
-                    onChange={(e) => handleChange(`${subQ.id}_consent`, e.target.checked)}
+                    onChange={(e) =>
+                      handleChange(`${subQ.id}_consent`, e.target.checked)
+                    }
                     style={{ accentColor: 'var(--color-gold)' }}
                   />
                   <span>I agree to receive marketing communications</span>
                 </label>
-                <p style={{ 
-                  margin: 'var(--space-1) 0 0 var(--space-6)', 
-                  fontSize: '0.75rem', 
-                  color: 'var(--color-text-muted)',
-                  fontStyle: 'italic'
-                }}>
+                <p
+                  style={{
+                    margin: 'var(--space-1) 0 0 var(--space-6)',
+                    fontSize: '0.75rem',
+                    color: 'var(--color-text-muted)',
+                    fontStyle: 'italic',
+                  }}
+                >
                   {subQ.marketing_consent.tooltip}
                 </p>
               </div>
@@ -501,32 +567,45 @@ export default function Survey({ onComplete }) {
             <fieldset>
               <legend className="sub-question-label">
                 {subQ.label}
-                {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+                {subQ.required && (
+                  <span className="required-indicator" aria-label="required">
+                    {' '}
+                    *
+                  </span>
+                )}
               </legend>
-              <div className="checkbox-options" style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr', 
-                gap: 'var(--space-2)', 
-                marginTop: 'var(--space-2)' 
-              }}>
+              <div
+                className="checkbox-options"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr',
+                  gap: 'var(--space-2)',
+                  marginTop: 'var(--space-2)',
+                }}
+              >
                 {subQ.options.map((option, index) => {
-                  const optionId = option.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                  const optionId = option
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]/g, '_');
                   return (
-                    <label key={index} style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 'var(--space-2)',
-                      padding: 'var(--space-2)',
-                      borderRadius: 'var(--radius-sm)',
-                      transition: 'background-color 0.2s ease',
-                      cursor: 'pointer'
-                    }}>
+                    <label
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                        padding: 'var(--space-2)',
+                        borderRadius: 'var(--radius-sm)',
+                        transition: 'background-color 0.2s ease',
+                        cursor: 'pointer',
+                      }}
+                    >
                       <input
                         type="checkbox"
                         checked={currentArray.includes(optionId)}
                         onChange={() => {
                           const newArray = currentArray.includes(optionId)
-                            ? currentArray.filter(v => v !== optionId)
+                            ? currentArray.filter((v) => v !== optionId)
                             : [...currentArray, optionId];
                           handleChange(subQ.id, newArray);
                         }}
@@ -555,12 +634,16 @@ export default function Survey({ onComplete }) {
       case 'group':
         return (
           <div className="group-question" aria-labelledby={`${q.id}-title`}>
-            <h3 id={`${q.id}-title`} className="group-title" style={{ 
-              fontFamily: 'var(--font-serif)', 
-              fontSize: '1.25rem',
-              marginBottom: 'var(--space-4)',
-              color: 'var(--color-text-secondary)'
-            }}>
+            <h3
+              id={`${q.id}-title`}
+              className="group-title"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontSize: '1.25rem',
+                marginBottom: 'var(--space-4)',
+                color: 'var(--color-text-secondary)',
+              }}
+            >
               {q.title}
             </h3>
             <div className="sub-questions stack">
@@ -570,10 +653,24 @@ export default function Survey({ onComplete }) {
         );
       case 'single_select':
         return (
-          <fieldset className="stack" role="radiogroup" aria-labelledby={`${q.id}-label`}>
-            <legend id={`${q.id}-label`} className="sr-only">{q.prompt}</legend>
+          <fieldset
+            className="stack"
+            role="radiogroup"
+            aria-labelledby={`${q.id}-label`}
+          >
+            <legend id={`${q.id}-label`} className="sr-only">
+              {q.prompt}
+            </legend>
             {q.options.map((opt) => (
-              <label key={opt.id} className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <label
+                key={opt.id}
+                className="stack"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                }}
+              >
                 <input
                   type="radio"
                   name={q.id}
@@ -593,22 +690,46 @@ export default function Survey({ onComplete }) {
       case 'multi_select':
         return (
           <fieldset className="stack" aria-labelledby={`${q.id}-label`}>
-            <legend id={`${q.id}-label`} className="sr-only">{q.prompt}</legend>
-            <div 
-              className={q.ui_hint === 'ingredient_grid' ? 'ingredient-grid' : 'stack'}
-              style={q.ui_hint === 'ingredient_grid' ? {
-                display: 'grid',
-                gridTemplateColumns: q.layout === 'two_columns' ? '1fr 1fr' : '1fr',
-                gap: 'var(--space-2)',
-                marginBottom: 'var(--space-3)'
-              } : {}}
+            <legend id={`${q.id}-label`} className="sr-only">
+              {q.prompt}
+            </legend>
+            <div
+              className={
+                q.ui_hint === 'ingredient_grid' ? 'ingredient-grid' : 'stack'
+              }
+              style={
+                q.ui_hint === 'ingredient_grid'
+                  ? {
+                      display: 'grid',
+                      gridTemplateColumns:
+                        q.layout === 'two_columns' ? '1fr 1fr' : '1fr',
+                      gap: 'var(--space-2)',
+                      marginBottom: 'var(--space-3)',
+                    }
+                  : {}
+              }
             >
               {q.options.map((opt) => (
-                <label key={opt.id} className="stack" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <label
+                  key={opt.id}
+                  className="stack"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                  }}
+                >
                   <input
                     type="checkbox"
                     checked={(answers[q.id] || []).includes(opt.id)}
-                    onChange={() => handleMultiChange(q.id, opt.id, q.max_select, q.exclusive_option_id)}
+                    onChange={() =>
+                      handleMultiChange(
+                        q.id,
+                        opt.id,
+                        q.max_select,
+                        q.exclusive_option_id
+                      )
+                    }
                   />
                   <span>{opt.label}</span>
                 </label>
@@ -620,8 +741,15 @@ export default function Survey({ onComplete }) {
             */}
             {shouldShowOtherOption(q) && renderOtherOption(q, q.max_select)}
             {q.max_select && (
-              <p style={{ fontSize: '0.8rem', fontStyle: 'italic', marginTop: 'var(--space-2)' }}>
-                Select up to {q.max_select} {q.ui_hint === 'ingredient_grid' ? 'ingredients' : 'options'}
+              <p
+                style={{
+                  fontSize: '0.8rem',
+                  fontStyle: 'italic',
+                  marginTop: 'var(--space-2)',
+                }}
+              >
+                Select up to {q.max_select}{' '}
+                {q.ui_hint === 'ingredient_grid' ? 'ingredients' : 'options'}
               </p>
             )}
           </fieldset>
@@ -641,19 +769,34 @@ export default function Survey({ onComplete }) {
                   type="checkbox"
                   style={{ display: 'none' }}
                   checked={(answers[q.id] || []).includes(opt.id)}
-                  onChange={() => handleMultiChange(q.id, opt.id, q.max_select, q.exclusive_option_id)}
+                  onChange={() =>
+                    handleMultiChange(
+                      q.id,
+                      opt.id,
+                      q.max_select,
+                      q.exclusive_option_id
+                    )
+                  }
                 />
                 <img
                   src={`${config.survey.meta.assets_base}${opt.image.src}`}
                   alt={opt.image.alt}
-                  onError={(e) => handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)}
+                  onError={(e) =>
+                    handleImageError(e, ASSET_PATHS.FALLBACK_IMAGE)
+                  }
                   style={{
                     width: '100%',
                     borderRadius: '12px',
-                    border: (answers[q.id] || []).includes(opt.id) ? '2px solid #C6A25A' : '2px solid transparent',
+                    border: (answers[q.id] || []).includes(opt.id)
+                      ? '2px solid #C6A25A'
+                      : '2px solid transparent',
                   }}
                 />
-                <div style={{ textAlign: 'center', marginTop: 'var(--space-1)' }}>{opt.label}</div>
+                <div
+                  style={{ textAlign: 'center', marginTop: 'var(--space-1)' }}
+                >
+                  {opt.label}
+                </div>
               </label>
             ))}
           </div>
@@ -666,14 +809,23 @@ export default function Survey({ onComplete }) {
             onChange={(e) => handleChange(q.id, e.target.value)}
             maxLength={q.max_chars}
             placeholder={q.placeholder}
-            style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
+            style={{
+              width: '100%',
+              padding: '0.5rem',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+            }}
           />
         );
       case 'rank_top_n':
         return (
           <div>
             {q.options.map((opt) => (
-              <label key={opt.id} className="stack" style={{ display: 'block' }}>
+              <label
+                key={opt.id}
+                className="stack"
+                style={{ display: 'block' }}
+              >
                 <input
                   type="checkbox"
                   checked={(answers[q.id] || []).includes(opt.id)}
@@ -683,7 +835,9 @@ export default function Survey({ onComplete }) {
               </label>
             ))}
             {renderOtherOption(q, q.n)}
-            <p style={{ fontSize: '0.8rem', fontStyle: 'italic' }}>Select up to {q.n}</p>
+            <p style={{ fontSize: '0.8rem', fontStyle: 'italic' }}>
+              Select up to {q.n}
+            </p>
           </div>
         );
       case 'gate_opt_in': {
@@ -695,7 +849,11 @@ export default function Survey({ onComplete }) {
         return (
           <div>
             {q.options.map((opt) => (
-              <label key={opt.id} className="stack" style={{ display: 'block' }}>
+              <label
+                key={opt.id}
+                className="stack"
+                style={{ display: 'block' }}
+              >
                 <input
                   type="checkbox"
                   checked={val.join === opt.id}
@@ -705,16 +863,34 @@ export default function Survey({ onComplete }) {
               </label>
             ))}
             {val.join === 'yes' && q.follow_ups_if_yes && (
-              <div className="stack" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              <div
+                className="stack"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'var(--space-2)',
+                }}
+              >
                 {q.follow_ups_if_yes.map((fu) => (
-                  <label key={fu.id} className="stack" style={{ display: 'block' }}>
+                  <label
+                    key={fu.id}
+                    className="stack"
+                    style={{ display: 'block' }}
+                  >
                     {fu.label}
                     <input
                       type={fu.type === 'email' ? 'email' : 'text'}
                       value={val[fu.id] || ''}
-                      onChange={(e) => handleChange(q.id, { ...val, [fu.id]: e.target.value })}
+                      onChange={(e) =>
+                        handleChange(q.id, { ...val, [fu.id]: e.target.value })
+                      }
                       maxLength={fu.max_chars}
-                      style={{ width: '100%', padding: 'var(--space-2)', border: '1px solid #ccc', borderRadius: 'var(--radius-sm)' }}
+                      style={{
+                        width: '100%',
+                        padding: 'var(--space-2)',
+                        border: '1px solid #ccc',
+                        borderRadius: 'var(--radius-sm)',
+                      }}
                     />
                   </label>
                 ))}
@@ -726,50 +902,61 @@ export default function Survey({ onComplete }) {
       case 'scale': {
         const currentValue = answers[q.id] || null;
         return (
-          <fieldset className="scale-question" aria-labelledby={`${q.id}-label`}>
-            <legend id={`${q.id}-label`} className="sr-only">{q.prompt}</legend>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--space-3)',
-              margin: 'var(--space-4) 0',
-              '@media (max-width: 480px)': {
-                flexDirection: 'column',
-                gap: 'var(--space-2)'
-              }
-            }}>
-              <span style={{ 
-                fontSize: '0.9rem', 
-                color: 'var(--color-text-secondary)', 
-                minWidth: '60px',
-                textAlign: 'right',
+          <fieldset
+            className="scale-question"
+            aria-labelledby={`${q.id}-label`}
+          >
+            <legend id={`${q.id}-label`} className="sr-only">
+              {q.prompt}
+            </legend>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-3)',
+                margin: 'var(--space-4) 0',
                 '@media (max-width: 480px)': {
-                  minWidth: 'auto',
-                  textAlign: 'center',
-                  fontSize: '0.8rem'
-                }
-              }}>
+                  flexDirection: 'column',
+                  gap: 'var(--space-2)',
+                },
+              }}
+            >
+              <span
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'var(--color-text-secondary)',
+                  minWidth: '60px',
+                  textAlign: 'right',
+                  '@media (max-width: 480px)': {
+                    minWidth: 'auto',
+                    textAlign: 'center',
+                    fontSize: '0.8rem',
+                  },
+                }}
+              >
                 {q.left}
               </span>
-              <div style={{ 
-                display: 'flex', 
-                gap: 'var(--space-2)',
-                flex: 1,
-                justifyContent: 'center',
-                flexWrap: 'wrap'
-              }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 'var(--space-2)',
+                  flex: 1,
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                }}
+              >
                 {Array.from({ length: q.max - q.min + 1 }, (_, i) => {
                   const value = q.min + i;
                   return (
-                    <label 
+                    <label
                       key={value}
-                      style={{ 
+                      style={{
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         cursor: 'pointer',
                         padding: 'var(--space-2)',
-                        minWidth: '40px'
+                        minWidth: '40px',
                       }}
                     >
                       <input
@@ -781,30 +968,34 @@ export default function Survey({ onComplete }) {
                         style={{
                           width: '20px',
                           height: '20px',
-                          marginBottom: 'var(--space-1)'
+                          marginBottom: 'var(--space-1)',
                         }}
                       />
-                      <span style={{ 
-                        fontSize: '0.8rem',
-                        color: 'var(--color-text-secondary)'
-                      }}>
+                      <span
+                        style={{
+                          fontSize: '0.8rem',
+                          color: 'var(--color-text-secondary)',
+                        }}
+                      >
                         {value}
                       </span>
                     </label>
                   );
                 })}
               </div>
-              <span style={{ 
-                fontSize: '0.9rem', 
-                color: 'var(--color-text-secondary)', 
-                minWidth: '60px',
-                textAlign: 'left',
-                '@media (max-width: 480px)': {
-                  minWidth: 'auto',
-                  textAlign: 'center',
-                  fontSize: '0.8rem'
-                }
-              }}>
+              <span
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'var(--color-text-secondary)',
+                  minWidth: '60px',
+                  textAlign: 'left',
+                  '@media (max-width: 480px)': {
+                    minWidth: 'auto',
+                    textAlign: 'center',
+                    fontSize: '0.8rem',
+                  },
+                }}
+              >
                 {q.right}
               </span>
             </div>
@@ -820,24 +1011,43 @@ export default function Survey({ onComplete }) {
     <div className="survey-wrapper stack" role="main">
       {/* Progress bar */}
       <div className="survey-progress" style={{ marginBottom: '1rem' }}>
-        <progress 
-          value={index + 1} 
-          max={questions.length} 
+        <progress
+          value={index + 1}
+          max={questions.length}
           style={{ width: '100%', height: '8px' }}
           aria-label={`Survey progress: Question ${index + 1} of ${questions.length}`}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', margin: 0 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '0.5rem',
+          }}
+        >
+          <p
+            style={{
+              fontSize: '0.9rem',
+              color: 'var(--color-text-secondary)',
+              margin: 0,
+            }}
+          >
             Question {index + 1} of {questions.length}
           </p>
           {lastSaveTime && (
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: 0 }}>
+            <p
+              style={{
+                fontSize: '0.75rem',
+                color: 'var(--color-text-muted)',
+                margin: 0,
+              }}
+            >
               ✓ Saved {new Date(lastSaveTime).toLocaleTimeString()}
             </p>
           )}
         </div>
       </div>
-      
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -846,30 +1056,73 @@ export default function Survey({ onComplete }) {
         className="stack"
         aria-labelledby="current-question"
       >
-        <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt || current.title || "Untitled Question"}</h2>
+        <h2
+          id="current-question"
+          className="stack"
+          style={{ fontFamily: 'var(--font-serif)' }}
+        >
+          {current.prompt || current.title || 'Untitled Question'}
+        </h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        {validationError && <p style={{ color: 'red', marginTop: 'var(--space-2)' }}>{validationError}</p>}
-        
+        {validationError && (
+          <p style={{ color: 'red', marginTop: 'var(--space-2)' }}>
+            {validationError}
+          </p>
+        )}
+
         {/* Action buttons area */}
-        <div className="survey-actions" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', marginTop: 'var(--space-5)' }}>
+        <div
+          className="survey-actions"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-3)',
+            marginTop: 'var(--space-5)',
+          }}
+        >
           {/* Primary action buttons */}
-          <div className="primary-actions" style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'center' }}>
-            <button type="submit" disabled={loading} className="lux-button-primary">
-              {loading ? 'Submitting…' : index === questions.length - 1 ? config.survey.meta.end_cta : 'Next'}
+          <div
+            className="primary-actions"
+            style={{
+              display: 'flex',
+              gap: 'var(--space-3)',
+              justifyContent: 'center',
+            }}
+          >
+            <button
+              type="submit"
+              disabled={loading}
+              className="lux-button-primary"
+            >
+              {loading
+                ? 'Submitting…'
+                : index === questions.length - 1
+                  ? config.survey.meta.end_cta
+                  : 'Next'}
             </button>
-            <button type="button" disabled={loading} onClick={handleNext} className="lux-button-secondary">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={handleNext}
+              className="lux-button-secondary"
+            >
               Skip
             </button>
           </div>
-          
+
           {/* Secondary navigation */}
           {index > 0 && (
-            <div className="secondary-actions" style={{ display: 'flex', justifyContent: 'center' }}>
+            <div
+              className="secondary-actions"
+              style={{ display: 'flex', justifyContent: 'center' }}
+            >
               <BackLink
                 onClick={handleBack}
                 disabled={index === 0}
-                ariaLabel={index > 0 ? `Go back to question ${index}` : undefined}
+                ariaLabel={
+                  index > 0 ? `Go back to question ${index}` : undefined
+                }
               />
             </div>
           )}

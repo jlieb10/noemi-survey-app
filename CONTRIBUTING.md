@@ -5,11 +5,13 @@ Thank you for contributing to the NOEMI Survey App! This document provides guide
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js v20.11.1
 - pnpm v8.10.5
 - Basic knowledge of React, TypeScript, and testing
 
 ### Setup
+
 1. Fork and clone the repository
 2. Install dependencies: `pnpm install`
 3. Create environment variables: Copy `.env.example` to `.env` and fill in values
@@ -19,7 +21,9 @@ Thank you for contributing to the NOEMI Survey App! This document provides guide
 ## Development Principles
 
 ### User Experience First
+
 This application prioritizes **luxury user experience** above all else:
+
 - Every interaction must feel instant and responsive
 - All UI changes require visual regression tests
 - Accessibility is mandatory, not optional
@@ -27,6 +31,7 @@ This application prioritizes **luxury user experience** above all else:
 - Loading states must provide appropriate feedback
 
 ### Code Quality Standards
+
 - **Modular Architecture**: Components should be self-contained and reusable
 - **Robust Error Handling**: Graceful degradation when things go wrong
 - **Comprehensive Testing**: Every interaction must be tested
@@ -36,6 +41,7 @@ This application prioritizes **luxury user experience** above all else:
 ## Pull Request Process
 
 ### Before Creating a PR
+
 1. **Write tests first** (Test-Driven Development)
 2. **Ensure all interactions are tested**
 3. **Verify accessibility compliance**
@@ -43,6 +49,7 @@ This application prioritizes **luxury user experience** above all else:
 5. **Test manually** in development mode
 
 ### PR Requirements Checklist
+
 - [ ] **Unit tests** for all new functions and components
 - [ ] **Component interaction tests** for user-facing changes
 - [ ] **Accessibility tests** for keyboard and screen reader support
@@ -56,7 +63,9 @@ This application prioritizes **luxury user experience** above all else:
 - [ ] **Documentation updates** when relevant
 
 ### Code Review Criteria
+
 Reviewers will evaluate:
+
 - **User Experience**: Does this maintain the luxury feel?
 - **Test Coverage**: Are all interactions properly tested?
 - **Code Quality**: Is the code modular, readable, and maintainable?
@@ -67,28 +76,33 @@ Reviewers will evaluate:
 ## Testing Requirements
 
 ### Mandatory Testing for ALL Changes
+
 Since this app is interaction-focused, every change requires comprehensive testing:
 
 #### Component Changes
+
 - Test all props and their variations
 - Test all user interactions (clicks, form inputs, swipes)
 - Test all states and state transitions
 - Test error scenarios and edge cases
 - Test accessibility features (keyboard navigation, screen readers)
 
-#### Utility Function Changes  
+#### Utility Function Changes
+
 - Test with various input types
 - Test edge cases and boundary conditions
 - Test error scenarios
 - Achieve 100% statement coverage
 
 #### UI/Visual Changes
+
 - Include visual regression tests
 - Test responsive behavior
 - Test accessibility compliance
 - Test performance impact
 
 ### Testing Commands
+
 ```bash
 # Run all tests
 pnpm run test
@@ -109,6 +123,7 @@ pnpm run lint
 ## Code Style Guidelines
 
 ### React Component Patterns
+
 ```javascript
 // ✅ Good: Robust, testable, accessible
 export function UserCard({ user, onSelect, className = '' }) {
@@ -120,23 +135,29 @@ export function UserCard({ user, onSelect, className = '' }) {
     }
   }, [user, onSelect]);
 
-  const handleKeyDown = useCallback((event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleClick();
-    }
-  }, [handleClick]);
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handleClick();
+      }
+    },
+    [handleClick]
+  );
 
   if (!user) {
     return (
-      <div className="user-card user-card--empty" aria-label="No user data available">
+      <div
+        className="user-card user-card--empty"
+        aria-label="No user data available"
+      >
         No user selected
       </div>
     );
   }
 
   return (
-    <div 
+    <div
       className={`user-card ${className}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -152,15 +173,12 @@ export function UserCard({ user, onSelect, className = '' }) {
 
 // ❌ Bad: Fragile, untestable, inaccessible
 export function UserCard({ user, onSelect }) {
-  return (
-    <div onClick={() => onSelect(user)}>
-      {user.name}
-    </div>
-  );
+  return <div onClick={() => onSelect(user)}>{user.name}</div>;
 }
 ```
 
 ### Error Handling Patterns
+
 ```javascript
 // ✅ Good: Graceful error handling
 export function useImagePreloader(urls) {
@@ -168,12 +186,12 @@ export function useImagePreloader(urls) {
   const [failedImages, setFailedImages] = useState(new Set());
 
   useEffect(() => {
-    urls.forEach(url => {
+    urls.forEach((url) => {
       const img = new Image();
-      img.onload = () => setLoadedImages(prev => new Set([...prev, url]));
+      img.onload = () => setLoadedImages((prev) => new Set([...prev, url]));
       img.onerror = () => {
         console.warn('Failed to preload image:', url);
-        setFailedImages(prev => new Set([...prev, url]));
+        setFailedImages((prev) => new Set([...prev, url]));
       };
       img.src = url;
     });
@@ -185,7 +203,7 @@ export function useImagePreloader(urls) {
 // ❌ Bad: No error handling
 export function useImagePreloader(urls) {
   useEffect(() => {
-    urls.forEach(url => {
+    urls.forEach((url) => {
       const img = new Image();
       img.src = url;
     });
@@ -196,6 +214,7 @@ export function useImagePreloader(urls) {
 ## Architecture Guidelines
 
 ### Directory Structure
+
 ```
 src/
 ├── components/          # Reusable UI components
@@ -212,6 +231,7 @@ src/
 ```
 
 ### Component Design Principles
+
 - **Single Responsibility**: Each component should have one clear purpose
 - **Composition Over Inheritance**: Build complex UIs from simple components
 - **Props Interface**: Clear, documented props with sensible defaults
@@ -221,6 +241,7 @@ src/
 ## Accessibility Requirements
 
 ### Mandatory Accessibility Features
+
 - **Semantic HTML**: Use proper HTML elements and roles
 - **ARIA Labels**: Provide descriptive labels for screen readers
 - **Keyboard Navigation**: All interactions must be keyboard accessible
@@ -229,15 +250,16 @@ src/
 - **Responsive Design**: Work on all device sizes
 
 ### Testing Accessibility
+
 ```javascript
 // Test keyboard navigation
 it('should be keyboard accessible', async () => {
   const user = userEvent.setup();
   render(<MyComponent />);
-  
+
   await user.tab();
   expect(screen.getByRole('button')).toHaveFocus();
-  
+
   await user.keyboard('{Enter}');
   expect(mockHandler).toHaveBeenCalled();
 });
@@ -245,26 +267,31 @@ it('should be keyboard accessible', async () => {
 // Test screen reader compatibility
 it('should have proper ARIA labels', () => {
   render(<MyComponent />);
-  
+
   expect(screen.getByRole('button')).toHaveAccessibleName('Submit form');
-  expect(screen.getByRole('textbox')).toHaveAccessibleDescription('Enter your email address');
+  expect(screen.getByRole('textbox')).toHaveAccessibleDescription(
+    'Enter your email address'
+  );
 });
 ```
 
 ## Performance Guidelines
 
 ### Image Optimization
+
 - Implement preloading for critical images
 - Use appropriate image formats (WebP where supported)
 - Provide alt text for all images
 - Handle loading and error states
 
 ### Code Splitting
+
 - Lazy load non-critical components
 - Split large bundles into smaller chunks
 - Monitor bundle size impact
 
 ### State Management
+
 - Use React hooks appropriately
 - Avoid unnecessary re-renders
 - Implement proper cleanup in useEffect
@@ -272,17 +299,20 @@ it('should have proper ARIA labels', () => {
 ## Getting Help
 
 ### Resources
+
 - [AGENTS.md](./AGENTS.md) - Code style and agent guidelines
 - [TESTING.md](./TESTING.md) - Comprehensive testing guide
 - [docs/ui-style-guide.md](./docs/ui-style-guide.md) - UI design patterns
 
 ### Questions and Issues
+
 - Check existing issues before creating new ones
 - Provide detailed reproduction steps for bugs
 - Include relevant code snippets and error messages
 - Tag issues appropriately (bug, enhancement, question)
 
 ### Code Review Process
+
 - All PRs require approval from maintainers
 - Address feedback promptly and thoroughly
 - Update tests when requested

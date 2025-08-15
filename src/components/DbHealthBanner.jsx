@@ -2,11 +2,14 @@
  * Database health monitoring banner component.
  * Shows a non-intrusive banner when database connectivity issues are detected.
  * Includes diagnostics copying functionality for easy bug reporting.
- * 
+ *
  * @component
  */
 import { useCallback, useEffect, useState } from 'react';
-import { checkDbHealth, generateDiagnostics } from '../services/supabaseClient.js';
+import {
+  checkDbHealth,
+  generateDiagnostics,
+} from '../services/supabaseClient.js';
 import './DbHealthBanner.css';
 
 /**
@@ -29,13 +32,17 @@ export default function DbHealthBanner() {
       setHealthStatus(result);
       setLastCheck(new Date());
       setIsVisible(!result.ok);
-      
+
       if (!result.ok) {
         console.error('Database health check failed:', result.error);
       }
     } catch (error) {
       console.error('Health check error:', error);
-      setHealthStatus({ ok: false, error, timestamp: new Date().toISOString() });
+      setHealthStatus({
+        ok: false,
+        error,
+        timestamp: new Date().toISOString(),
+      });
       setIsVisible(true);
     } finally {
       setIsChecking(false);
@@ -47,11 +54,11 @@ export default function DbHealthBanner() {
    */
   const copyDiagnostics = useCallback(async () => {
     if (!healthStatus) return;
-    
+
     try {
       const diagnostics = generateDiagnostics(healthStatus);
       await navigator.clipboard.writeText(diagnostics);
-      
+
       // Show brief success feedback
       const button = document.getElementById('copy-diagnostics-btn');
       if (button) {
@@ -83,9 +90,10 @@ export default function DbHealthBanner() {
     return null;
   }
 
-  const errorMessage = healthStatus.error?.message || 
-                      healthStatus.error?.hint || 
-                      'Database connection failed';
+  const errorMessage =
+    healthStatus.error?.message ||
+    healthStatus.error?.hint ||
+    'Database connection failed';
 
   return (
     <div className="db-health-banner" role="alert" aria-live="assertive">

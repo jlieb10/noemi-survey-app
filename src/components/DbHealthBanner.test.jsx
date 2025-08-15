@@ -9,7 +9,7 @@ import DbHealthBanner from './DbHealthBanner.jsx';
 // Mock the Supabase client module
 vi.mock('../services/supabaseClient.js', () => ({
   checkDbHealth: vi.fn(),
-  generateDiagnostics: vi.fn()
+  generateDiagnostics: vi.fn(),
 }));
 
 describe('DbHealthBanner', () => {
@@ -25,15 +25,15 @@ describe('DbHealthBanner', () => {
 
     // Mock clipboard API
     mockClipboard = {
-      writeText: vi.fn().mockResolvedValue(undefined)
+      writeText: vi.fn().mockResolvedValue(undefined),
     };
-    
+
     // Define clipboard property properly
     global.navigator = global.navigator || {};
     Object.defineProperty(global.navigator, 'clipboard', {
       value: mockClipboard,
       writable: true,
-      configurable: true
+      configurable: true,
     });
 
     // Mock console methods
@@ -52,7 +52,7 @@ describe('DbHealthBanner', () => {
   it('should not render when database is healthy', async () => {
     mockCheckDbHealth.mockResolvedValue({
       ok: true,
-      timestamp: '2024-01-01T00:00:00.000Z'
+      timestamp: '2024-01-01T00:00:00.000Z',
     });
 
     render(<DbHealthBanner />);
@@ -69,13 +69,13 @@ describe('DbHealthBanner', () => {
   it('should render banner when database health check fails', async () => {
     const mockError = {
       message: 'Invalid API key',
-      hint: 'Double check your Supabase anon key'
+      hint: 'Double check your Supabase anon key',
     };
 
     mockCheckDbHealth.mockResolvedValue({
       ok: false,
       error: mockError,
-      timestamp: '2024-01-01T00:00:00.000Z'
+      timestamp: '2024-01-01T00:00:00.000Z',
     });
 
     render(<DbHealthBanner />);
@@ -97,13 +97,13 @@ describe('DbHealthBanner', () => {
     mockCheckDbHealth.mockResolvedValueOnce({
       ok: false,
       error: { message: 'Connection failed' },
-      timestamp: '2024-01-01T00:00:00.000Z'
+      timestamp: '2024-01-01T00:00:00.000Z',
     });
 
     // Successful retry
     mockCheckDbHealth.mockResolvedValueOnce({
       ok: true,
-      timestamp: '2024-01-01T00:00:01.000Z'
+      timestamp: '2024-01-01T00:00:01.000Z',
     });
 
     render(<DbHealthBanner />);
@@ -130,7 +130,7 @@ describe('DbHealthBanner', () => {
     const mockHealthResult = {
       ok: false,
       error: { message: 'Test error' },
-      timestamp: '2024-01-01T00:00:00.000Z'
+      timestamp: '2024-01-01T00:00:00.000Z',
     };
 
     const mockDiagnostics = 'DB_HEALTH_DIAGNOSTICS | {"error": "Test error"}';
@@ -149,7 +149,7 @@ describe('DbHealthBanner', () => {
 
     // Check that generateDiagnostics was called
     expect(mockGenerateDiagnostics).toHaveBeenCalledWith(mockHealthResult);
-    
+
     // Check for feedback text change to verify copy was attempted
     await waitFor(() => {
       expect(screen.getByText('Copied!')).toBeInTheDocument();
@@ -158,14 +158,16 @@ describe('DbHealthBanner', () => {
 
   it('should handle clipboard copy failure gracefully', async () => {
     const user = userEvent.setup();
-    
+
     mockCheckDbHealth.mockResolvedValue({
       ok: false,
       error: { message: 'Test error' },
-      timestamp: '2024-01-01T00:00:00.000Z'
+      timestamp: '2024-01-01T00:00:00.000Z',
     });
 
-    mockClipboard.writeText.mockRejectedValue(new Error('Clipboard not available'));
+    mockClipboard.writeText.mockRejectedValue(
+      new Error('Clipboard not available')
+    );
 
     render(<DbHealthBanner />);
 
@@ -191,7 +193,7 @@ describe('DbHealthBanner', () => {
     mockCheckDbHealth.mockResolvedValue({
       ok: false,
       error: { message: 'Connection failed' },
-      timestamp: '2024-01-01T00:00:00.000Z'
+      timestamp: '2024-01-01T00:00:00.000Z',
     });
 
     render(<DbHealthBanner />);
@@ -210,13 +212,13 @@ describe('DbHealthBanner', () => {
 
   it('should show loading state during health check', async () => {
     const user = userEvent.setup();
-    
+
     // Slow health check response
     let resolveHealthCheck;
     const healthCheckPromise = new Promise((resolve) => {
       resolveHealthCheck = resolve;
     });
-    
+
     mockCheckDbHealth.mockReturnValue(healthCheckPromise);
 
     render(<DbHealthBanner />);
@@ -231,7 +233,7 @@ describe('DbHealthBanner', () => {
     resolveHealthCheck({
       ok: false,
       error: { message: 'Initial error' },
-      timestamp: '2024-01-01T00:00:00.000Z'
+      timestamp: '2024-01-01T00:00:00.000Z',
     });
 
     await waitFor(() => {

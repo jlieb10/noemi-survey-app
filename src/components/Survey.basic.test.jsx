@@ -4,23 +4,23 @@ import { render, screen } from '@testing-library/react';
 // Mock the config
 vi.mock('../../docs/noemi-survey-config.json', () => ({
   default: {
-    survey: { meta: { end_cta: "Continue" } },
+    survey: { meta: { end_cta: 'Continue' } },
     questions: [
       {
-        "id": "q1",
-        "title": "All About You", 
-        "type": "group",
-        "sub_questions": [
+        id: 'q1',
+        title: 'All About You',
+        type: 'group',
+        sub_questions: [
           {
-            "id": "q1a",
-            "label": "Your name",
-            "type": "short_text",
-            "required": true
-          }
-        ]
-      }
-    ]
-  }
+            id: 'q1a',
+            label: 'Your name',
+            type: 'short_text',
+            required: true,
+          },
+        ],
+      },
+    ],
+  },
 }));
 
 // Mock analytics and services
@@ -35,7 +35,7 @@ vi.mock('../utils/geolocation.js', () => ({
 }));
 
 vi.mock('../services/supabaseClient.js', () => ({
-  supabase: null
+  supabase: null,
 }));
 
 import Survey from './Survey.jsx';
@@ -45,7 +45,7 @@ describe('Survey Component - Basic Functionality', () => {
 
   it('renders grouped question structure', () => {
     render(<Survey onComplete={mockOnComplete} />);
-    
+
     // Check that the grouped question renders
     expect(screen.getAllByText('All About You')[0]).toBeInTheDocument();
     expect(screen.getByText('Your name')).toBeInTheDocument();

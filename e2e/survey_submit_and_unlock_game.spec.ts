@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-test('survey submit -> redirect to game -> first swipe network', async ({ page }) => {
+test('survey submit -> redirect to game -> first swipe network', async ({
+  page,
+}) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Begin' }).click();
 
@@ -52,7 +54,7 @@ test('survey submit -> redirect to game -> first swipe network', async ({ page }
 
   // Q11
   const constraintInput = page.getByPlaceholder(
-    'e.g., allergens, caffeine‑free, vegan only',
+    'e.g., allergens, caffeine‑free, vegan only'
   );
   if (await constraintInput.isVisible()) {
     await constraintInput.fill('no caffeine after 4pm');

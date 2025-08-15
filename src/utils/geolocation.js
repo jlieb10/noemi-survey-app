@@ -11,14 +11,14 @@ export async function getUserLocation() {
     // Only use public/free geolocation services in client-side code
     const services = [
       'https://ipapi.co/json/',
-      'https://api.ipify.org?format=json' // fallback to just IP
+      'https://api.ipify.org?format=json', // fallback to just IP
     ];
     for (const service of services) {
       try {
         const response = await fetch(service);
         if (response.ok) {
           const data = await response.json();
-          
+
           // Normalize response format
           return {
             ip: data.ip || data.query || null,
@@ -27,7 +27,7 @@ export async function getUserLocation() {
             city: data.city || null,
             timezone: data.timezone || null,
             isp: data.org || data.isp || null,
-            source: service
+            source: service,
           };
         }
       } catch (err) {
@@ -35,7 +35,7 @@ export async function getUserLocation() {
         continue;
       }
     }
-    
+
     // If all services fail, return null
     return null;
   } catch (error) {

@@ -23,25 +23,27 @@ function shouldInstallPlaywright() {
     console.log('🚫 Skipping Playwright install on Netlify');
     return false;
   }
-  
+
   // Skip if explicitly disabled
   if (skipPlaywright) {
     console.log('🚫 Skipping Playwright install (SKIP_PLAYWRIGHT=true)');
     return false;
   }
-  
+
   // Force install if explicitly requested
   if (forcePlaywright) {
     console.log('🎭 Installing Playwright browsers (INSTALL_PLAYWRIGHT=true)');
     return true;
   }
-  
+
   // Skip on most CI environments unless explicitly requested
   if (isCi) {
-    console.log('🚫 Skipping Playwright install on CI (set INSTALL_PLAYWRIGHT=true to override)');
+    console.log(
+      '🚫 Skipping Playwright install on CI (set INSTALL_PLAYWRIGHT=true to override)'
+    );
     return false;
   }
-  
+
   // Install in development environments
   console.log('🎭 Installing Playwright browsers for development');
   return true;
@@ -55,12 +57,14 @@ function installPlaywright() {
     console.log('Installing Playwright browsers...');
     execSync('npx playwright install', {
       stdio: 'inherit',
-      timeout: 300000 // 5 minute timeout
+      timeout: 300000, // 5 minute timeout
     });
     console.log('✅ Playwright browsers installed successfully');
   } catch (error) {
     console.warn('⚠️  Playwright installation failed, but continuing...');
-    console.warn('This may affect E2E tests. Run `npx playwright install` manually if needed.');
+    console.warn(
+      'This may affect E2E tests. Run `npx playwright install` manually if needed.'
+    );
     // Don't fail the entire postinstall process
   }
 }

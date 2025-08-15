@@ -9,8 +9,9 @@ Since this application prioritizes user interaction and luxury experience, every
 ## Core Testing Philosophy
 
 **Every interaction matters.** This app is designed for user engagement, so all interactions require testing:
+
 - Button clicks and form submissions
-- Swipe gestures and touch interactions  
+- Swipe gestures and touch interactions
 - Keyboard navigation and accessibility
 - Loading states and error scenarios
 - Visual consistency and responsiveness
@@ -18,11 +19,13 @@ Since this application prioritizes user interaction and luxury experience, every
 ## Testing Strategy
 
 ### 1. Unit Tests (Required for All Code)
+
 - **Location**: `src/**/*.test.{js,jsx}`
 - **Framework**: Vitest + Testing Library
 - **Coverage**: 100% of functions, components, and utilities
 
 #### Required Test Coverage:
+
 - ✅ All utility functions (`src/utils/`)
 - ✅ All service modules (`src/services/`)
 - ✅ All custom hooks (`src/hooks/`)
@@ -30,32 +33,36 @@ Since this application prioritizes user interaction and luxury experience, every
 - ✅ Edge cases and error scenarios
 
 #### Writing Unit Tests:
+
 ```javascript
 /**
  * Unit tests for [ComponentName/ModuleName].
- * 
+ *
  * When modifying this code, ensure:
  * 1. All test cases continue to pass
  * 2. New functionality includes corresponding tests
  * 3. Edge cases and error scenarios are covered
  * 4. Accessibility requirements are tested
- * 
+ *
  * @testSuite [category/ComponentName]
  */
 ```
 
 ### 2. Visual Regression Tests (Required for UI Changes)
+
 - **Location**: `e2e/visual-regression.spec.js`
 - **Framework**: Playwright
 - **Purpose**: Detect unintended visual changes
 
 #### Visual Testing Workflow:
+
 1. Make UI changes
 2. Run `pnpm test:e2e --update-snapshots` to update baseline images
 3. Commit new snapshots with your changes
 4. CI will verify visual consistency on PRs
 
 ### 3. End-to-End Tests (Required for User Flows)
+
 - **Location**: `e2e/*.spec.js`
 - **Framework**: Playwright
 - **Coverage**: Critical user journeys
@@ -95,6 +102,7 @@ Before committing ANY code:
 ## Testing Best Practices
 
 ### Unit Tests
+
 - **Test behavior, not implementation**
 - **Use descriptive test names**: `should handle user input validation when email is invalid`
 - **Mock external dependencies** (APIs, services, etc.)
@@ -102,12 +110,14 @@ Before committing ANY code:
 - **Verify accessibility**: ARIA labels, keyboard navigation
 
 ### Visual Tests
+
 - **Disable animations**: `animations: 'disabled'`
 - **Use consistent viewports**: 1280x720 for desktop, 393x851 for mobile
 - **Test key states**: loading, error, success, empty states
 - **Test across browsers**: Chrome, Safari, mobile
 
 ### E2E Tests
+
 - **Focus on user journeys**: complete survey flow, game interaction
 - **Use page object pattern** for complex interactions
 - **Test responsive design** on different screen sizes
@@ -116,11 +126,13 @@ Before committing ANY code:
 ## Code Quality Standards
 
 ### Test-Driven Development
+
 1. **Write failing test first**
 2. **Write minimal code to pass**
 3. **Refactor while keeping tests green**
 
 ### Test Coverage Requirements
+
 - **Functions**: 100% statement coverage
 - **Components**: All props, states, and interactions
 - **Error handling**: All catch blocks and error states
@@ -131,11 +143,13 @@ Before committing ANY code:
 When using GitHub Copilot or AI assistance:
 
 ### ✅ Always Include Tests
+
 - Request test generation with any code suggestion
 - Verify AI-generated tests actually test the intended behavior
 - Add edge cases that AI might miss
 
 ### ✅ Test-First Approach
+
 ```javascript
 // ❌ Don't do this
 function addNumbers(a, b) {
@@ -147,7 +161,7 @@ describe('addNumbers', () => {
   it('should add two positive numbers', () => {
     expect(addNumbers(2, 3)).toBe(5);
   });
-  
+
   it('should handle negative numbers', () => {
     expect(addNumbers(-1, 5)).toBe(4);
   });
@@ -159,6 +173,7 @@ function addNumbers(a, b) {
 ```
 
 ### ✅ Update Tests When Modifying Code
+
 - Change component behavior? Update component tests
 - Add new props? Test the new props
 - Modify utility function? Update utility tests
@@ -166,7 +181,9 @@ function addNumbers(a, b) {
 ## CI/CD Integration
 
 ### GitHub Actions Workflow
+
 The CI pipeline runs:
+
 1. **Lint check** - Code style validation
 2. **Type check** - TypeScript validation
 3. **Unit tests** - All jest/vitest tests
@@ -175,9 +192,11 @@ The CI pipeline runs:
 6. **Visual regression** - Screenshot comparison
 
 ### Required Checks
+
 All PRs must pass:
+
 - ✅ Lint
-- ✅ Type check  
+- ✅ Type check
 - ✅ Unit tests (98%+ coverage)
 - ✅ Build success
 - ✅ E2E tests
@@ -186,11 +205,13 @@ All PRs must pass:
 ## Test Data Management
 
 ### Mock Data
+
 - Store in `src/__mocks__/` or `e2e/fixtures/`
 - Use realistic but fake data
 - Keep consistent across tests
 
 ### Environment Variables
+
 ```bash
 # Test environment
 VITE_SUPABASE_URL=https://test.supabase.co
@@ -200,18 +221,21 @@ VITE_SUPABASE_ANON_KEY=test-key
 ## CI-Safe Testing Guidelines
 
 ### Environment Considerations
+
 - Tests must run in headless CI environments
 - No external dependencies during test execution
 - Mock all external services and APIs
 - Handle browser compatibility in test environment
 
 ### Performance in CI
+
 - Keep test execution under 10 minutes total
 - Use appropriate timeouts and waits
 - Parallel test execution where possible
 - Efficient test data setup and teardown
 
-### Reliability Standards  
+### Reliability Standards
+
 - Tests must be deterministic (no flaky tests)
 - Proper cleanup after each test
 - Isolated test environments
@@ -220,6 +244,7 @@ VITE_SUPABASE_ANON_KEY=test-key
 ## Test-Driven Development Workflow
 
 ### For New Features:
+
 1. **Write failing test first** (TDD approach)
 2. **Implement minimal code to pass**
 3. **Refactor while keeping tests green**
@@ -227,6 +252,7 @@ VITE_SUPABASE_ANON_KEY=test-key
 5. **Verify accessibility and performance**
 
 ### For Bug Fixes:
+
 1. **Write test that reproduces the bug**
 2. **Verify the test fails**
 3. **Fix the bug**
@@ -236,6 +262,7 @@ VITE_SUPABASE_ANON_KEY=test-key
 ## Debugging Tests
 
 ### Common Issues
+
 ```bash
 # Tests failing locally but passing in CI
 pnpm run test --run # Run once instead of watch mode
@@ -248,6 +275,7 @@ pnpm run test:e2e --update-snapshots # Update baselines
 ```
 
 ### Debug Commands
+
 ```bash
 # Debug mode
 pnpm run test --inspect-brk
@@ -262,8 +290,9 @@ pnpm run test:e2e --trace on
 ## Conclusion
 
 **Testing is not optional.** Every line of code should be covered by tests. This ensures:
+
 - ✅ **Reliability**: Catch bugs before production
-- ✅ **Maintainability**: Safe refactoring with confidence  
+- ✅ **Maintainability**: Safe refactoring with confidence
 - ✅ **Documentation**: Tests serve as usage examples
 - ✅ **Quality**: High-quality, robust codebase
 

@@ -15,11 +15,13 @@ const SurveyRoute = () => (
       <img src="/logo.png" alt="NOEMI logo" className="app-logo" />
     </header>
     <main role="main">
-      <Survey onComplete={(id) => {
-        console.log('Survey completed with ID:', id);
-        // In standalone mode, just log the completion
-        alert(`Survey completed! Participant ID: ${id}`);
-      }} />
+      <Survey
+        onComplete={(id) => {
+          console.log('Survey completed with ID:', id);
+          // In standalone mode, just log the completion
+          alert(`Survey completed! Participant ID: ${id}`);
+        }}
+      />
     </main>
   </div>
 );
@@ -45,5 +47,5 @@ createRoot(document.getElementById('root')).render(
         <Route path="*" element={<App />} />
       </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 );

@@ -1,11 +1,11 @@
 /**
  * Analytics event tracking functions.
- * 
+ *
  * Placeholder implementations for analytics hooks. In production, replace these
  * functions with calls to your preferred analytics provider (e.g. Google Analytics,
  * Segment, or a custom data layer). Each function receives contextual information
  * about the event so you can send rich data downstream.
- * 
+ *
  * @module analytics
  */
 

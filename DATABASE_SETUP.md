@@ -20,11 +20,14 @@ The survey and swipe game components are configured to write to Supabase, but da
 To fix database writes in production, the following steps need to be completed in the Supabase dashboard:
 
 ### Step 1: Verify Environment Variables
+
 Ensure these environment variables are set in Netlify:
+
 - `VITE_SUPABASE_URL=https://lzzgroksxrqkwyvykmka.supabase.co`
 - `VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
 ### Step 2: Apply Database Migration
+
 In the Supabase dashboard SQL editor, run this migration:
 
 ```sql
@@ -52,6 +55,7 @@ create index if not exists idx_swipes_participant on public.swipes(participant_i
 ```
 
 ### Step 3: Verify Permissions
+
 Ensure the anonymous user has INSERT permissions on both tables:
 
 ```sql
@@ -61,7 +65,9 @@ grant insert, select, delete on public.swipes to anon;
 ```
 
 ### Step 4: Test Database Connection
+
 With improved logging now in place, check the browser console in production to see:
+
 - "Attempting to save survey data:" logs from Survey submissions
 - "Saving swipe:" logs from SwipeGame interactions
 - Any specific error messages from failed database operations
@@ -69,6 +75,7 @@ With improved logging now in place, check the browser console in production to s
 ## Verification
 
 After applying the migration:
+
 1. Submit a survey and check for successful logging: "Survey data saved successfully: [ID]"
 2. Play the swipe game and check for: "Swipe saved successfully"
 3. Monitor the Supabase dashboard for new entries in the participants and swipes tables
@@ -76,6 +83,7 @@ After applying the migration:
 ## Monitoring
 
 The enhanced logging will help identify any remaining issues:
+
 - Check browser console for database operation logs
 - Monitor Supabase dashboard for actual data entries
 - Set up alerts in Supabase for monitoring data ingestion

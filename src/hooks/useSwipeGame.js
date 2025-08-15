@@ -2,7 +2,12 @@
  * Custom hooks for managing swipe game state and behavior.
  */
 import { useState, useEffect, useCallback } from 'react';
-import { ASSET_PATHS, SWIPE_DIRECTIONS, TUTORIAL_TIMING, FEEDBACK_TIMING } from '../constants.js';
+import {
+  ASSET_PATHS,
+  SWIPE_DIRECTIONS,
+  TUTORIAL_TIMING,
+  FEEDBACK_TIMING,
+} from '../constants.js';
 import { delay } from '../utils/common.js';
 
 /**
@@ -60,7 +65,7 @@ export function useTutorial(shouldShowTutorial) {
         SWIPE_DIRECTIONS.UP,
         SWIPE_DIRECTIONS.DOWN,
       ];
-      
+
       for (const dir of sequence) {
         setTutorialDir(dir);
         await delay(TUTORIAL_TIMING.DIRECTION_DISPLAY_MS);
@@ -87,17 +92,19 @@ export function useTutorial(shouldShowTutorial) {
 export function useSwipeFeedback() {
   const [feedbacks, setFeedbacks] = useState([]);
 
-  const addFeedback = useCallback((icon, duration = FEEDBACK_TIMING.DISPLAY_DURATION_MS) => {
-    const id = Date.now();
-    setFeedbacks((prev) => [...prev, { icon, id }]);
-    setTimeout(() => {
-      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
-    }, duration);
-  }, []);
+  const addFeedback = useCallback(
+    (icon, duration = FEEDBACK_TIMING.DISPLAY_DURATION_MS) => {
+      const id = Date.now();
+      setFeedbacks((prev) => [...prev, { icon, id }]);
+      setTimeout(() => {
+        setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+      }, duration);
+    },
+    []
+  );
 
   return {
     feedbacks,
     addFeedback,
   };
 }
-

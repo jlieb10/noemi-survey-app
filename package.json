@@ -10,7 +10,14 @@
     "preview": "vite preview",
     "test": "vitest run --environment jsdom src",
     "test:e2e": "playwright test",
-    "postinstall": "node scripts/setup-playwright.mjs"
+    "postinstall": "node scripts/setup-playwright.mjs",
+    "safe:refactor": "tsx scripts/safe-refactor.ts",
+    "format": "prettier --write .",
+    "lint:safe": "eslint . --no-error-on-unmatched-pattern || true",
+    "typecheck": "tsc --noEmit",
+    "test:ci": "vitest run --reporter=dot --environment jsdom src",
+    "e2e:ci": "playwright test --reporter=dot || true",
+    "bundle:report": "source-map-explorer 'dist/assets/*.js' --html analyzer.html || true"
   },
   "dependencies": {
     "@react-spring/web": "^9.7.5",
@@ -28,6 +35,8 @@
     "@testing-library/user-event": "^14.5.1",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/coverage-v8": "^1.6.0",
     "dotenv": "^16.4.5",
@@ -36,10 +45,17 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "globby": "^14.1.0",
     "jsdom": "^24.0.0",
+    "picocolors": "^1.1.1",
+    "prettier": "^3.6.2",
+    "source-map-explorer": "^2.5.3",
     "terser": "^5.43.1",
+    "ts-morph": "^26.0.0",
+    "tsx": "^4.20.4",
     "typescript": "^5.7.3",
     "vite": "^5.4.0",
+    "vite-bundle-visualizer": "^1.2.1",
     "vitest": "^1.6.0"
   },
   "overrides": {

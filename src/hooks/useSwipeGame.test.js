@@ -1,19 +1,15 @@
 /**
  * Unit tests for useSwipeGame hooks.
- * 
+ *
  * These tests verify the behavior of custom hooks used in the swipe game component.
  * Tests cover state management, async operations, tutorial flows, and feedback systems.
  * When modifying hooks, ensure all state transitions and side effects are tested.
- * 
+ *
  * @testSuite hooks/useSwipeGame
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import {
-  useDeck,
-  useTutorial,
-  useSwipeFeedback
-} from './useSwipeGame.js';
+import { useDeck, useTutorial, useSwipeFeedback } from './useSwipeGame.js';
 
 // Mock fetch for deck loading
 global.fetch = vi.fn();
@@ -21,21 +17,21 @@ global.fetch = vi.fn();
 // Mock constants
 vi.mock('../constants.js', () => ({
   ASSET_PATHS: {
-    DESIGNS_INDEX: '/api/designs.json'
+    DESIGNS_INDEX: '/api/designs.json',
   },
   SWIPE_DIRECTIONS: {
     RIGHT: 'right',
     LEFT: 'left',
     UP: 'up',
-    DOWN: 'down'
+    DOWN: 'down',
   },
   TUTORIAL_TIMING: {
     DIRECTION_DISPLAY_MS: 100,
-    DIRECTION_PAUSE_MS: 50
+    DIRECTION_PAUSE_MS: 50,
   },
   FEEDBACK_TIMING: {
-    DISPLAY_DURATION_MS: 200
-  }
+    DISPLAY_DURATION_MS: 200,
+  },
 }));
 
 describe('useDeck', () => {
@@ -60,11 +56,11 @@ describe('useDeck', () => {
   it('should load designs successfully', async () => {
     const mockDesigns = [
       { id: 1, name: 'Design 1' },
-      { id: 2, name: 'Design 2' }
+      { id: 2, name: 'Design 2' },
     ];
 
     fetch.mockResolvedValue({
-      json: () => Promise.resolve(mockDesigns)
+      json: () => Promise.resolve(mockDesigns),
     });
 
     const { result } = renderHook(() => useDeck());
@@ -91,7 +87,10 @@ describe('useDeck', () => {
       returnedData = await result.current.loadDesigns();
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to load designs', expect.any(Error));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Failed to load designs',
+      expect.any(Error)
+    );
     expect(result.current.deck).toEqual([]);
     expect(result.current.initialDeck).toEqual([]);
     expect(returnedData).toEqual([]);
@@ -102,7 +101,7 @@ describe('useDeck', () => {
   it('should handle JSON parsing errors', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     fetch.mockResolvedValue({
-      json: () => Promise.reject(new Error('Invalid JSON'))
+      json: () => Promise.reject(new Error('Invalid JSON')),
     });
 
     const { result } = renderHook(() => useDeck());
@@ -111,7 +110,10 @@ describe('useDeck', () => {
       await result.current.loadDesigns();
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to load designs', expect.any(Error));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Failed to load designs',
+      expect.any(Error)
+    );
     expect(result.current.deck).toEqual([]);
 
     consoleSpy.mockRestore();
@@ -120,11 +122,11 @@ describe('useDeck', () => {
   it('should reset deck to initial state', async () => {
     const mockDesigns = [
       { id: 1, name: 'Design 1' },
-      { id: 2, name: 'Design 2' }
+      { id: 2, name: 'Design 2' },
     ];
 
     fetch.mockResolvedValue({
-      json: () => Promise.resolve(mockDesigns)
+      json: () => Promise.resolve(mockDesigns),
     });
 
     const { result } = renderHook(() => useDeck());
@@ -194,14 +196,16 @@ describe('useTutorial', () => {
 
     expect(result.current.showTutorial).toBe(true);
     expect(typeof result.current.setShowTutorial).toBe('function');
-    
+
     // Tutorial should start with a direction
     await act(async () => {
       vi.advanceTimersByTime(10);
     });
-    
+
     // Tutorial direction should be one of the expected values
-    expect(['right', 'left', 'up', 'down', null]).toContain(result.current.tutorialDir);
+    expect(['right', 'left', 'up', 'down', null]).toContain(
+      result.current.tutorialDir
+    );
   });
 
   it('should not run tutorial when shouldShowTutorial is false', async () => {
@@ -277,7 +281,7 @@ describe('useSwipeFeedback', () => {
     expect(result.current.feedbacks).toHaveLength(1);
     expect(result.current.feedbacks[0]).toEqual({
       icon: '❤️',
-      id: expect.any(Number)
+      id: expect.any(Number),
     });
   });
 
@@ -319,7 +323,11 @@ describe('useSwipeFeedback', () => {
     });
 
     expect(result.current.feedbacks).toHaveLength(3);
-    expect(result.current.feedbacks.map(f => f.icon)).toEqual(['❤️', '👍', '😍']);
+    expect(result.current.feedbacks.map((f) => f.icon)).toEqual([
+      '❤️',
+      '👍',
+      '😍',
+    ]);
   });
 
   it('should remove feedbacks independently', async () => {
@@ -329,12 +337,12 @@ describe('useSwipeFeedback', () => {
     act(() => {
       result.current.addFeedback('❤️', 100);
     });
-    
+
     // Wait a tick to ensure different timestamp
     await act(async () => {
       vi.advanceTimersByTime(1);
     });
-    
+
     act(() => {
       result.current.addFeedback('👍', 300);
     });
@@ -363,12 +371,12 @@ describe('useSwipeFeedback', () => {
     act(() => {
       result.current.addFeedback('❤️');
     });
-    
+
     // Wait a tick to ensure different timestamp
     await act(async () => {
       vi.advanceTimersByTime(1);
     });
-    
+
     act(() => {
       result.current.addFeedback('❤️');
     });
@@ -379,4 +387,3 @@ describe('useSwipeFeedback', () => {
     expect(typeof feedback2.id).toBe('number');
   });
 });
-

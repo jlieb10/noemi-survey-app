@@ -12,9 +12,17 @@ async function mockSupabase(page) {
       });
     }
     if (url.includes('/swipes')) {
-      return route.fulfill({ status: 201, contentType: 'application/json', body: '{}' });
+      return route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: '{}',
+      });
     }
-    return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: '{}',
+    });
   });
 }
 
@@ -72,7 +80,7 @@ test('complete survey and swipe ritual', async ({ page }) => {
 
   // Q11
   const constraintInput = page.getByPlaceholder(
-    'e.g., allergens, caffeine‑free, vegan only',
+    'e.g., allergens, caffeine‑free, vegan only'
   );
   if (await constraintInput.isVisible()) {
     await constraintInput.fill('no caffeine');
@@ -98,7 +106,9 @@ test('complete survey and swipe ritual', async ({ page }) => {
   if (box) {
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width + 200, box.y + box.height / 2, { steps: 10 });
+    await page.mouse.move(box.x + box.width + 200, box.y + box.height / 2, {
+      steps: 10,
+    });
     await page.mouse.up();
     await page.waitForTimeout(500);
   }

@@ -1,10 +1,10 @@
 /**
  * Tests for SwipeGame image preloading functionality.
- * 
+ *
  * These tests verify that images are preloaded correctly for smooth user experience.
  * The preloading system should load images ahead of time to prevent loading delays
  * during swipe interactions.
- * 
+ *
  * @testSuite components/SwipeGame/Preloading
  */
 import { render, waitFor } from '@testing-library/react';
@@ -15,7 +15,7 @@ import SwipeGame from './SwipeGame.jsx';
 vi.mock('../DesignCanvas.jsx', () => ({
   default: vi.fn(({ src, alt }) => {
     return <div data-testid="design-canvas" data-src={src} aria-label={alt} />;
-  })
+  }),
 }));
 
 // Mock the hooks
@@ -26,28 +26,28 @@ vi.mock('../hooks/useSwipeGame.js', () => ({
       { id: '2', image_url: 'https://example.com/image2.jpg' },
       { id: '3', image_url: 'https://example.com/image3.jpg' },
       { id: '4', image_url: 'https://example.com/image4.jpg' },
-      { id: '5', image_url: 'https://example.com/image5.jpg' }
+      { id: '5', image_url: 'https://example.com/image5.jpg' },
     ],
     setDeck: vi.fn(),
     loadDesigns: vi.fn(),
     resetDeck: vi.fn(),
-    total: 5
+    total: 5,
   })),
   useTutorial: vi.fn(() => ({
     showTutorial: false,
     tutorialDir: null,
-    setShowTutorial: vi.fn()
+    setShowTutorial: vi.fn(),
   })),
   useSwipeFeedback: vi.fn(() => ({
     feedbacks: [],
-    addFeedback: vi.fn()
-  }))
+    addFeedback: vi.fn(),
+  })),
 }));
 
 // Mock analytics
 vi.mock('../services/analytics.js', () => ({
   onGameStart: vi.fn(),
-  onSwipe: vi.fn()
+  onSwipe: vi.fn(),
 }));
 
 // Mock supabase
@@ -56,10 +56,10 @@ vi.mock('../services/supabaseClient.js', () => ({
     from: vi.fn(() => ({
       insert: vi.fn(),
       delete: vi.fn(() => ({
-        match: vi.fn()
-      }))
-    }))
-  }
+        match: vi.fn(),
+      })),
+    })),
+  },
 }));
 
 // Mock config
@@ -67,7 +67,7 @@ vi.mock('../../docs/noemi-survey-config.json', () => ({
   default: {
     brand: { instagram: '@noemi' },
     design_feedback: { title: 'Test Title' },
-  }
+  },
 }));
 
 describe('SwipeGame Image Preloading', () => {
@@ -83,7 +83,7 @@ describe('SwipeGame Image Preloading', () => {
         onload: null,
         onerror: null,
         addEventListener: vi.fn(),
-        removeEventListener: vi.fn()
+        removeEventListener: vi.fn(),
       };
       mockImages.push(mockImage);
       return mockImage;
@@ -108,19 +108,19 @@ describe('SwipeGame Image Preloading', () => {
     expect(mockImages.length).toBeGreaterThan(0);
 
     // Check that crossOrigin is set for CORS compatibility
-    mockImages.forEach(img => {
+    mockImages.forEach((img) => {
       expect(img.crossOrigin).toBe('anonymous');
     });
 
     // Check that error handlers are set
-    mockImages.forEach(img => {
+    mockImages.forEach((img) => {
       expect(img.onerror).toBeTypeOf('function');
     });
   });
 
   it('should handle preload errors gracefully', async () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    
+
     render(<SwipeGame participantId="test-participant" />);
 
     await waitFor(() => {
@@ -163,11 +163,11 @@ describe('SwipeGame Image Preloading', () => {
     });
 
     // Check that src is set on preloaded images
-    const imagesWithSrc = mockImages.filter(img => img.src);
+    const imagesWithSrc = mockImages.filter((img) => img.src);
     expect(imagesWithSrc.length).toBeGreaterThan(0);
 
     // Verify URLs are from the expected domain
-    imagesWithSrc.forEach(img => {
+    imagesWithSrc.forEach((img) => {
       expect(img.src).toMatch(/https?:\/\/.*\.jpg/);
     });
   });

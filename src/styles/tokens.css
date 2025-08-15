@@ -11,19 +11,19 @@
   --radius-lg: 12px;
   --font-serif: 'Playfair Display', serif;
   --font-sans: ui-sans-serif, system-ui, 'Inter', sans-serif;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-lg: 0 10px 20px rgba(0,0,0,0.1);
-  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.1);
+
   /* Luxury color palette */
-  --color-gold: #C6A25A;
-  --color-gold-light: #E6C478;
-  --color-gold-dark: #A5843A;
+  --color-gold: #c6a25a;
+  --color-gold-light: #e6c478;
+  --color-gold-dark: #a5843a;
   --color-text-primary: #1a2a4a;
   --color-text-secondary: #5a4333;
-  --color-text-muted: #8B7355;
+  --color-text-muted: #8b7355;
   /* Lower opacity for better contrast with opalescent background */
   --color-surface: rgba(255, 255, 255, 0.75);
-  --color-surface-elevated: rgba(255, 255, 255, 0.90);
+  --color-surface-elevated: rgba(255, 255, 255, 0.9);
 }
 
 .stack > * + * {

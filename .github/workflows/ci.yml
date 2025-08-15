@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   install:
@@ -12,20 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
-          
+
       - name: Enable Corepack
         run: corepack enable
-        
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         env:
           SKIP_PLAYWRIGHT: 'true'
-          
+
       - name: Cache node_modules
         uses: actions/cache@v4
         with:
@@ -38,26 +38,26 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
-          
+
       - name: Enable Corepack
         run: corepack enable
-        
+
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-          
+
       - name: Install dependencies (if cache miss)
         run: pnpm install --frozen-lockfile
         env:
           SKIP_PLAYWRIGHT: 'true'
-          
+
       - name: Run linter
         run: pnpm run lint
 
@@ -67,26 +67,26 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
-          
+
       - name: Enable Corepack
         run: corepack enable
-        
+
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-          
+
       - name: Install dependencies (if cache miss)
         run: pnpm install --frozen-lockfile
         env:
           SKIP_PLAYWRIGHT: 'true'
-          
+
       - name: Check TypeScript types
         run: npx tsc --noEmit
 
@@ -96,29 +96,29 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
-          
+
       - name: Enable Corepack
         run: corepack enable
-        
+
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-          
+
       - name: Install dependencies (if cache miss)
         run: pnpm install --frozen-lockfile
         env:
           SKIP_PLAYWRIGHT: 'true'
-          
+
       - name: Run unit tests with coverage
         run: pnpm run test --coverage
-        
+
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
         with:
@@ -134,32 +134,32 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
-          
+
       - name: Enable Corepack
         run: corepack enable
-        
+
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-          
+
       - name: Install dependencies (if cache miss)
         run: pnpm install --frozen-lockfile
         env:
           SKIP_PLAYWRIGHT: 'true'
-          
+
       - name: Build application
         run: pnpm run build
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-key' }}
-          
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -172,26 +172,26 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
-          
+
       - name: Enable Corepack
         run: corepack enable
-        
+
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-          
+
       - name: Install dependencies (if cache miss)
         run: pnpm install --frozen-lockfile
         env:
           SKIP_PLAYWRIGHT: 'true'
-          
+
       - name: Install Playwright browsers
         id: playwright-install
         run: |
@@ -211,27 +211,27 @@ jobs:
             fi
           done
         continue-on-error: true
-        
+
       - name: Run E2E tests
         if: steps.playwright-install.outputs.playwright_install_failed != 'true'
         run: pnpm run test:e2e
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-key' }}
-        
+
       - name: Skip E2E tests (Playwright installation failed)
         if: steps.playwright-install.outputs.playwright_install_failed == 'true'
         run: |
           echo "⚠️ Skipping E2E tests due to Playwright browser installation failure"
           echo "This is a known issue in CI environments and does not affect application functionality"
-          
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: playwright-report/
-          
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
@@ -248,26 +248,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.11.1'
-          
+
       - name: Enable Corepack
         run: corepack enable
-        
+
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-          
+
       - name: Install dependencies (if cache miss)
         run: pnpm install --frozen-lockfile
         env:
           SKIP_PLAYWRIGHT: 'true'
-          
+
       - name: Install Playwright browsers
         id: playwright-install-visual
         run: |
@@ -287,20 +287,20 @@ jobs:
             fi
           done
         continue-on-error: true
-        
+
       - name: Run visual regression tests
         if: steps.playwright-install-visual.outputs.playwright_install_failed != 'true'
         run: pnpm run test:e2e e2e/visual-regression.spec.js
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-key' }}
-        
+
       - name: Skip visual regression tests (Playwright installation failed)
         if: steps.playwright-install-visual.outputs.playwright_install_failed == 'true'
         run: |
           echo "⚠️ Skipping visual regression tests due to Playwright browser installation failure"
           echo "This is a known issue in CI environments and does not affect application functionality"
-        
+
       - name: Upload visual diff artifacts
         uses: actions/upload-artifact@v4
         if: failure()

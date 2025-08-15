@@ -1,6 +1,6 @@
 /**
  * Test setup configuration for Vitest.
- * 
+ *
  * This file is automatically loaded before all tests and configures:
  * - Testing Library matchers
  * - Global test utilities
@@ -16,7 +16,7 @@ import { vi } from 'vitest';
 // Mock window.matchMedia for tests that use responsive design
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,

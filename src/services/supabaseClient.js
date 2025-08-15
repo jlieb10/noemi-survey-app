@@ -1,9 +1,9 @@
 /**
  * Supabase client configuration and initialization.
- * 
+ *
  * Creates a hardened Supabase client instance with proper error handling,
  * environment variable validation, and DB health checking capabilities.
- * 
+ *
  * @module supabaseClient
  */
 import { createClient } from '@supabase/supabase-js';
@@ -33,7 +33,10 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 }
 
 // Validate URL format
-if (!SUPABASE_URL.startsWith('https://') || !SUPABASE_URL.includes('.supabase.co')) {
+if (
+  !SUPABASE_URL.startsWith('https://') ||
+  !SUPABASE_URL.includes('.supabase.co')
+) {
   throw new Error(
     `Invalid Supabase URL format: ${SUPABASE_URL.substring(0, 20)}... Expected https://*.supabase.co`
   );
@@ -51,71 +54,74 @@ if (import.meta.env.DEV || import.meta.env.VITE_DEBUG_SUPABASE) {
   console.log('Supabase client initialized:', {
     url: `${SUPABASE_URL.substring(0, 20)}...`,
     anonKeyPrefix: `${SUPABASE_ANON_KEY.substring(0, 10)}...`,
-    anonKeyLength: SUPABASE_ANON_KEY.length
+    anonKeyLength: SUPABASE_ANON_KEY.length,
   });
 }
 
 /**
  * Supabase client instance with disabled session persistence.
  * Guaranteed to be non-null if module loads successfully.
- * 
+ *
  * @type {import('@supabase/supabase-js').SupabaseClient}
  */
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { 
-  auth: { persistSession: false } 
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: false },
 });
 
 /**
  * Check database health with a lightweight query.
  * Returns connection status and any error details.
- * 
+ *
  * @returns {Promise<{ok: boolean, error?: any, timestamp: string}>}
  */
 export async function checkDbHealth() {
   const timestamp = new Date().toISOString();
-  
+
   try {
     // Try a simple table query first (most reliable for checking DB connectivity)
     const { data, error } = await supabase
       .from('participants')
       .select('count')
       .limit(1);
-    
+
     if (!error) {
-      return { 
-        ok: true, 
-        error: null, 
+      return {
+        ok: true,
+        error: null,
         timestamp,
-        method: 'table_query'
+        method: 'table_query',
       };
     }
-    
+
     // If table query fails, fall back to auth session check
-    console.log('Table query failed, trying auth session check:', error.message);
+    console.log(
+      'Table query failed, trying auth session check:',
+      error.message
+    );
     const { error: authError } = await supabase.auth.getSession();
-    
-    return { 
-      ok: !authError, 
-      error: authError || error, 
+
+    return {
+      ok: !authError,
+      error: authError || error,
       timestamp,
-      method: 'auth_session_fallback'
+      method: 'auth_session_fallback',
     };
   } catch (e) {
     // Final fallback - try just the auth client
     try {
       const { error: authError } = await supabase.auth.getSession();
-      return { 
-        ok: !authError, 
-        error: authError || e, 
+      return {
+        ok: !authError,
+        error: authError || e,
         timestamp,
-        method: 'exception_auth_fallback'
+        method: 'exception_auth_fallback',
       };
     } catch (authException) {
-      return { 
-        ok: false, 
-        error: authException, 
+      return {
+        ok: false,
+        error: authException,
         timestamp,
-        method: 'all_methods_failed'
+        method: 'all_methods_failed',
       };
     }
   }
@@ -133,8 +139,8 @@ export function generateDiagnostics(healthResult) {
     url: window.location.href,
     supabaseUrl: `${SUPABASE_URL.substring(0, 30)}...`,
     anonKeyPrefix: `${SUPABASE_ANON_KEY.substring(0, 15)}...`,
-    healthCheck: healthResult
+    healthCheck: healthResult,
   };
-  
+
   return `DB_HEALTH_DIAGNOSTICS | ${JSON.stringify(diagnostics, null, 2)}`;
 }

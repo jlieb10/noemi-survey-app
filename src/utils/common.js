@@ -68,7 +68,7 @@ export function hasUrlParam(paramName, expectedValue) {
  * @returns {Promise<void>} Promise that resolves after the delay
  */
 export function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**

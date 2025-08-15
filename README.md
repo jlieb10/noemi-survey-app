@@ -52,6 +52,7 @@ This application prioritizes **user interaction and luxury aesthetic** above all
 **All interactions must be tested.** This application is designed for user engagement, so every button click, swipe gesture, form input, and navigation flow requires comprehensive test coverage.
 
 ### Testing Strategy
+
 - **Unit Tests**: Every utility function and component method
 - **Component Tests**: All props, states, and user interactions
 - **Integration Tests**: Cross-component workflows and data flow
@@ -60,6 +61,7 @@ This application prioritizes **user interaction and luxury aesthetic** above all
 - **Accessibility Tests**: Screen reader and keyboard navigation
 
 ### Testing Commands
+
 ```bash
 pnpm run test          # Unit and component tests (must pass)
 pnpm run test:e2e      # End-to-end tests (must pass)
@@ -67,6 +69,7 @@ pnpm run lint          # Code quality checks (must pass)
 ```
 
 **Requirements for CI/PR Approval:**
+
 - ✅ All unit tests passing
 - ✅ All e2e tests passing (or manual verification)
 - ✅ ESLint with no errors
@@ -85,6 +88,7 @@ The repository includes `netlify.toml` for Netlify deployments.
 After deployment, the survey will be available at the Netlify-provided URL.
 
 ## Quick Start
+
 1. pnpm install
 2. Create .env with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
 3. Apply SQL in supabase/migrations/0001_init.sql
@@ -100,4 +104,3 @@ Pull requests are merged only when they meet all of the following:
 - Run `pnpm run lint`, all unit tests, and `pnpm run test:e2e`; all must pass.
 - Fix lint errors and address warnings when possible.
 - Follow the style and environment guidelines in `AGENTS.md`.
-

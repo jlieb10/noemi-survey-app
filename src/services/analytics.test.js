@@ -1,11 +1,11 @@
 /**
  * Unit tests for analytics service.
- * 
+ *
  * These tests verify that analytics events are properly logged and structured.
  * Since this is currently a placeholder implementation, tests focus on ensuring
  * proper function signatures and console output. When replacing with a real
  * analytics provider, update tests to verify actual integration calls.
- * 
+ *
  * @testSuite services/analytics
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -14,7 +14,7 @@ import {
   onQuestionAnswered,
   onSurveyComplete,
   onGameStart,
-  onSwipe
+  onSwipe,
 } from './analytics.js';
 
 describe('Analytics Service', () => {
@@ -31,7 +31,7 @@ describe('Analytics Service', () => {
   describe('onSurveyStart', () => {
     it('should log survey start event', () => {
       onSurveyStart();
-      
+
       expect(consoleSpy).toHaveBeenCalledWith('Analytics: survey_start');
       expect(consoleSpy).toHaveBeenCalledTimes(1);
     });
@@ -40,7 +40,7 @@ describe('Analytics Service', () => {
       onSurveyStart();
       onSurveyStart();
       onSurveyStart();
-      
+
       expect(consoleSpy).toHaveBeenCalledTimes(3);
       expect(consoleSpy).toHaveBeenNthCalledWith(1, 'Analytics: survey_start');
       expect(consoleSpy).toHaveBeenNthCalledWith(2, 'Analytics: survey_start');
@@ -52,43 +52,50 @@ describe('Analytics Service', () => {
     it('should log question answered event with correct parameters', () => {
       const questionId = 'q1_wellness_goal';
       const answer = 'stress_relief';
-      
+
       onQuestionAnswered(questionId, answer);
-      
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Analytics: question_answered',
-        { questionId, answer }
-      );
+
+      expect(consoleSpy).toHaveBeenCalledWith('Analytics: question_answered', {
+        questionId,
+        answer,
+      });
       expect(consoleSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should handle different answer types', () => {
       // String answer
       onQuestionAnswered('q1', 'string_answer');
-      expect(consoleSpy).toHaveBeenNthCalledWith(1, 
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        1,
         'Analytics: question_answered',
         { questionId: 'q1', answer: 'string_answer' }
       );
 
       // Array answer (multi-select)
       onQuestionAnswered('q2', ['option1', 'option2']);
-      expect(consoleSpy).toHaveBeenNthCalledWith(2,
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        2,
         'Analytics: question_answered',
         { questionId: 'q2', answer: ['option1', 'option2'] }
       );
 
       // Number answer (scale)
       onQuestionAnswered('q3', 7);
-      expect(consoleSpy).toHaveBeenNthCalledWith(3,
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        3,
         'Analytics: question_answered',
         { questionId: 'q3', answer: 7 }
       );
 
       // Object answer (gate question)
       onQuestionAnswered('q4', { join: 'yes', email: 'test@example.com' });
-      expect(consoleSpy).toHaveBeenNthCalledWith(4,
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        4,
         'Analytics: question_answered',
-        { questionId: 'q4', answer: { join: 'yes', email: 'test@example.com' } }
+        {
+          questionId: 'q4',
+          answer: { join: 'yes', email: 'test@example.com' },
+        }
       );
 
       expect(consoleSpy).toHaveBeenCalledTimes(4);
@@ -96,13 +103,15 @@ describe('Analytics Service', () => {
 
     it('should handle null and undefined answers', () => {
       onQuestionAnswered('q1', null);
-      expect(consoleSpy).toHaveBeenNthCalledWith(1,
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        1,
         'Analytics: question_answered',
         { questionId: 'q1', answer: null }
       );
 
       onQuestionAnswered('q2', undefined);
-      expect(consoleSpy).toHaveBeenNthCalledWith(2,
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        2,
         'Analytics: question_answered',
         { questionId: 'q2', answer: undefined }
       );
@@ -112,45 +121,47 @@ describe('Analytics Service', () => {
 
     it('should handle empty string question IDs', () => {
       onQuestionAnswered('', 'answer');
-      
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Analytics: question_answered',
-        { questionId: '', answer: 'answer' }
-      );
+
+      expect(consoleSpy).toHaveBeenCalledWith('Analytics: question_answered', {
+        questionId: '',
+        answer: 'answer',
+      });
     });
   });
 
   describe('onSurveyComplete', () => {
     it('should log survey complete event with participant ID', () => {
       const participantId = 'participant_123';
-      
+
       onSurveyComplete(participantId);
-      
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Analytics: survey_complete',
-        { participantId }
-      );
+
+      expect(consoleSpy).toHaveBeenCalledWith('Analytics: survey_complete', {
+        participantId,
+      });
       expect(consoleSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should handle different participant ID formats', () => {
       // UUID format
       onSurveyComplete('550e8400-e29b-41d4-a716-446655440000');
-      expect(consoleSpy).toHaveBeenNthCalledWith(1,
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        1,
         'Analytics: survey_complete',
         { participantId: '550e8400-e29b-41d4-a716-446655440000' }
       );
 
       // Numeric ID
       onSurveyComplete('12345');
-      expect(consoleSpy).toHaveBeenNthCalledWith(2,
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        2,
         'Analytics: survey_complete',
         { participantId: '12345' }
       );
 
       // Test constant
       onSurveyComplete('LOCAL_TEST');
-      expect(consoleSpy).toHaveBeenNthCalledWith(3,
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        3,
         'Analytics: survey_complete',
         { participantId: 'LOCAL_TEST' }
       );
@@ -160,24 +171,22 @@ describe('Analytics Service', () => {
 
     it('should handle null participant ID', () => {
       onSurveyComplete(null);
-      
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Analytics: survey_complete',
-        { participantId: null }
-      );
+
+      expect(consoleSpy).toHaveBeenCalledWith('Analytics: survey_complete', {
+        participantId: null,
+      });
     });
   });
 
   describe('onGameStart', () => {
     it('should log game start event with participant ID', () => {
       const participantId = 'participant_456';
-      
+
       onGameStart(participantId);
-      
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Analytics: game_start',
-        { participantId }
-      );
+
+      expect(consoleSpy).toHaveBeenCalledWith('Analytics: game_start', {
+        participantId,
+      });
       expect(consoleSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -185,19 +194,16 @@ describe('Analytics Service', () => {
       onGameStart('string_id');
       onGameStart(123);
       onGameStart(null);
-      
-      expect(consoleSpy).toHaveBeenNthCalledWith(1,
-        'Analytics: game_start',
-        { participantId: 'string_id' }
-      );
-      expect(consoleSpy).toHaveBeenNthCalledWith(2,
-        'Analytics: game_start',
-        { participantId: 123 }
-      );
-      expect(consoleSpy).toHaveBeenNthCalledWith(3,
-        'Analytics: game_start',
-        { participantId: null }
-      );
+
+      expect(consoleSpy).toHaveBeenNthCalledWith(1, 'Analytics: game_start', {
+        participantId: 'string_id',
+      });
+      expect(consoleSpy).toHaveBeenNthCalledWith(2, 'Analytics: game_start', {
+        participantId: 123,
+      });
+      expect(consoleSpy).toHaveBeenNthCalledWith(3, 'Analytics: game_start', {
+        participantId: null,
+      });
 
       expect(consoleSpy).toHaveBeenCalledTimes(3);
     });
@@ -208,25 +214,27 @@ describe('Analytics Service', () => {
       const participantId = 'participant_789';
       const cardId = 'card_123';
       const choice = 'like';
-      
+
       onSwipe(participantId, cardId, choice);
-      
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Analytics: swipe',
-        { participantId, cardId, choice }
-      );
+
+      expect(consoleSpy).toHaveBeenCalledWith('Analytics: swipe', {
+        participantId,
+        cardId,
+        choice,
+      });
       expect(consoleSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should handle all valid choice types', () => {
       const participantId = 'test_participant';
       const cardId = 'test_card';
-      
+
       const validChoices = ['like', 'dislike', 'love', 'not_sure'];
-      
+
       validChoices.forEach((choice, index) => {
         onSwipe(participantId, cardId, choice);
-        expect(consoleSpy).toHaveBeenNthCalledWith(index + 1,
+        expect(consoleSpy).toHaveBeenNthCalledWith(
+          index + 1,
           'Analytics: swipe',
           { participantId, cardId, choice }
         );
@@ -238,26 +246,29 @@ describe('Analytics Service', () => {
     it('should handle different card ID formats', () => {
       // UUID format
       onSwipe('p1', '550e8400-e29b-41d4-a716-446655440000', 'like');
-      
+
       // Simple string
       onSwipe('p1', 'card_001', 'dislike');
-      
+
       // Numeric string
       onSwipe('p1', '42', 'love');
 
       expect(consoleSpy).toHaveBeenCalledTimes(3);
-      expect(consoleSpy).toHaveBeenNthCalledWith(1,
-        'Analytics: swipe',
-        { participantId: 'p1', cardId: '550e8400-e29b-41d4-a716-446655440000', choice: 'like' }
-      );
-      expect(consoleSpy).toHaveBeenNthCalledWith(2,
-        'Analytics: swipe',
-        { participantId: 'p1', cardId: 'card_001', choice: 'dislike' }
-      );
-      expect(consoleSpy).toHaveBeenNthCalledWith(3,
-        'Analytics: swipe',
-        { participantId: 'p1', cardId: '42', choice: 'love' }
-      );
+      expect(consoleSpy).toHaveBeenNthCalledWith(1, 'Analytics: swipe', {
+        participantId: 'p1',
+        cardId: '550e8400-e29b-41d4-a716-446655440000',
+        choice: 'like',
+      });
+      expect(consoleSpy).toHaveBeenNthCalledWith(2, 'Analytics: swipe', {
+        participantId: 'p1',
+        cardId: 'card_001',
+        choice: 'dislike',
+      });
+      expect(consoleSpy).toHaveBeenNthCalledWith(3, 'Analytics: swipe', {
+        participantId: 'p1',
+        cardId: '42',
+        choice: 'love',
+      });
     });
 
     it('should handle null and undefined parameters', () => {
@@ -267,14 +278,16 @@ describe('Analytics Service', () => {
       onSwipe(undefined, undefined, undefined);
 
       expect(consoleSpy).toHaveBeenCalledTimes(4);
-      expect(consoleSpy).toHaveBeenNthCalledWith(1,
-        'Analytics: swipe',
-        { participantId: null, cardId: 'card_1', choice: 'like' }
-      );
-      expect(consoleSpy).toHaveBeenNthCalledWith(4,
-        'Analytics: swipe',
-        { participantId: undefined, cardId: undefined, choice: undefined }
-      );
+      expect(consoleSpy).toHaveBeenNthCalledWith(1, 'Analytics: swipe', {
+        participantId: null,
+        cardId: 'card_1',
+        choice: 'like',
+      });
+      expect(consoleSpy).toHaveBeenNthCalledWith(4, 'Analytics: swipe', {
+        participantId: undefined,
+        cardId: undefined,
+        choice: undefined,
+      });
     });
 
     it('should handle invalid choice values without error', () => {
@@ -284,18 +297,21 @@ describe('Analytics Service', () => {
       onSwipe('p1', 'c1', 123);
 
       expect(consoleSpy).toHaveBeenCalledTimes(3);
-      expect(consoleSpy).toHaveBeenNthCalledWith(1,
-        'Analytics: swipe',
-        { participantId: 'p1', cardId: 'c1', choice: 'invalid_choice' }
-      );
-      expect(consoleSpy).toHaveBeenNthCalledWith(2,
-        'Analytics: swipe',
-        { participantId: 'p1', cardId: 'c1', choice: '' }
-      );
-      expect(consoleSpy).toHaveBeenNthCalledWith(3,
-        'Analytics: swipe',
-        { participantId: 'p1', cardId: 'c1', choice: 123 }
-      );
+      expect(consoleSpy).toHaveBeenNthCalledWith(1, 'Analytics: swipe', {
+        participantId: 'p1',
+        cardId: 'c1',
+        choice: 'invalid_choice',
+      });
+      expect(consoleSpy).toHaveBeenNthCalledWith(2, 'Analytics: swipe', {
+        participantId: 'p1',
+        cardId: 'c1',
+        choice: '',
+      });
+      expect(consoleSpy).toHaveBeenNthCalledWith(3, 'Analytics: swipe', {
+        participantId: 'p1',
+        cardId: 'c1',
+        choice: 123,
+      });
     });
   });
 

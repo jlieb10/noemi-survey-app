@@ -53,7 +53,7 @@
   height: 100%;
   border-radius: var(--radius-lg);
   border: 2px solid var(--color-gold);
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(198, 162, 90, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -61,13 +61,15 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   backdrop-filter: blur(10px);
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(198, 162, 90, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -97,7 +99,11 @@
 }
 
 .sg-progress::-webkit-progress-value {
-  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-gold),
+    var(--color-gold-light)
+  );
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -175,7 +181,7 @@
 .card.tutorial {
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
-  box-shadow: 
+  box-shadow:
     0 12px 40px rgba(198, 162, 90, 0.2),
     0 0 0 2px var(--color-gold),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -222,27 +228,27 @@
     width: min(90vw, 320px);
     height: min(55svh, 420px);
   }
-  
+
   .swipe-label.left {
     left: -4.5rem;
   }
-  
+
   .swipe-label.right {
     right: -4.5rem;
   }
-  
+
   .swipe-label.up {
     top: -2rem;
   }
-  
+
   .swipe-label.down {
     bottom: -2rem;
   }
-  
+
   .sg-title {
     font-size: 1.75rem;
   }
-  
+
   .swipe-game {
     gap: var(--space-3);
     padding: var(--space-4) var(--space-3);

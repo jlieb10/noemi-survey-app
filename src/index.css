@@ -1,18 +1,66 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;700&display=swap');
 @import './styles/tokens.css';
 
-@property --x1 { syntax: '<percentage>'; inherits: false; initial-value: 25%; }
-@property --y1 { syntax: '<percentage>'; inherits: false; initial-value: 30%; }
-@property --r1 { syntax: '<length>';     inherits: false; initial-value: 50vmin; }
-@property --x2 { syntax: '<percentage>'; inherits: false; initial-value: 40%; }
-@property --y2 { syntax: '<percentage>'; inherits: false; initial-value: 55%; }
-@property --r2 { syntax: '<length>';     inherits: false; initial-value: 56vmin; }
-@property --x3 { syntax: '<percentage>'; inherits: false; initial-value: 65%; }
-@property --y3 { syntax: '<percentage>'; inherits: false; initial-value: 30%; }
-@property --r3 { syntax: '<length>';     inherits: false; initial-value: 60vmin; }
-@property --x4 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
-@property --y4 { syntax: '<percentage>'; inherits: false; initial-value: 55%; }
-@property --r4 { syntax: '<length>';     inherits: false; initial-value: 54vmin; }
+@property --x1 {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 25%;
+}
+@property --y1 {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 30%;
+}
+@property --r1 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 50vmin;
+}
+@property --x2 {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 40%;
+}
+@property --y2 {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 55%;
+}
+@property --r2 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 56vmin;
+}
+@property --x3 {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 65%;
+}
+@property --y3 {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 30%;
+}
+@property --r3 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 60vmin;
+}
+@property --x4 {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 80%;
+}
+@property --y4 {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 55%;
+}
+@property --r4 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 54vmin;
+}
 
 :root {
   font-family: var(--font-sans);
@@ -51,18 +99,42 @@ body {
   min-height: 100svh;
   color: #1a2a4a;
   background:
-    radial-gradient(var(--r1) var(--r1) at var(--x1) var(--y1), hsl(var(--blue)  / 0.78) 0%, transparent 75%),
-    radial-gradient(var(--r2) var(--r2) at var(--x2) var(--y2), hsl(var(--peach) / 0.76) 0%, transparent 76%),
-    radial-gradient(var(--r3) var(--r3) at var(--x3) var(--y3), hsl(var(--butter)/ 0.74) 0%, transparent 77%),
-    radial-gradient(var(--r4) var(--r4) at var(--x4) var(--y4), hsl(var(--lilac) / 0.74) 0%, transparent 75%),
-    radial-gradient(circle at 50% 40%, hsl(0 0% 100% / .26), transparent 60%),
+    radial-gradient(
+      var(--r1) var(--r1) at var(--x1) var(--y1),
+      hsl(var(--blue) / 0.78) 0%,
+      transparent 75%
+    ),
+    radial-gradient(
+      var(--r2) var(--r2) at var(--x2) var(--y2),
+      hsl(var(--peach) / 0.76) 0%,
+      transparent 76%
+    ),
+    radial-gradient(
+      var(--r3) var(--r3) at var(--x3) var(--y3),
+      hsl(var(--butter) / 0.74) 0%,
+      transparent 77%
+    ),
+    radial-gradient(
+      var(--r4) var(--r4) at var(--x4) var(--y4),
+      hsl(var(--lilac) / 0.74) 0%,
+      transparent 75%
+    ),
+    radial-gradient(circle at 50% 40%, hsl(0 0% 100% / 0.26), transparent 60%),
     linear-gradient(180deg, var(--ecru-1), var(--ecru-2));
   background-attachment: fixed;
   transition:
-    --x1 var(--d1) ease-in-out, --y1 var(--d1) ease-in-out, --r1 var(--d1) ease-in-out,
-    --x2 var(--d2) ease-in-out, --y2 var(--d2) ease-in-out, --r2 var(--d2) ease-in-out,
-    --x3 var(--d3) ease-in-out, --y3 var(--d3) ease-in-out, --r3 var(--d3) ease-in-out,
-    --x4 var(--d4) ease-in-out, --y4 var(--d4) ease-in-out, --r4 var(--d4) ease-in-out;
+    --x1 var(--d1) ease-in-out,
+    --y1 var(--d1) ease-in-out,
+    --r1 var(--d1) ease-in-out,
+    --x2 var(--d2) ease-in-out,
+    --y2 var(--d2) ease-in-out,
+    --r2 var(--d2) ease-in-out,
+    --x3 var(--d3) ease-in-out,
+    --y3 var(--d3) ease-in-out,
+    --r3 var(--d3) ease-in-out,
+    --x4 var(--d4) ease-in-out,
+    --y4 var(--d4) ease-in-out,
+    --r4 var(--d4) ease-in-out;
 }
 
 .terms-root {
@@ -121,7 +193,9 @@ h1 {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(198, 162, 90, 0.1);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 30px rgba(198, 162, 90, 0.1);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(198, 162, 90, 0.2);
   max-width: 600px;
@@ -153,13 +227,21 @@ h1 {
 }
 
 .survey-progress progress::-webkit-progress-value {
-  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-gold),
+    var(--color-gold-light)
+  );
   border-radius: var(--radius-sm);
   transition: width 0.3s ease;
 }
 
 .survey-progress progress::-moz-progress-bar {
-  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-gold),
+    var(--color-gold-light)
+  );
   border-radius: var(--radius-sm);
 }
 
@@ -172,17 +254,18 @@ h1 {
   box-shadow: 0 2px 8px rgba(198, 162, 90, 0.1);
 }
 
-.scale-question input[type="radio"] {
+.scale-question input[type='radio'] {
   accent-color: var(--color-gold);
   transform: scale(1.2);
 }
 
-.scale-question input[type="radio"]:checked {
+.scale-question input[type='radio']:checked {
   box-shadow: 0 0 0 2px var(--color-gold-light);
 }
 
 /* Enhanced radio and checkbox styling */
-input[type="radio"], input[type="checkbox"] {
+input[type='radio'],
+input[type='checkbox'] {
   accent-color: var(--color-gold);
   width: 1.25rem;
   height: 1.25rem;
@@ -219,17 +302,21 @@ label:hover {
 }
 
 /* Input styling */
-input[type="text"], input[type="email"] {
+input[type='text'],
+input[type='email'] {
   border: 2px solid rgba(198, 162, 90, 0.3);
   border-radius: var(--radius-sm);
   padding: var(--space-3);
   font-family: var(--font-sans);
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   background: var(--color-surface-elevated);
 }
 
-input[type="text"]:focus, input[type="email"]:focus {
+input[type='text']:focus,
+input[type='email']:focus {
   outline: none;
   border-color: var(--color-gold);
   box-shadow: 0 0 0 3px rgba(198, 162, 90, 0.1);
@@ -282,14 +369,22 @@ button {
 }
 
 .lux-button-primary {
-  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light));
+  background: linear-gradient(
+    135deg,
+    var(--color-gold),
+    var(--color-gold-light)
+  );
   color: white;
   box-shadow: 0 4px 12px rgba(198, 162, 90, 0.3);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .lux-button-primary:hover {
-  background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold));
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-dark),
+    var(--color-gold)
+  );
   box-shadow: 0 6px 16px rgba(198, 162, 90, 0.4);
   transform: translateY(-1px);
 }
@@ -382,12 +477,12 @@ button:focus-visible {
   background: rgba(198, 162, 90, 0.05);
 }
 
-.ingredient-grid input[type="checkbox"]:checked + span {
+.ingredient-grid input[type='checkbox']:checked + span {
   color: var(--color-gold);
   font-weight: 500;
 }
 
-.ingredient-grid label:has(input[type="checkbox"]:checked) {
+.ingredient-grid label:has(input[type='checkbox']:checked) {
   border-color: var(--color-gold);
   background: rgba(198, 162, 90, 0.1);
   box-shadow: 0 2px 4px rgba(198, 162, 90, 0.1);
@@ -516,7 +611,7 @@ button:focus-visible {
     font-size: 0.8rem;
     padding: var(--space-1) var(--space-2);
   }
-  
+
   .back-link .back-text {
     font-size: 0.8rem;
   }
@@ -545,19 +640,19 @@ button:focus-visible {
   }
 
   /* For very small screens, make scale questions more compact */
-  .scale-question div[style*="display: flex"] {
+  .scale-question div[style*='display: flex'] {
     flex-direction: column !important;
     gap: var(--space-2) !important;
   }
 
-  .scale-question span[style*="minWidth: 60px"] {
+  .scale-question span[style*='minWidth: 60px'] {
     min-width: auto !important;
     text-align: center !important;
     font-size: 0.8rem !important;
   }
 
   /* Compact scale radio buttons on mobile */
-  .scale-question input[type="radio"] {
+  .scale-question input[type='radio'] {
     width: 18px !important;
     height: 18px !important;
   }
@@ -585,7 +680,7 @@ button:focus-visible {
 
 /* Extra small screens (320px and below) */
 @media (max-width: 320px) {
-  .scale-question div[style*="gap: var(--space-2)"] {
+  .scale-question div[style*='gap: var(--space-2)'] {
     flex-wrap: wrap !important;
     justify-content: center !important;
   }
@@ -594,4 +689,3 @@ button:focus-visible {
     min-width: 35px !important;
   }
 }
-
