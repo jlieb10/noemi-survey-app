@@ -625,13 +625,22 @@ export default function Survey({ onComplete }) {
               display: 'flex', 
               alignItems: 'center', 
               gap: 'var(--space-3)',
-              margin: 'var(--space-4) 0'
+              margin: 'var(--space-4) 0',
+              '@media (max-width: 480px)': {
+                flexDirection: 'column',
+                gap: 'var(--space-2)'
+              }
             }}>
               <span style={{ 
                 fontSize: '0.9rem', 
                 color: 'var(--color-text-secondary)', 
                 minWidth: '60px',
-                textAlign: 'right'
+                textAlign: 'right',
+                '@media (max-width: 480px)': {
+                  minWidth: 'auto',
+                  textAlign: 'center',
+                  fontSize: '0.8rem'
+                }
               }}>
                 {q.left}
               </span>
@@ -639,7 +648,8 @@ export default function Survey({ onComplete }) {
                 display: 'flex', 
                 gap: 'var(--space-2)',
                 flex: 1,
-                justifyContent: 'center'
+                justifyContent: 'center',
+                flexWrap: 'wrap'
               }}>
                 {Array.from({ length: q.max - q.min + 1 }, (_, i) => {
                   const value = q.min + i;
@@ -651,7 +661,8 @@ export default function Survey({ onComplete }) {
                         flexDirection: 'column',
                         alignItems: 'center',
                         cursor: 'pointer',
-                        padding: 'var(--space-2)'
+                        padding: 'var(--space-2)',
+                        minWidth: '40px'
                       }}
                     >
                       <input
@@ -680,7 +691,12 @@ export default function Survey({ onComplete }) {
                 fontSize: '0.9rem', 
                 color: 'var(--color-text-secondary)', 
                 minWidth: '60px',
-                textAlign: 'left'
+                textAlign: 'left',
+                '@media (max-width: 480px)': {
+                  minWidth: 'auto',
+                  textAlign: 'center',
+                  fontSize: '0.8rem'
+                }
               }}>
                 {q.right}
               </span>

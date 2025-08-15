@@ -520,5 +520,78 @@ button:focus-visible {
   .back-link .back-text {
     font-size: 0.8rem;
   }
+
+  /* Mobile-optimized typography */
+  h1 {
+    font-size: 2.2em;
+  }
+
+  .survey-wrapper h2 {
+    font-size: 1.5rem;
+  }
+
+  .lux-container {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .survey-wrapper {
+    padding: var(--space-4);
+    margin: var(--space-2) auto;
+  }
+
+  /* Mobile-optimized scale questions */
+  .scale-question {
+    padding: var(--space-3);
+  }
+
+  /* For very small screens, make scale questions more compact */
+  .scale-question div[style*="display: flex"] {
+    flex-direction: column !important;
+    gap: var(--space-2) !important;
+  }
+
+  .scale-question span[style*="minWidth: 60px"] {
+    min-width: auto !important;
+    text-align: center !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* Compact scale radio buttons on mobile */
+  .scale-question input[type="radio"] {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Reduce button text size slightly on mobile */
+  .lux-button-primary,
+  .lux-button-secondary {
+    font-size: 0.9rem;
+    padding: var(--space-2) var(--space-4);
+  }
+
+  /* Make ingredient grid more mobile friendly */
+  .ingredient-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: var(--space-2) !important;
+  }
+
+  /* Ensure terms tooltip fits on mobile */
+  .terms-tooltip {
+    max-width: calc(100vw - 2rem) !important;
+    right: 1rem !important;
+  }
+}
+
+/* Extra small screens (320px and below) */
+@media (max-width: 320px) {
+  .scale-question div[style*="gap: var(--space-2)"] {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+
+  .scale-question label {
+    min-width: 35px !important;
+  }
 }
 
