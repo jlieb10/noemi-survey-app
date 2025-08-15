@@ -29,9 +29,15 @@ const ROOTS = ['src'].filter(Boolean);
     console.log(pc.blue(`📁 Found ${files.length} files to analyze`));
 
     const project = new Project({
-      tsConfigFilePath: 'tsconfig.json',
-      skipAddingFilesFromTsConfig: false,
+      skipAddingFilesFromTsConfig: true,
       useInMemoryFileSystem: false,
+      compilerOptions: {
+        allowJs: true,
+        jsx: 99, // react-jsx enum value
+        target: 7, // ES2018
+        module: 99, // ESNext
+        moduleResolution: 100, // bundler
+      },
     });
 
     files.forEach((f) => project.addSourceFileAtPathIfExists(f));
@@ -40,10 +46,18 @@ const ROOTS = ['src'].filter(Boolean);
     const changedFiles: string[] = [];
 
     for (const sf of project.getSourceFiles()) {
-      if (!files.includes(sf.getFilePath())) continue;
+      const filePath = sf.getFilePath();
+
+      // Check if this source file is one of our target files
+      const isTargetFile = files.some(
+        (f) =>
+          filePath.endsWith(f) ||
+          f.endsWith(filePath.replace(process.cwd() + '/', '')) ||
+          filePath === f
+      );
+      if (!isTargetFile) continue;
 
       let fileChanged = false;
-      const filePath = sf.getFilePath();
 
       console.log(pc.gray(`📝 Processing: ${filePath}`));
 
@@ -121,10 +135,17 @@ function removeUnusedImports(sf: SourceFile): boolean {
 }
 
 /**
- * Convert to type-only imports where all imports are types (safe)
+ * Convert to type-only imports where all imports are types (safe, only for .ts/.tsx files)
  */
 function convertToTypeOnlyImports(sf: SourceFile): boolean {
   let changed = false;
+
+  // Only apply to TypeScript files, not JavaScript files
+  const filePath = sf.getFilePath();
+  if (!filePath.endsWith('.ts') && !filePath.endsWith('.tsx')) {
+    return false;
+  }
+
   const imports = sf.getImportDeclarations();
 
   for (const imp of imports) {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { existsSync, writeFileSync, readFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 
@@ -26,7 +26,7 @@ describe('Safe Refactor Script', () => {
     // Verify that the safe-refactor.ts file exists and has required content
     const scriptPath = join(process.cwd(), 'scripts', 'safe-refactor.ts');
     expect(existsSync(scriptPath)).toBe(true);
-    
+
     const scriptContent = readFileSync(scriptPath, 'utf-8');
     expect(scriptContent).toContain('removeUnusedImports');
     expect(scriptContent).toContain('convertToTypeOnlyImports');
@@ -51,7 +51,7 @@ export function TestComponent() {
 
     writeFileSync(tempTestFile, problematicCode);
     expect(existsSync(tempTestFile)).toBe(true);
-    
+
     const content = readFileSync(tempTestFile, 'utf-8');
     expect(content).toContain('let neverReassigned');
     expect(content).toContain('unused');
