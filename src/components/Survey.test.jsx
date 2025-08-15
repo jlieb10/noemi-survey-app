@@ -55,27 +55,26 @@ describe('Survey', () => {
     vi.clearAllMocks();
   });
 
-  test('first question shows disabled back link and single Next button', () => {
+  test('first question shows no back link and Next/Skip buttons', () => {
     render(<Survey onComplete={vi.fn()} />);
     
-    // Should have a disabled back link
-    const backLink = screen.getByRole('button', { name: /go back/i });
-    expect(backLink).toBeInTheDocument();
-    expect(backLink).toHaveAttribute('aria-disabled', 'true');
+    // Should NOT have a back link on first question
+    expect(screen.queryByRole('button', { name: /go back/i })).not.toBeInTheDocument();
     
     // Should have exactly one primary action button (Next)
     const nextButton = screen.getByRole('button', { name: 'Next' });
     expect(nextButton).toBeInTheDocument();
     
-    // Should NOT have a Skip button
-    expect(screen.queryByRole('button', { name: 'Skip' })).not.toBeInTheDocument();
+    // Should have a Skip button
+    const skipButton = screen.getByRole('button', { name: 'Skip' });
+    expect(skipButton).toBeInTheDocument();
     
-    // Should have exactly 2 buttons total (back link + next button)
+    // Should have exactly 2 buttons total (next + skip)
     const buttons = screen.getAllByRole('button');
     expect(buttons).toHaveLength(2);
   });
 
-  test('second question shows enabled back link and single Submit button', () => {
+  test('second question shows enabled back link and Submit/Skip buttons', () => {
     const mockOnComplete = vi.fn();
     render(<Survey onComplete={mockOnComplete} />);
     
@@ -92,12 +91,13 @@ describe('Survey', () => {
     const submitButton = screen.getByRole('button', { name: 'Submit' });
     expect(submitButton).toBeInTheDocument();
     
-    // Should NOT have a Skip button
-    expect(screen.queryByRole('button', { name: 'Skip' })).not.toBeInTheDocument();
+    // Should have a Skip button (it's always present)
+    const skipButton = screen.getByRole('button', { name: 'Skip' });
+    expect(skipButton).toBeInTheDocument();
     
-    // Should have exactly 2 buttons total (back link + submit button)
+    // Should have exactly 3 buttons total (back link + submit button + skip button)
     const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(2);
+    expect(buttons).toHaveLength(3);
   });
 
   test('back link functionality works correctly', () => {
