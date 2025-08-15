@@ -3,6 +3,7 @@ create table if not exists public.participants (
   email text,
   marketing_opt_in boolean default false,
   answers jsonb not null default '{}',
+  location_data jsonb,
   created_at timestamptz default now()
 );
 create table if not exists public.swipes (

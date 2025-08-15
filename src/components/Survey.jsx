@@ -196,6 +196,7 @@ export default function Survey({ onComplete }) {
 
       // Persist to Supabase if a client is available.
       if (supabase) {
+        console.log('Attempting to save survey data:', { email, marketing, answers: Object.keys(answers).length, location: !!userLocation });
         const { data, error: insertError } = await supabase
           .from('participants')
           .insert({ 
@@ -206,8 +207,14 @@ export default function Survey({ onComplete }) {
           })
           .select()
           .single();
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Supabase insert error:', insertError);
+          throw insertError;
+        }
+        console.log('Survey data saved successfully:', data?.id);
         participantId = data.id;
+      } else {
+        console.warn('Supabase client not available - using local test ID');
       }
 
       // Invoke completion callback with the new or placeholder ID.

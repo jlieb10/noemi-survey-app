@@ -204,11 +204,17 @@ export default function SwipeGame({ participantId }) {
   const saveSwipe = useCallback(async (cardId, choice) => {
     try {
       if (supabase) {
-        await supabase.from('swipes').insert({
+        console.log('Saving swipe:', { participantId, cardId, choice });
+        const { error } = await supabase.from('swipes').insert({
           participant_id: participantId,
           card_id: cardId,
           choice,
         });
+        if (error) {
+          console.error('Supabase swipe insert error:', error);
+          throw error;
+        }
+        console.log('Swipe saved successfully');
         trackSwipe(participantId, cardId, choice);
       } else {
         console.warn('Supabase client not available. Swipe data not persisted.');
@@ -226,10 +232,16 @@ export default function SwipeGame({ participantId }) {
   const removeSwipe = useCallback(async (cardId) => {
     try {
       if (supabase) {
-        await supabase
+        console.log('Removing swipe:', { participantId, cardId });
+        const { error } = await supabase
           .from('swipes')
           .delete()
           .match({ participant_id: participantId, card_id: cardId });
+        if (error) {
+          console.error('Supabase swipe delete error:', error);
+          throw error;
+        }
+        console.log('Swipe removed successfully');
       } else {
         console.warn('Supabase client not available. Undo operation not persisted.');
       }
