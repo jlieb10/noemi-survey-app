@@ -90,7 +90,7 @@ export default function SwipeGame({ participantId }) {
   const saveSwipe = useCallback(async (cardId, choice) => {
     try {
       if (supabase) {
-        console.log('Saving swipe:', { participantId, cardId, choice });
+        if (import.meta.env.DEV) console.debug('Saving swipe:', { participantId, cardId, choice });
         const { error } = await supabase.from('swipes').insert({
           participant_id: participantId,
           card_id: cardId,
@@ -100,7 +100,7 @@ export default function SwipeGame({ participantId }) {
           console.error('Supabase swipe insert error:', error);
           throw error;
         }
-        console.log('Swipe saved successfully');
+        if (import.meta.env.DEV) console.debug('Swipe saved successfully');
         trackSwipe(participantId, cardId, choice);
       } else {
         console.warn('Supabase client not available. Swipe data not persisted.');

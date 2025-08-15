@@ -41,7 +41,7 @@ export default function Survey({ onComplete }) {
       const saved = localStorage.getItem(AUTOSAVE_KEY);
       if (saved) {
         const { answers: savedAnswers, index: savedIndex, timestamp } = JSON.parse(saved);
-        console.log('Loaded autosaved data from', new Date(timestamp));
+        if (import.meta.env.DEV) console.debug('Loaded autosaved data from', new Date(timestamp));
         setAnswers(savedAnswers);
         setIndex(savedIndex);
         setLastSaveTime(timestamp);
@@ -63,7 +63,7 @@ export default function Survey({ onComplete }) {
       };
       localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(saveData));
       setLastSaveTime(timestamp);
-      console.log('Autosaved survey data locally');
+      if (import.meta.env.DEV) console.debug('Autosaved survey data locally');
     } catch (err) {
       console.warn('Failed to autosave to localStorage:', err);
     }
@@ -74,7 +74,7 @@ export default function Survey({ onComplete }) {
     if (!supabase || Object.keys(answers).length === 0) return;
 
     try {
-      console.log('Attempting incremental database save...');
+      if (import.meta.env.DEV) console.debug('Attempting incremental database save...');
       const email = answers['q1d'] || null;
       const marketing = answers['q1d_consent'] !== false;
       
@@ -97,7 +97,7 @@ export default function Survey({ onComplete }) {
         return;
       }
       
-      console.log('Incremental database save successful:', data?.id);
+      if (import.meta.env.DEV) console.debug('Incremental database save successful:', data?.id);
     } catch (err) {
       console.error('Failed incremental database save:', err);
     }
@@ -125,7 +125,7 @@ export default function Survey({ onComplete }) {
   const clearAutosave = useCallback(() => {
     try {
       localStorage.removeItem(AUTOSAVE_KEY);
-      console.log('Cleared autosaved data');
+      if (import.meta.env.DEV) console.debug('Cleared autosaved data');
     } catch (err) {
       console.warn('Failed to clear autosave:', err);
     }
@@ -298,7 +298,7 @@ export default function Survey({ onComplete }) {
 
       // Persist to Supabase if a client is available.
       if (supabase) {
-        console.log('Attempting to save complete survey data:', { email, marketing, answers: Object.keys(answers).length, location: !!userLocation });
+        if (import.meta.env.DEV) console.debug('Attempting to save complete survey data:', { email, marketing, answers: Object.keys(answers).length, location: !!userLocation });
         const { data, error: insertError } = await supabase
           .from('participants')
           .insert({ 
@@ -315,7 +315,7 @@ export default function Survey({ onComplete }) {
           console.error('Supabase insert error:', insertError);
           throw insertError;
         }
-        console.log('Complete survey data saved successfully:', data?.id);
+        if (import.meta.env.DEV) console.debug('Complete survey data saved successfully:', data?.id);
         participantId = data.id;
       } else {
         console.warn('Supabase client not available - using local test ID');
