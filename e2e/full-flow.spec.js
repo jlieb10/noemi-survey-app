@@ -82,7 +82,6 @@ test('complete survey and swipe ritual', async ({ page }) => {
   // Q12
   await page.getByLabel('Yes, keep me posted').check();
   await page.getByLabel('Email').fill('test@example.com');
-  await page.getByLabel('Instagram').fill('testhandle');
   await page.getByRole('button', { name: /Continue|Reveal/i }).click();
 
   await page.waitForSelector('.card img');

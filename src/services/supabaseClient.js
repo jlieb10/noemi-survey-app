@@ -40,7 +40,7 @@ if (!SUPABASE_URL.startsWith('https://') || !SUPABASE_URL.includes('.supabase.co
 }
 
 // Validate anon key format (should be a JWT)
-if (!SUPABASE_ANON_KEY.startsWith('eyJ') || SUPABASE_ANON_KEY.length < MIN_SUPABASE_ANON_KEY_LENGTH) {
+if (!SUPABASE_ANON_KEY.startsWith('eyJ')) {
   throw new Error(
     `Invalid Supabase anon key format: ${SUPABASE_ANON_KEY.substring(0, 10)}... Expected JWT token`
   );

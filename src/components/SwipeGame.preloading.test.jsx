@@ -41,12 +41,6 @@ vi.mock('../hooks/useSwipeGame.js', () => ({
   useSwipeFeedback: vi.fn(() => ({
     feedbacks: [],
     addFeedback: vi.fn()
-  })),
-  useSwipeHistory: vi.fn(() => ({
-    history: [],
-    addToHistory: vi.fn(),
-    undo: vi.fn(),
-    clearHistory: vi.fn()
   }))
 }));
 
