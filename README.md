@@ -1,7 +1,18 @@
-# noemi-survey-app
+# NOEMI Survey Application
 
-A React + Vite survey application that asks a few questions and then presents label designs in a Tinder-like swipe game. Swipe
-choices are written to Supabase for later analysis.
+A luxury-grade React + Vite survey application featuring an elegant design exploration interface. Users complete a wellness survey and then engage with a sophisticated swipe-based design exploration tool with instant image transitions.
+
+## Philosophy
+
+This application prioritizes **user interaction and luxury aesthetic** above all else. Every interaction is designed to feel premium and responsive, with comprehensive testing ensuring reliability across all user touchpoints. The codebase emphasizes modularity, robustness, and GitHub Copilot-friendly structure.
+
+## Key Features
+
+- **Luxury UI/UX**: Premium aesthetic with smooth animations and transitions
+- **Robust Architecture**: Modular, well-tested components resilient to changes
+- **Instant Image Loading**: Advanced preloading ensures lag-free design exploration
+- **Comprehensive Testing**: Unit, integration, and e2e tests for all interactions
+- **AI-Friendly Codebase**: Clear structure optimized for GitHub Copilot assistance
 
 ## Requirements
 
@@ -36,15 +47,31 @@ choices are written to Supabase for later analysis.
 - `pnpm run preview` – serve the production build locally
 - `pnpm run lint` – run ESLint to check code quality
 
-## Testing
+## Testing Philosophy
 
-Playwright powers the end-to-end tests and a unit-test framework can be added as needed. Run the following before committing:
+**All interactions must be tested.** This application is designed for user engagement, so every button click, swipe gesture, form input, and navigation flow requires comprehensive test coverage.
 
+### Testing Strategy
+- **Unit Tests**: Every utility function and component method
+- **Component Tests**: All props, states, and user interactions
+- **Integration Tests**: Cross-component workflows and data flow
+- **E2E Tests**: Complete user journeys from start to finish
+- **Visual Regression Tests**: UI consistency across updates
+- **Accessibility Tests**: Screen reader and keyboard navigation
+
+### Testing Commands
 ```bash
-pnpm run lint
-pnpm run test:e2e   # verify core user flows
-pnpm run test       # run unit tests if configured
+pnpm run test          # Unit and component tests (must pass)
+pnpm run test:e2e      # End-to-end tests (must pass)
+pnpm run lint          # Code quality checks (must pass)
 ```
+
+**Requirements for CI/PR Approval:**
+- ✅ All unit tests passing
+- ✅ All e2e tests passing (or manual verification)
+- ✅ ESLint with no errors
+- ✅ Build succeeds
+- ✅ Test coverage above 80% for new code
 
 ## Deployment
 

@@ -1,8 +1,24 @@
 # AGENTS
 
-## Code Style
-- Use 2 spaces for indentation.
-- Prefer functional React components with hooks.
+## Core Principles
+
+**UI/UX are top priorities.** This application is designed for interaction, so every user touchpoint must be tested and optimized for a luxury experience. Code must be modular, robust, and easily navigable by both humans and GitHub Copilot.
+
+## Code Style & Architecture
+
+### Structural Guidelines
+- Use 2 spaces for indentation
+- Prefer functional React components with hooks
+- Organize code in logical, self-contained modules
+- Use consistent naming conventions (camelCase for functions, PascalCase for components)
+- Maintain clear separation of concerns (components, hooks, services, utils)
+
+### Copilot-Friendly Patterns
+- Write descriptive function and variable names
+- Use JSDoc comments for complex functions
+- Maintain consistent directory structure
+- Keep files focused on single responsibilities
+- Use predictable import/export patterns
 
 ## Testing Requirements (CRITICAL)
 **⚠️ ALL CODE CHANGES MUST INCLUDE CORRESPONDING TESTS ⚠️**
@@ -71,15 +87,27 @@ pnpm run test:e2e # End-to-end tests
 - **Error handling**: All catch blocks
 - **Accessibility**: Screen reader compatibility
 
-## Acceptance criteria
+## Pull Request Acceptance Criteria
 
-Pull requests are accepted only when they include:
+Pull requests are accepted **only** when they include:
 
-- ✅ **Unit tests** for all new or changed code
-- ✅ **End-to-end tests** for any relevant user flow
-- ✅ **Visual regression tests** for UI changes
-- ✅ **Passing results** from `pnpm run lint`, `pnpm run test`, and `pnpm run test:e2e`
-- ✅ **Test coverage** above 80% for new code
+- ✅ **Comprehensive unit tests** for all new or changed code
+- ✅ **Component interaction tests** for any user-facing functionality  
+- ✅ **Accessibility verification** (keyboard navigation, screen readers)
+- ✅ **End-to-end tests** for user journey changes
+- ✅ **Visual regression tests** for UI modifications
+- ✅ **Error handling tests** for edge cases and failures
+- ✅ **Performance considerations** (image optimization, bundle size)
+- ✅ **Passing CI results**: `pnpm run lint && pnpm run test && pnpm run build`
+- ✅ **Code review approval** with focus on maintainability and luxury UX
+- ✅ **Documentation updates** when architectural changes are made
+
+### Luxury UX Requirements
+- All interactions must feel instant and responsive
+- Error states must be gracefully handled with user-friendly messages
+- Loading states must be smooth with appropriate feedback
+- Accessibility must be seamless across all features
+- Visual consistency must be maintained across components
 
 ## Commit messages
 - Write commits in the imperative mood: "Add feature" not "Added feature".
@@ -116,6 +144,20 @@ function validateEmail(email) {
 ### ✅ Test-First Approach
 1. Ask AI to generate tests along with code
 2. Verify tests actually test the intended behavior  
+3. Add edge cases that AI might miss
+4. Update existing tests when modifying code
+
+### ✅ Quality Checklist
+Before accepting any AI-generated code:
+- [ ] Does it include comprehensive tests?
+- [ ] Are edge cases covered?
+- [ ] Is accessibility tested?
+- [ ] Do all tests pass?
+- [ ] Is the code maintainable?
+
+**Remember: Tests are not optional. They're the foundation of a reliable codebase.**
+
+tests actually test the intended behavior  
 3. Add edge cases that AI might miss
 4. Update existing tests when modifying code
 

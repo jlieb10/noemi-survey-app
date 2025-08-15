@@ -4,6 +4,17 @@
 
 This document outlines testing requirements and best practices for the NOEMI Survey App. **ALL CODE CHANGES MUST INCLUDE CORRESPONDING TESTS.**
 
+Since this application prioritizes user interaction and luxury experience, every touchpoint must be comprehensively tested to ensure reliability and premium feel.
+
+## Core Testing Philosophy
+
+**Every interaction matters.** This app is designed for user engagement, so all interactions require testing:
+- Button clicks and form submissions
+- Swipe gestures and touch interactions  
+- Keyboard navigation and accessibility
+- Loading states and error scenarios
+- Visual consistency and responsiveness
+
 ## Testing Strategy
 
 ### 1. Unit Tests (Required for All Code)
@@ -186,30 +197,41 @@ VITE_SUPABASE_URL=https://test.supabase.co
 VITE_SUPABASE_ANON_KEY=test-key
 ```
 
-## Accessibility Testing
+## CI-Safe Testing Guidelines
 
-### Required Tests
-- **Screen reader compatibility**: Proper ARIA labels
-- **Keyboard navigation**: Tab order, focus management
-- **Color contrast**: Sufficient contrast ratios
-- **Focus indicators**: Visible focus states
+### Environment Considerations
+- Tests must run in headless CI environments
+- No external dependencies during test execution
+- Mock all external services and APIs
+- Handle browser compatibility in test environment
 
-### Testing Tools
-- `@testing-library/jest-dom` for accessibility assertions
-- Playwright accessibility checks
-- Manual testing with screen readers
+### Performance in CI
+- Keep test execution under 10 minutes total
+- Use appropriate timeouts and waits
+- Parallel test execution where possible
+- Efficient test data setup and teardown
 
-## Performance Testing
+### Reliability Standards  
+- Tests must be deterministic (no flaky tests)
+- Proper cleanup after each test
+- Isolated test environments
+- Clear error messages for debugging
 
-### Metrics to Monitor
-- **Bundle size**: Track with each build
-- **Load time**: First contentful paint < 2s
-- **Interaction**: Time to interactive < 3s
+## Test-Driven Development Workflow
 
-### Tools
-- Lighthouse CI integration
-- Bundle analyzer in CI
-- Performance monitoring in e2e tests
+### For New Features:
+1. **Write failing test first** (TDD approach)
+2. **Implement minimal code to pass**
+3. **Refactor while keeping tests green**
+4. **Add edge case tests**
+5. **Verify accessibility and performance**
+
+### For Bug Fixes:
+1. **Write test that reproduces the bug**
+2. **Verify the test fails**
+3. **Fix the bug**
+4. **Verify the test passes**
+5. **Add related edge case tests**
 
 ## Debugging Tests
 

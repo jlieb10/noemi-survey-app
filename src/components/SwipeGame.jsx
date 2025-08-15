@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
 import TinderCard from 'react-tinder-card';
 import config from '../../docs/noemi-survey-config.json';
-import { supabase, apiConfig } from '../services/supabaseClient.js';
+import { supabase } from '../services/supabaseClient.js';
 import {
   CHOICE_MAP,
   ICON_MAP,
@@ -11,9 +11,8 @@ import {
   SWIPE_DIRECTIONS,
   ASSET_PATHS,
 } from '../constants.js';
-import { handleImageError } from '../utils/common.js';
 import { useDeck, useTutorial, useSwipeFeedback, useSwipeHistory } from '../hooks/useSwipeGame.js';
-import DesignCanvas from './DesignCanvas.jsx';
+import DesignCanvas from '../DesignCanvas.jsx';
 import './SwipeGame.css';
 
 // Story share configuration
@@ -161,6 +160,41 @@ export default function SwipeGame({ participantId }) {
     loadDesigns();
   }, [participantId, loadDesigns]);
 
+  // Preload next images for instant transitions
+  useEffect(() => {
+    if (!deck?.length) return;
+    
+    const preloadCount = Math.min(10, deck.length - 1);
+    const imagesToPreload = deck.slice(1, preloadCount + 1);
+    const preloadedImages = [];
+    
+    imagesToPreload.forEach((card, index) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      // Add error handling for failed loads
+      img.onerror = () => {
+        console.warn(`Failed to preload image ${index + 1}:`, card.image_url);
+      };
+      
+      // Optional: Add load success logging for debugging
+      img.onload = () => {
+        // Image successfully cached by browser
+      };
+      
+      img.src = card.image_url;
+      preloadedImages.push(img);
+    });
+    
+    // Cleanup function to help with memory management
+    return () => {
+      preloadedImages.forEach(img => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, [deck]);
+
   /**
    * Persist a swipe choice.
    * @param {string} cardId
@@ -174,13 +208,6 @@ export default function SwipeGame({ participantId }) {
           participant_id: participantId,
           card_id: cardId,
           choice,
-        });
-        trackSwipe(participantId, cardId, choice);
-      } else if (apiConfig?.baseUrl) {
-        await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.swipes}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ participant_id: participantId, card_id: cardId, choice }),
         });
         trackSwipe(participantId, cardId, choice);
       } else {
@@ -203,14 +230,6 @@ export default function SwipeGame({ participantId }) {
           .from('swipes')
           .delete()
           .match({ participant_id: participantId, card_id: cardId });
-      } else if (apiConfig?.baseUrl) {
-        await fetch(
-          `${apiConfig.baseUrl}${apiConfig.endpoints.swipes}?participant_id=eq.${participantId}&card_id=eq.${cardId}`,
-          {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
       } else {
         console.warn('Supabase client not available. Undo operation not persisted.');
       }
@@ -236,7 +255,23 @@ export default function SwipeGame({ participantId }) {
 
     setDeck((prev) => {
       const [first, ...rest] = prev;
-      return direction === SWIPE_DIRECTIONS.DOWN ? [...rest, first] : rest;
+      const newDeck = direction === SWIPE_DIRECTIONS.DOWN ? [...rest, first] : rest;
+      
+      // Progressive preloading: When deck gets smaller, preload more images
+      if (newDeck.length > 0 && newDeck.length <= 5) {
+        // When we're down to 5 or fewer cards, preload remaining images
+        const imagesToPreload = newDeck.slice(1);
+        imagesToPreload.forEach((card) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onerror = () => {
+            console.warn('Failed to preload remaining image:', card.image_url);
+          };
+          img.src = card.image_url;
+        });
+      }
+      
+      return newDeck;
     });
 
     await saveSwipe(current.id, choice);
