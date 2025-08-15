@@ -73,6 +73,8 @@ describe('Survey Q1 Validation', () => {
 
   beforeEach(() => {
     cleanup();
+    // Clear localStorage to prevent autosaved data from affecting tests
+    localStorage.clear();
     user = userEvent.setup();
     mockOnComplete.mockClear();
   });
