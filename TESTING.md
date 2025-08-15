@@ -267,4 +267,4 @@ pnpm run test:e2e --trace on
 - ✅ **Documentation**: Tests serve as usage examples
 - ✅ **Quality**: High-quality, robust codebase
 
-When in doubt, write more tests, not fewer. The test suite is the safety net that allows for confident development and iteration. that allows for confident development and iteration.
+When in doubt, write more tests, not fewer. The test suite is the safety net that allows for confident development and iteration.
