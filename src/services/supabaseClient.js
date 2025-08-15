@@ -1,26 +1,124 @@
 /**
  * Supabase client configuration and initialization.
  * 
- * Creates a Supabase client instance using environment variables.
- * If environment variables are missing, logs an error and exports null.
+ * Creates a hardened Supabase client instance with proper error handling,
+ * environment variable validation, and DB health checking capabilities.
  * 
  * @module supabaseClient
  */
 import { createClient } from '@supabase/supabase-js';
 
-const url = import.meta.env.VITE_SUPABASE_URL || '';
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+/**
+ * Clean and validate environment variable values
+ * @param {string} value - Environment variable value
+ * @returns {string} Cleaned value
+ */
+const cleanEnvVar = (value) => {
+  if (!value) return '';
+  return value.trim().replace(/^['"]|['"]$/g, '');
+};
 
-if (!url || !anon) {
-  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
+// Extract and validate environment variables
+const rawUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const rawAnon = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+const SUPABASE_URL = cleanEnvVar(rawUrl);
+const SUPABASE_ANON_KEY = cleanEnvVar(rawAnon);
+
+// Validate environment variables
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error(
+    'Supabase environment variables missing. Expected VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY with valid values.'
+  );
+}
+
+// Validate URL format
+if (!SUPABASE_URL.startsWith('https://') || !SUPABASE_URL.includes('.supabase.co')) {
+  throw new Error(
+    `Invalid Supabase URL format: ${SUPABASE_URL.substring(0, 20)}... Expected https://*.supabase.co`
+  );
+}
+
+// Validate anon key format (should be a JWT)
+if (!SUPABASE_ANON_KEY.startsWith('eyJ') || SUPABASE_ANON_KEY.length < 100) {
+  throw new Error(
+    `Invalid Supabase anon key format: ${SUPABASE_ANON_KEY.substring(0, 10)}... Expected JWT token`
+  );
+}
+
+// Log successful configuration (with masked values for security)
+if (import.meta.env.DEV || import.meta.env.VITE_DEBUG_SUPABASE) {
+  console.log('Supabase client initialized:', {
+    url: `${SUPABASE_URL.substring(0, 20)}...`,
+    anonKeyPrefix: `${SUPABASE_ANON_KEY.substring(0, 10)}...`,
+    anonKeyLength: SUPABASE_ANON_KEY.length
+  });
 }
 
 /**
- * Supabase client instance or null if configuration is missing.
- * Auth session persistence is disabled for this application.
+ * Supabase client instance with disabled session persistence.
+ * Guaranteed to be non-null if module loads successfully.
  * 
- * @type {import('@supabase/supabase-js').SupabaseClient | null}
+ * @type {import('@supabase/supabase-js').SupabaseClient}
  */
-export const supabase = url && anon 
-  ? createClient(url, anon, { auth: { persistSession: false } }) 
-  : null;
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { 
+  auth: { persistSession: false } 
+});
+
+/**
+ * Check database health with a lightweight query.
+ * Returns connection status and any error details.
+ * 
+ * @returns {Promise<{ok: boolean, error?: any, timestamp: string}>}
+ */
+export async function checkDbHealth() {
+  const timestamp = new Date().toISOString();
+  
+  try {
+    // Use a simple RPC call that doesn't require specific tables
+    const { error } = await supabase.rpc('health_check').limit(1);
+    
+    // If health_check RPC doesn't exist, try a basic auth check
+    if (error && error.code === '42883') {
+      const { error: authError } = await supabase.auth.getSession();
+      return { 
+        ok: !authError, 
+        error: authError, 
+        timestamp,
+        method: 'auth_session_check'
+      };
+    }
+    
+    return { 
+      ok: !error, 
+      error, 
+      timestamp,
+      method: 'rpc_health_check'
+    };
+  } catch (e) {
+    return { 
+      ok: false, 
+      error: e, 
+      timestamp,
+      method: 'exception_caught'
+    };
+  }
+}
+
+/**
+ * Generate diagnostic information for troubleshooting
+ * @param {any} healthResult - Result from checkDbHealth
+ * @returns {string} Formatted diagnostic string
+ */
+export function generateDiagnostics(healthResult) {
+  const diagnostics = {
+    timestamp: new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    url: window.location.href,
+    supabaseUrl: `${SUPABASE_URL.substring(0, 30)}...`,
+    anonKeyPrefix: `${SUPABASE_ANON_KEY.substring(0, 15)}...`,
+    healthCheck: healthResult
+  };
+  
+  return `DB_HEALTH_DIAGNOSTICS | ${JSON.stringify(diagnostics, null, 2)}`;
+}

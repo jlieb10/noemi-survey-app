@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Survey from './Survey.jsx';
 import SwipeGame from './SwipeGame.jsx';
+import DbHealthBanner from './DbHealthBanner.jsx';
 import config from '../../docs/noemi-survey-config.json';
 import {
   URL_PARAMS,
@@ -50,6 +51,7 @@ export default function App() {
 
   return (
     <div className="lux-container">
+      <DbHealthBanner />
       <header className="app-header" role="banner">
         <img src={ASSET_PATHS.LOGO} alt="NOEMI logo" className="app-logo" />
       </header>

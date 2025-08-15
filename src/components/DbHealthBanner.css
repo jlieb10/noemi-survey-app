@@ -1,0 +1,162 @@
+/* Database health banner styling */
+
+.db-health-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #fef3e2, #fff8f0);
+  border-bottom: 2px solid #f59e0b;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+.db-health-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 60px;
+}
+
+.db-health-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.db-health-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.db-health-text strong {
+  display: block;
+  color: #92400e;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: var(--space-1);
+}
+
+.db-health-text p {
+  color: #b45309;
+  font-size: 0.875rem;
+  margin: 0 0 var(--space-1) 0;
+  word-break: break-word;
+}
+
+.db-health-text small {
+  color: #d97706;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.db-health-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.db-health-btn {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: white;
+  color: #92400e;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.db-health-btn:hover {
+  background: #fef3e2;
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+}
+
+.db-health-btn:active {
+  transform: translateY(0);
+}
+
+.db-health-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.db-health-btn-check {
+  background: #f59e0b;
+  color: white;
+  border-color: #d97706;
+}
+
+.db-health-btn-check:hover:not(:disabled) {
+  background: #d97706;
+  border-color: #b45309;
+}
+
+.db-health-btn-copy {
+  background: #059669;
+  color: white;
+  border-color: #047857;
+}
+
+.db-health-btn-copy:hover {
+  background: #047857;
+  border-color: #065f46;
+}
+
+.db-health-btn-dismiss {
+  background: #ef4444;
+  color: white;
+  border-color: #dc2626;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.db-health-btn-dismiss:hover {
+  background: #dc2626;
+  border-color: #b91c1c;
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .db-health-content {
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    text-align: center;
+  }
+  
+  .db-health-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .db-health-btn {
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.8rem;
+  }
+}
