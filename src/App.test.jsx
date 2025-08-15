@@ -15,7 +15,11 @@ test('reveals terms on hover', async () => {
   render(<App />);
   const button = screen.getByRole('button', { name: /view terms/i });
   expect(screen.queryByText(/By participating, you agree/)).toBeNull();
+  
   await userEvent.hover(button);
+  
+  // Wait for the tooltip to appear
+  await screen.findByText(/By participating, you agree/);
   expect(screen.getByText(/By participating, you agree/)).toBeInTheDocument();
 });
 
