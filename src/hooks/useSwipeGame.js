@@ -37,6 +37,7 @@ export function useDeck() {
     initialDeck,
     loadDesigns,
     resetDeck,
+    total: initialDeck.length,
   };
 }
 
@@ -100,35 +101,3 @@ export function useSwipeFeedback() {
   };
 }
 
-/**
- * Hook for managing swipe history and undo functionality.
- * @returns {Object} Object containing history state and functions
- */
-export function useSwipeHistory() {
-  const [history, setHistory] = useState([]);
-
-  const addToHistory = useCallback((deck, card) => {
-    setHistory((prev) => [...prev, { deck: [...deck], card }]);
-  }, []);
-
-  const undo = useCallback(() => {
-    let lastEntry;
-    setHistory((prev) => {
-      if (!prev.length) return prev;
-      lastEntry = prev[prev.length - 1];
-      return prev.slice(0, -1);
-    });
-    return lastEntry;
-  }, []);
-
-  const clearHistory = useCallback(() => {
-    setHistory([]);
-  }, []);
-
-  return {
-    history,
-    addToHistory,
-    undo,
-    clearHistory,
-  };
-}

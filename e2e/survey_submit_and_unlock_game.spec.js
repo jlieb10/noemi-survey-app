@@ -85,7 +85,6 @@ test('happy path: complete survey and unlock swipe game', async ({ page }) => {
   // Q12 – gate opt‑in (join yes with contact info)
   await page.getByLabel('Yes, keep me posted').check();
   await page.getByLabel('Email').fill('test@example.com');
-  await page.getByLabel('Instagram').fill('testhandle');
   await page.getByRole('button', { name: /Continue|Reveal/i }).click();
 
   // After completion we should land on the Swipe Ritual game

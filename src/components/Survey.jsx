@@ -687,7 +687,7 @@ export default function Survey({ onComplete }) {
           </div>
         );
       case 'gate_opt_in': {
-        const val = answers[q.id] || { join: null, email: '', instagram: '' };
+        const val = answers[q.id] || { join: null, email: '' };
         const handleJoin = (choice) => {
           const newChoice = val.join === choice ? null : choice;
           handleChange(q.id, { ...val, join: newChoice });

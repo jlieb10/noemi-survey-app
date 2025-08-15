@@ -62,7 +62,6 @@ test('survey submit -> redirect to game -> first swipe network', async ({ page }
   // Q12
   await page.getByLabel('Yes, keep me posted').check();
   await page.getByLabel('Email').fill('test@example.com');
-  await page.getByLabel('Instagram').fill('testhandle');
   await page.getByRole('button', { name: /Submit|Reveal|Continue/i }).click();
 
   await page.waitForURL(/\/game|play/i, { timeout: 15000 }).catch(() => {});
