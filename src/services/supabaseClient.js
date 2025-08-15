@@ -75,33 +75,49 @@ export async function checkDbHealth() {
   const timestamp = new Date().toISOString();
   
   try {
-    // Use a simple RPC call that doesn't require specific tables
-    const { error } = await supabase.rpc('health_check').limit(1);
+    // Try a simple table query first (most reliable for checking DB connectivity)
+    const { data, error } = await supabase
+      .from('participants')
+      .select('count')
+      .limit(1);
     
-    // If health_check RPC doesn't exist, try a basic auth check
-    if (error && error.code === '42883') {
-      const { error: authError } = await supabase.auth.getSession();
+    if (!error) {
       return { 
-        ok: !authError, 
-        error: authError, 
+        ok: true, 
+        error: null, 
         timestamp,
-        method: 'auth_session_check'
+        method: 'table_query'
       };
     }
     
+    // If table query fails, fall back to auth session check
+    console.log('Table query failed, trying auth session check:', error.message);
+    const { error: authError } = await supabase.auth.getSession();
+    
     return { 
-      ok: !error, 
-      error, 
+      ok: !authError, 
+      error: authError || error, 
       timestamp,
-      method: 'rpc_health_check'
+      method: 'auth_session_fallback'
     };
   } catch (e) {
-    return { 
-      ok: false, 
-      error: e, 
-      timestamp,
-      method: 'exception_caught'
-    };
+    // Final fallback - try just the auth client
+    try {
+      const { error: authError } = await supabase.auth.getSession();
+      return { 
+        ok: !authError, 
+        error: authError || e, 
+        timestamp,
+        method: 'exception_auth_fallback'
+      };
+    } catch (authException) {
+      return { 
+        ok: false, 
+        error: authException, 
+        timestamp,
+        method: 'all_methods_failed'
+      };
+    }
   }
 }
 
