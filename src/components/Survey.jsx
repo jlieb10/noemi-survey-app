@@ -22,11 +22,21 @@ export default function Survey({ onComplete }) {
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [validationError, setValidationError] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   // Timer for auto-advancing on single-select
   const autoNextRef = useRef(null);
 
   const current = questions[index];
+
+  /**
+   * Normalizes option values for consistent handling
+   * @param {string} option - The option string to normalize
+   * @returns {string} Normalized option value
+   */
+  const normalizeOptionValue = (option) => {
+    return option.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  };
 
   // Fire survey start once on mount and get user location
   useEffect(() => {
@@ -49,6 +59,11 @@ export default function Survey({ onComplete }) {
   const handleChange = (id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
     onQuestionAnswered(id, value);
+    
+    // Clear validation error when Q1 fields are updated
+    if ((id === 'q1d' || id === 'q1d_consent') && validationError) {
+      setValidationError(null);
+    }
   };
 
   /**
@@ -114,9 +129,46 @@ export default function Survey({ onComplete }) {
   );
 
   /**
+   * Handle Q1 submission with email and consent validation
+   * Following the specific flow requested: check both fields, proceed if valid, repeat if invalid
+   * @returns {boolean} True if Q1 validation passes and can proceed, false to repeat Q1
+   */
+  const handleQ1Submission = () => {
+    if (current.id !== 'q1') return true; // Only apply to Q1
+    
+    const email = answers['q1d'];
+    const consent = answers['q1d_consent'];
+    
+    const hasConsent = consent !== false; // Default true unless explicitly unchecked
+    const hasEmail = email && email.trim() !== '';
+    
+    if (hasConsent && hasEmail) {
+      // Proceed to next survey section
+      setValidationError(null);
+      return true;
+    } else {
+      // Show Q1 again and display an error message
+      let errorMessage = 'Please provide ';
+      const missing = [];
+      
+      if (!hasEmail) missing.push('your email');
+      if (!hasConsent) missing.push('consent for marketing communications');
+      
+      errorMessage += missing.join(' and ') + ' to continue.';
+      setValidationError(errorMessage);
+      return false; // Repeat current question (Q1)
+    }
+  };
+
+  /**
    * Navigate to the next question or submit if on the last question.
    */
   const handleNext = () => {
+    // Process Q1 submission with specific validation flow
+    if (!handleQ1Submission()) {
+      return; // Repeat Q1 if validation fails
+    }
+    
     if (index < questions.length - 1) setIndex((i) => i + 1);
     else handleSubmit();
   };
@@ -137,10 +189,9 @@ export default function Survey({ onComplete }) {
     setLoading(true);
     setError(null);
     try {
-      // Extract opt‑in details from the gate question (Q12).
-      const gate = answers[SURVEY_CONSTANTS.GATE_QUESTION_ID] && typeof answers[SURVEY_CONSTANTS.GATE_QUESTION_ID] === 'object' ? answers[SURVEY_CONSTANTS.GATE_QUESTION_ID] : {};
-      const email = gate.email || null;
-      const marketing = gate.join === 'yes';
+      // Extract opt‑in details from the new q1d email field.
+      const email = answers['q1d'] || null;
+      const marketing = answers['q1d_consent'] !== false; // Default to true unless explicitly false
       let participantId = DEFAULT_PARTICIPANT_IDS.LOCAL_TEST;
 
       // Persist to Supabase if a client is available.
@@ -171,8 +222,238 @@ export default function Survey({ onComplete }) {
     }
   };
 
+  /**
+   * Renders a sub-question within a group question
+   * @param {Object} subQ - Sub-question object
+   * @returns {JSX.Element} Rendered sub-question
+   */
+  const renderSubQuestion = (subQ) => {
+    const currentValue = answers[subQ.id] || '';
+    const isCheckbox = subQ.type === 'checkbox';
+    const currentArray = isCheckbox ? (Array.isArray(currentValue) ? currentValue : []) : null;
+
+    switch (subQ.type) {
+      case 'short_text':
+        return (
+          <div key={subQ.id} className="sub-question">
+            <label htmlFor={subQ.id} className="sub-question-label">
+              {subQ.label}
+              {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+            </label>
+            <input
+              id={subQ.id}
+              type="text"
+              value={currentValue}
+              onChange={(e) => handleChange(subQ.id, e.target.value)}
+              placeholder={subQ.placeholder}
+              required={subQ.required}
+              style={{
+                width: '100%',
+                padding: 'var(--space-3)',
+                border: '2px solid rgba(198, 162, 90, 0.3)',
+                borderRadius: 'var(--radius-sm)',
+                fontFamily: 'var(--font-sans)',
+                fontSize: '1rem',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                background: 'var(--color-surface-elevated)',
+              }}
+            />
+          </div>
+        );
+
+      case 'number':
+        return (
+          <div key={subQ.id} className="sub-question">
+            <label htmlFor={subQ.id} className="sub-question-label">
+              {subQ.label}
+              {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+            </label>
+            <input
+              id={subQ.id}
+              type="number"
+              value={currentValue}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                handleChange(subQ.id, isNaN(val) ? '' : val);
+              }}
+              placeholder={subQ.placeholder}
+              min={subQ.min}
+              max={subQ.max}
+              required={subQ.required}
+              style={{
+                width: '100%',
+                padding: 'var(--space-3)',
+                border: '2px solid rgba(198, 162, 90, 0.3)',
+                borderRadius: 'var(--radius-sm)',
+                fontFamily: 'var(--font-sans)',
+                fontSize: '1rem',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                background: 'var(--color-surface-elevated)',
+              }}
+            />
+          </div>
+        );
+
+      case 'select':
+        return (
+          <div key={subQ.id} className="sub-question">
+            <label htmlFor={subQ.id} className="sub-question-label">
+              {subQ.label}
+              {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+            </label>
+            <select
+              id={subQ.id}
+              value={currentValue}
+              onChange={(e) => handleChange(subQ.id, e.target.value)}
+              required={subQ.required}
+              style={{
+                width: '100%',
+                padding: 'var(--space-3)',
+                border: '2px solid rgba(198, 162, 90, 0.3)',
+                borderRadius: 'var(--radius-sm)',
+                fontFamily: 'var(--font-sans)',
+                fontSize: '1rem',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                background: 'var(--color-surface-elevated)',
+              }}
+            >
+              <option value="">Select an option</option>
+              {subQ.options.map((option, index) => (
+                <option key={index} value={normalizeOptionValue(option)}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+
+      case 'email':
+        return (
+          <div key={subQ.id} className="sub-question">
+            <label htmlFor={subQ.id} className="sub-question-label">
+              {subQ.label}
+              {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+              {subQ.marketing_consent && (
+                <span className="marketing-consent-info" title={subQ.marketing_consent.tooltip}>
+                  ℹ️
+                </span>
+              )}
+            </label>
+            <input
+              id={subQ.id}
+              type="email"
+              value={currentValue}
+              onChange={(e) => handleChange(subQ.id, e.target.value)}
+              placeholder="your@email.com"
+              required={subQ.required}
+              style={{
+                width: '100%',
+                padding: 'var(--space-3)',
+                border: '2px solid rgba(198, 162, 90, 0.3)',
+                borderRadius: 'var(--radius-sm)',
+                fontFamily: 'var(--font-sans)',
+                fontSize: '1rem',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                background: 'var(--color-surface-elevated)',
+              }}
+            />
+            {subQ.marketing_consent && (
+              <div className="marketing-consent" style={{ marginTop: 'var(--space-2)', fontSize: '0.875rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={answers[`${subQ.id}_consent`] !== false}
+                    onChange={(e) => handleChange(`${subQ.id}_consent`, e.target.checked)}
+                    style={{ accentColor: 'var(--color-gold)' }}
+                  />
+                  <span>I agree to receive marketing communications</span>
+                </label>
+                <p style={{ 
+                  margin: 'var(--space-1) 0 0 var(--space-6)', 
+                  fontSize: '0.75rem', 
+                  color: 'var(--color-text-muted)',
+                  fontStyle: 'italic'
+                }}>
+                  {subQ.marketing_consent.tooltip}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'checkbox':
+        return (
+          <div key={subQ.id} className="sub-question">
+            <fieldset>
+              <legend className="sub-question-label">
+                {subQ.label}
+                {subQ.required && <span className="required-indicator" aria-label="required"> *</span>}
+              </legend>
+              <div className="checkbox-options" style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr', 
+                gap: 'var(--space-2)', 
+                marginTop: 'var(--space-2)' 
+              }}>
+                {subQ.options.map((option, index) => {
+                  const optionId = option.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                  return (
+                    <label key={index} style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 'var(--space-2)',
+                      padding: 'var(--space-2)',
+                      borderRadius: 'var(--radius-sm)',
+                      transition: 'background-color 0.2s ease',
+                      cursor: 'pointer'
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={currentArray.includes(optionId)}
+                        onChange={() => {
+                          const newArray = currentArray.includes(optionId)
+                            ? currentArray.filter(v => v !== optionId)
+                            : [...currentArray, optionId];
+                          handleChange(subQ.id, newArray);
+                        }}
+                        style={{ accentColor: 'var(--color-gold)' }}
+                      />
+                      <span>{option}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+          </div>
+        );
+
+      default:
+        return (
+          <div key={subQ.id} className="sub-question">
+            <p>Unsupported sub-question type: {subQ.type}</p>
+          </div>
+        );
+    }
+  };
+
   const renderQuestion = (q) => {
     switch (q.type) {
+      case 'group':
+        return (
+          <div className="group-question" aria-labelledby={`${q.id}-title`}>
+            <h3 id={`${q.id}-title`} className="group-title" style={{ 
+              fontFamily: 'var(--font-serif)', 
+              fontSize: '1.25rem',
+              marginBottom: 'var(--space-4)',
+              color: 'var(--color-text-secondary)'
+            }}>
+              {q.title}
+            </h3>
+            <div className="sub-questions stack">
+              {q.sub_questions.map((subQ) => renderSubQuestion(subQ))}
+            </div>
+          </div>
+        );
       case 'single_select':
         return (
           <fieldset className="stack" role="radiogroup" aria-labelledby={`${q.id}-label`}>
@@ -420,13 +701,6 @@ export default function Survey({ onComplete }) {
         </p>
       </div>
       
-      <nav className="survey-navigation" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
-        <BackLink
-          onClick={handleBack}
-          disabled={index === 0}
-          ariaLabel={index > 0 ? `Go back to question ${index}` : undefined}
-        />
-      </nav>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -435,13 +709,33 @@ export default function Survey({ onComplete }) {
         className="stack"
         aria-labelledby="current-question"
       >
-        <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt}</h2>
+        <h2 id="current-question" className="stack" style={{ fontFamily: 'var(--font-serif)' }}>{current.prompt || current.title || "Untitled Question"}</h2>
         {renderQuestion(current)}
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <div className="stack" style={{ display: 'flex', justifyContent: 'center' }}>
-          <button type="submit" disabled={loading} className="lux-button-primary">
-            {loading ? 'Submitting…' : index === questions.length - 1 ? config.survey.meta.end_cta : 'Next'}
-          </button>
+        {validationError && <p style={{ color: 'red', marginTop: 'var(--space-2)' }}>{validationError}</p>}
+        
+        {/* Action buttons area */}
+        <div className="survey-actions" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', marginTop: 'var(--space-5)' }}>
+          {/* Primary action buttons */}
+          <div className="primary-actions" style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'center' }}>
+            <button type="submit" disabled={loading} className="lux-button-primary">
+              {loading ? 'Submitting…' : index === questions.length - 1 ? config.survey.meta.end_cta : 'Next'}
+            </button>
+            <button type="button" disabled={loading} onClick={handleNext} className="lux-button-secondary">
+              Skip
+            </button>
+          </div>
+          
+          {/* Secondary navigation */}
+          {index > 0 && (
+            <div className="secondary-actions" style={{ display: 'flex', justifyContent: 'center' }}>
+              <BackLink
+                onClick={handleBack}
+                disabled={index === 0}
+                ariaLabel={index > 0 ? `Go back to question ${index}` : undefined}
+              />
+            </div>
+          )}
         </div>
       </form>
     </div>
