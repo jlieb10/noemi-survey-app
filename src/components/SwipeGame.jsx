@@ -46,34 +46,40 @@ export default function SwipeGame({ participantId }) {
     loadDesigns();
   }, [participantId, loadDesigns]);
 
-  // Preload next images for instant transitions
+  // Enhanced image preloading for instant transitions
   useEffect(() => {
     if (!deck?.length) return;
     
-    const preloadCount = Math.min(10, deck.length - 1);
+    const preloadCount = Math.min(8, deck.length - 1);
     const imagesToPreload = deck.slice(1, preloadCount + 1);
     const preloadedImages = [];
+    const controller = new AbortController();
     
     imagesToPreload.forEach((card, index) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       
-      // Add error handling for failed loads
+      // Enhanced error handling with abort support
       img.onerror = () => {
-        console.warn(`Failed to preload image ${index + 1}:`, card.image_url);
+        if (!controller.signal.aborted) {
+          console.warn(`Failed to preload image ${index + 1}:`, card.image_url);
+        }
       };
       
-      // Optional: Add load success logging for debugging
+      // Success callback for debugging
       img.onload = () => {
-        // Image successfully cached by browser
+        if (import.meta.env.DEV && !controller.signal.aborted) {
+          console.debug(`Preloaded image ${index + 1}/${imagesToPreload.length}`);
+        }
       };
       
       img.src = card.image_url;
       preloadedImages.push(img);
     });
     
-    // Cleanup function to help with memory management
+    // Enhanced cleanup with abort signal
     return () => {
+      controller.abort();
       preloadedImages.forEach(img => {
         img.onload = null;
         img.onerror = null;
@@ -127,21 +133,6 @@ export default function SwipeGame({ participantId }) {
     setDeck((prev) => {
       const [first, ...rest] = prev;
       const newDeck = direction === SWIPE_DIRECTIONS.DOWN ? [...rest, first] : rest;
-      
-      // Progressive preloading: When deck gets smaller, preload more images
-      if (newDeck.length > 0 && newDeck.length <= 5) {
-        // When we're down to 5 or fewer cards, preload remaining images
-        const imagesToPreload = newDeck.slice(1);
-        imagesToPreload.forEach((card) => {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onerror = () => {
-            console.warn('Failed to preload remaining image:', card.image_url);
-          };
-          img.src = card.image_url;
-        });
-      }
-      
       return newDeck;
     });
 
