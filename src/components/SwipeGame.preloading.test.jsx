@@ -73,7 +73,6 @@ vi.mock('../../docs/noemi-survey-config.json', () => ({
   default: {
     brand: { instagram: '@noemi' },
     design_feedback: { title: 'Test Title' },
-    design_feedback: { title: 'Test Title' },
   }
 }));
 

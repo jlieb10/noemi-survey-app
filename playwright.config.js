@@ -42,8 +42,8 @@ export default defineConfig({
   ],
   
   webServer: {
-    command: 'pnpm run dev',
-    url: 'http://localhost:5173',
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
     stderr: 'pipe',
@@ -54,7 +54,7 @@ export default defineConfig({
   },
   
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:3000',
     
     // Browser context options
     viewport: { width: 1280, height: 720 },
