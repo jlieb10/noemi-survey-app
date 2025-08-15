@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import config from '../../docs/noemi-survey-config.json';
 import { supabase } from '../services/supabaseClient.js';
 import { onSurveyStart, onQuestionAnswered, onSurveyComplete } from '../services/analytics.js';
@@ -10,6 +10,10 @@ import {
   ASSET_PATHS,
 } from '../constants.js';
 import { handleImageError } from '../utils/common.js';
+
+// Local storage key for autosave
+const AUTOSAVE_KEY = 'noemi_survey_autosave';
+const AUTOSAVE_INTERVAL = 5000; // Save every 5 seconds
 
 /**
  * Renders the survey and collects responses.
@@ -24,10 +28,108 @@ export default function Survey({ onComplete }) {
   const [error, setError] = useState(null);
   const [validationError, setValidationError] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [lastSaveTime, setLastSaveTime] = useState(null);
   // Timer for auto-advancing on single-select
   const autoNextRef = useRef(null);
+  const autosaveRef = useRef(null);
 
   const current = questions[index];
+
+  // Load autosaved data on component mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(AUTOSAVE_KEY);
+      if (saved) {
+        const { answers: savedAnswers, index: savedIndex, timestamp } = JSON.parse(saved);
+        console.log('Loaded autosaved data from', new Date(timestamp));
+        setAnswers(savedAnswers);
+        setIndex(savedIndex);
+        setLastSaveTime(timestamp);
+      }
+    } catch (err) {
+      console.warn('Failed to load autosaved data:', err);
+    }
+  }, []);
+
+  // Autosave to localStorage
+  const saveToLocalStorage = useCallback(() => {
+    try {
+      const timestamp = Date.now();
+      const saveData = {
+        answers,
+        index,
+        timestamp,
+        version: '1.0'
+      };
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(saveData));
+      setLastSaveTime(timestamp);
+      console.log('Autosaved survey data locally');
+    } catch (err) {
+      console.warn('Failed to autosave to localStorage:', err);
+    }
+  }, [answers, index]);
+
+  // Incremental database save (for partial submissions)
+  const saveToDatabase = useCallback(async () => {
+    if (!supabase || Object.keys(answers).length === 0) return;
+
+    try {
+      console.log('Attempting incremental database save...');
+      const email = answers['q1d'] || null;
+      const marketing = answers['q1d_consent'] !== false;
+      
+      // Create a partial submission record
+      const { data, error: insertError } = await supabase
+        .from('participants')
+        .insert({ 
+          email, 
+          answers, 
+          marketing_opt_in: marketing,
+          location_data: userLocation,
+          is_complete: false, // Mark as incomplete
+          progress: `${index + 1}/${questions.length}`
+        })
+        .select()
+        .single();
+        
+      if (insertError) {
+        console.error('Incremental save error:', insertError);
+        return;
+      }
+      
+      console.log('Incremental database save successful:', data?.id);
+    } catch (err) {
+      console.error('Failed incremental database save:', err);
+    }
+  }, [answers, index, userLocation, questions.length]);
+
+  // Set up autosave interval
+  useEffect(() => {
+    if (Object.keys(answers).length > 0) {
+      // Save to localStorage immediately when answers change
+      saveToLocalStorage();
+      
+      // Schedule database save
+      clearTimeout(autosaveRef.current);
+      autosaveRef.current = setTimeout(() => {
+        saveToDatabase();
+      }, AUTOSAVE_INTERVAL);
+    }
+
+    return () => {
+      clearTimeout(autosaveRef.current);
+    };
+  }, [answers, saveToLocalStorage, saveToDatabase]);
+
+  // Clear autosave data on successful completion
+  const clearAutosave = useCallback(() => {
+    try {
+      localStorage.removeItem(AUTOSAVE_KEY);
+      console.log('Cleared autosaved data');
+    } catch (err) {
+      console.warn('Failed to clear autosave:', err);
+    }
+  }, []);
 
   /**
    * Normalizes option values for consistent handling
@@ -196,14 +298,16 @@ export default function Survey({ onComplete }) {
 
       // Persist to Supabase if a client is available.
       if (supabase) {
-        console.log('Attempting to save survey data:', { email, marketing, answers: Object.keys(answers).length, location: !!userLocation });
+        console.log('Attempting to save complete survey data:', { email, marketing, answers: Object.keys(answers).length, location: !!userLocation });
         const { data, error: insertError } = await supabase
           .from('participants')
           .insert({ 
             email, 
             answers, 
             marketing_opt_in: marketing,
-            location_data: userLocation 
+            location_data: userLocation,
+            is_complete: true,
+            progress: `${questions.length}/${questions.length}`
           })
           .select()
           .single();
@@ -211,11 +315,14 @@ export default function Survey({ onComplete }) {
           console.error('Supabase insert error:', insertError);
           throw insertError;
         }
-        console.log('Survey data saved successfully:', data?.id);
+        console.log('Complete survey data saved successfully:', data?.id);
         participantId = data.id;
       } else {
         console.warn('Supabase client not available - using local test ID');
       }
+
+      // Clear autosaved data on successful completion
+      clearAutosave();
 
       // Invoke completion callback with the new or placeholder ID.
       onComplete(participantId);
@@ -719,9 +826,16 @@ export default function Survey({ onComplete }) {
           style={{ width: '100%', height: '8px' }}
           aria-label={`Survey progress: Question ${index + 1} of ${questions.length}`}
         />
-        <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>
-          Question {index + 1} of {questions.length}
-        </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', margin: 0 }}>
+            Question {index + 1} of {questions.length}
+          </p>
+          {lastSaveTime && (
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: 0 }}>
+              ✓ Saved {new Date(lastSaveTime).toLocaleTimeString()}
+            </p>
+          )}
+        </div>
       </div>
       
       <form
