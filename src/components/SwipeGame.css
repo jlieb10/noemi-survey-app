@@ -43,8 +43,8 @@
 .swipe-container {
   position: relative;
   width: min(85vw, 380px);
-  height: min(65svh, 520px);
-  margin: var(--space-4) 0;
+  height: min(60svh, 480px);
+  margin: var(--space-3) 0;
 }
 
 .card {
@@ -104,52 +104,55 @@
 
 .swipe-label {
   position: absolute;
-  color: #1a2a4a;
-  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
   font-family: var(--font-serif);
-  font-weight: 600;
+  font-weight: 500;
   pointer-events: none;
   user-select: none;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(198, 162, 90, 0.3);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-style: italic;
+  letter-spacing: 0.025em;
 }
 
 .swipe-label.active {
-  color: #1a2a4a;
-  background: rgba(198, 162, 90, 0.95);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(198, 162, 90, 0.3);
-  border-color: var(--color-gold);
+  color: white;
+  background: rgba(198, 162, 90, 0.9);
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(198, 162, 90, 0.4);
+  border-color: rgba(198, 162, 90, 0.6);
+  font-weight: 600;
 }
 
 /* Enhanced positioning for labels */
 .swipe-label.left {
-  left: -6rem;
+  left: -5.5rem;
   top: 50%;
   transform: rotate(-90deg) translateY(-50%);
   transform-origin: left center;
 }
 
 .swipe-label.right {
-  right: -6rem;
+  right: -5.5rem;
   top: 50%;
   transform: rotate(90deg) translateY(-50%);
   transform-origin: right center;
 }
 
 .swipe-label.up {
-  top: -3rem;
+  top: -2.5rem;
   left: 50%;
   transform: translate(-50%, 0);
 }
 
 .swipe-label.down {
-  bottom: -3rem;
+  bottom: -2.5rem;
   left: 50%;
   transform: translate(-50%, 0);
 }
@@ -166,29 +169,6 @@
   pointer-events: none;
   will-change: transform, opacity;
   text-shadow: 0 0 12px rgba(198, 162, 90, 0.4);
-}
-
-.instagram-share-btn {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  background: rgba(198, 162, 90, 0.9);
-  border: none;
-  border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(198, 162, 90, 0.3);
-}
-
-.instagram-share-btn:hover {
-  background: var(--color-gold-light);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(198, 162, 90, 0.4);
 }
 
 /* Enhanced tutorial animations */
@@ -240,18 +220,31 @@
 @media (max-width: 480px) {
   .swipe-container {
     width: min(90vw, 320px);
-    height: min(60svh, 450px);
+    height: min(55svh, 420px);
   }
   
   .swipe-label.left {
-    left: -5rem;
+    left: -4.5rem;
   }
   
   .swipe-label.right {
-    right: -5rem;
+    right: -4.5rem;
+  }
+  
+  .swipe-label.up {
+    top: -2rem;
+  }
+  
+  .swipe-label.down {
+    bottom: -2rem;
   }
   
   .sg-title {
     font-size: 1.75rem;
+  }
+  
+  .swipe-game {
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-3);
   }
 }
