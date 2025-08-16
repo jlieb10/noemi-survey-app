@@ -180,7 +180,7 @@ function convertLetToConst(sf: SourceFile): boolean {
   for (const stmt of variableStatements) {
     const decList = stmt.getDeclarationList();
 
-    if (decList.getFlags() !== 2) continue; // Only process 'let' declarations (flag 2)
+    if (decList.getFlags() !== NodeFlags.Let) continue; // Only process 'let' declarations
 
     const declarations = decList.getDeclarations();
 
