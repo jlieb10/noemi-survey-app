@@ -17,6 +17,7 @@ The complete expected database schema is maintained in `supabase/schema.sql`. Th
 Database changes are managed through migration files in `supabase/migrations/`:
 - `0001_init.sql`: Initial participants and swipes tables
 - `0002_add_design_tables.sql`: Adds design_sets and designs tables
+- `0003_add_missing_permissions.sql`: Adds required permissions for anonymous users
 
 ### Schema Verification
 Use the schema checking tools to verify your database matches the expected schema:
@@ -117,25 +118,18 @@ create index if not exists idx_designs_set_id on public.designs(set_id);
 create index if not exists idx_designs_quadrant on public.designs(quadrant_index);
 ```
 
-### Step 3: Verify Permissions
-
-Ensure the anonymous user has correct permissions on all tables:
-
+#### Migration 3 - Permissions (0003_add_missing_permissions.sql) **⚠️ CRITICAL**
 ```sql
--- Grant permissions to anonymous users (required for public access)
+-- Grant permissions to anonymous users (required for public survey and game access)
 grant insert, select on public.participants to anon;
 grant insert, select, delete on public.swipes to anon;
-grant select on public.design_sets to anon;
-grant select on public.designs to anon;
 
--- Grant permissions to authenticated users
+-- Grant permissions to authenticated users  
 grant insert, select, update, delete on public.participants to authenticated;
 grant insert, select, update, delete on public.swipes to authenticated;
-grant select on public.design_sets to authenticated;
-grant select on public.designs to authenticated;
 ```
 
-### Step 4: Seed Design Data (Optional)
+### Step 3: Seed Design Data (Optional)
 
 If you want to populate the designs tables from the existing static JSON:
 
@@ -145,7 +139,7 @@ npm run db:seed
 
 This will import all design data from `public/designs/index.json` into the database.
 
-### Step 5: Verify Setup
+### Step 4: Verify Setup
 
 Run the schema verification to ensure everything is working:
 
@@ -153,7 +147,7 @@ Run the schema verification to ensure everything is working:
 npm run schema:check
 ```
 
-### Step 6: Test Database Connection
+### Step 5: Test Database Connection
 
 With improved logging now in place, check the browser console in production to see:
 
