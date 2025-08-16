@@ -18,6 +18,7 @@ The application uses **PostgreSQL with Supabase** and requires these core tables
 - **`supabase/expected-schema.sql`** - Complete expected schema (source of truth)
 - **`supabase/migrations/0001_init.sql`** - Initial schema (legacy)
 - **`supabase/migrations/0002_add_design_tables.sql`** - Safe additive migration
+- **`supabase/migrations/0003_fix_participants_rls_policies.sql`** - RLS policy fix for anonymous access
 
 ## Safety Policy
 
@@ -191,9 +192,27 @@ Both approaches coexist safely - the app can fall back to static files if databa
 
 ### Row Level Security (RLS)
 - All tables have RLS enabled
-- Anonymous users can INSERT to `participants` and `swipes`
-- Anonymous users can SELECT from design tables
+- **Anonymous users can INSERT to `participants` and `swipes`** (required for survey submissions)
+- **Anonymous users can SELECT from design tables** (required for swipe game)
 - Authenticated users have full access for administration
+
+#### Critical RLS Policies
+The following policies are **essential** for the application to function:
+
+```sql
+-- Allow survey submissions without user authentication
+CREATE POLICY "Allow anonymous insert participants" ON public.participants 
+  FOR INSERT TO anon WITH CHECK (true);
+
+-- Allow reading participant data for analytics
+CREATE POLICY "Allow read participants" ON public.participants
+  FOR SELECT TO anon USING (true);
+```
+
+**⚠️ Common Issue**: If these policies are missing, users will encounter:
+- Error code `42501` "permission denied for schema public"
+- Survey submissions will fail silently or with errors
+- Resolution: Apply migration `0003_fix_participants_rls_policies.sql`
 
 ### Data Privacy
 - No personally identifiable information stored without consent

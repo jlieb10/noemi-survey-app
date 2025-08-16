@@ -11,6 +11,7 @@ describe('Database Schema Management', () => {
   const supabasePath = join(projectRoot, 'supabase');
   const expectedSchemaPath = join(supabasePath, 'expected-schema.sql');
   const migrationPath = join(supabasePath, 'migrations', '0002_add_design_tables.sql');
+  const rlsMigrationPath = join(supabasePath, 'migrations', '0003_fix_participants_rls_policies.sql');
   
   describe('Schema Files Exist', () => {
     it('should have expected-schema.sql file', () => {
@@ -19,6 +20,10 @@ describe('Database Schema Management', () => {
     
     it('should have additive migration file', () => {
       expect(existsSync(migrationPath)).toBe(true);
+    });
+    
+    it('should have RLS policy migration file', () => {
+      expect(existsSync(rlsMigrationPath)).toBe(true);
     });
     
     it('should have schema check script', () => {
@@ -82,6 +87,17 @@ describe('Database Schema Management', () => {
       expect(schemaContent).toContain('REFERENCES public.participants(id)');
       expect(schemaContent).toContain('REFERENCES public.design_sets(id)');
     });
+
+    it('should include RLS policies for anonymous access', () => {
+      const schemaContent = readFileSync(expectedSchemaPath, 'utf-8');
+      
+      // Critical RLS policies for survey functionality
+      expect(schemaContent).toContain('ENABLE ROW LEVEL SECURITY');
+      expect(schemaContent).toContain('Allow anonymous insert participants');
+      expect(schemaContent).toContain('Allow read participants');
+      expect(schemaContent).toContain('FOR INSERT TO anon WITH CHECK (true)');
+      expect(schemaContent).toContain('FOR SELECT TO anon USING (true)');
+    });
   });
   
   describe('Migration Safety', () => {
@@ -114,6 +130,24 @@ describe('Database Schema Management', () => {
       // Should verify migration succeeded
       expect(migrationContent).toContain('Migration successful');
       expect(migrationContent).toMatch(/missing_tables.*text\[\]/);
+    });
+
+    it('should have RLS policies for anonymous access', () => {
+      const rlsContent = readFileSync(rlsMigrationPath, 'utf-8');
+      
+      // Should create policies for anonymous INSERT and SELECT
+      expect(rlsContent).toContain('Allow anonymous insert participants');
+      expect(rlsContent).toContain('FOR INSERT TO anon WITH CHECK (true)');
+      expect(rlsContent).toContain('Allow read participants');
+      expect(rlsContent).toContain('FOR SELECT TO anon USING (true)');
+    });
+
+    it('should include RLS policy verification', () => {
+      const rlsContent = readFileSync(rlsMigrationPath, 'utf-8');
+      
+      // Should verify RLS policies are created successfully
+      expect(rlsContent).toContain('RLS policies successfully configured');
+      expect(rlsContent).toContain('pg_policies');
     });
   });
   
