@@ -1,5 +1,27 @@
 # Database Setup Instructions
 
+⚠️ **IMPORTANT**: This document is now legacy. For current database setup and schema management, see **[docs/database-schema.md](./docs/database-schema.md)**.
+
+## Quick Setup (New Approach)
+
+### Step 1: Apply Safe Migration
+Run the following in your Supabase SQL editor:
+```sql
+-- Apply the safe, additive migration
+\i supabase/migrations/0002_add_design_tables.sql;
+```
+
+### Step 2: Verify Schema
+```bash
+# Check for schema drift
+export SUPABASE_DB_URL="your-connection-string"
+./scripts/check-schema-drift.sh
+```
+
+---
+
+# Legacy Documentation (Historical Reference)
+
 ## Issue: Database Writes Not Happening
 
 The survey and swipe game components are configured to write to Supabase, but database writes may be failing due to missing tables or schema mismatches.
