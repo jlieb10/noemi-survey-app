@@ -210,7 +210,7 @@ function convertLetToConst(sf: SourceFile): boolean {
     });
 
     if (allAreNeverReassigned) {
-      decList.setDeclarationKind('const');
+      decList.setDeclarationKind(VariableDeclarationKind.Const);
       changed = true;
     }
   }
