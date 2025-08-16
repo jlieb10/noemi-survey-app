@@ -1,15 +1,6 @@
--- Add missing permissions for anonymous and authenticated users
--- This migration addresses permission denied errors when inserting data
--- All changes are additive and backwards-compatible
+-- DEPRECATED: This migration is superseded by 0003_fix_participants_rls_policies.sql
+-- The RLS policy approach is the correct solution for Supabase permission management
+-- This file is kept for reference but should not be applied
 
--- Grant permissions to anonymous users (required for public survey and game access)
-grant insert, select on public.participants to anon;
-grant insert, select, delete on public.swipes to anon;
-
--- Grant permissions to authenticated users
-grant insert, select, update, delete on public.participants to authenticated;
-grant insert, select, update, delete on public.swipes to authenticated;
-
--- Add comments for documentation
-comment on table public.participants is 'Survey participants and their responses';
-comment on table public.swipes is 'User swipe actions for design rating game';
+-- Note: Row Level Security (RLS) policies override GRANT permissions in Supabase
+-- See migration 0003_fix_participants_rls_policies.sql for the correct implementation
