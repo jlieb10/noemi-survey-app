@@ -390,7 +390,74 @@ jobs:
             exit 1
           fi
           if [[ "${{ needs.schema-check.result }}" != "success" && "${{ needs.schema-check.result }}" != "skipped" ]]; then
+<<<<<<< HEAD
             echo "❌ Schema check failed - database drift detected"
+=======
+            echo "❌ Schema validation failed"
+>>>>>>> copilot/fix-73-2
             exit 1
           fi
           echo "✅ All quality checks passed!"
+
+  schema-check:
+    name: Database Schema Validation
+    runs-on: ubuntu-latest
+    needs: install
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies (if cache miss)
+        run: pnpm install --frozen-lockfile
+        env:
+          SKIP_PLAYWRIGHT: 'true'
+
+      - name: Check database schema
+        id: schema-check
+        run: |
+          echo "## 🗄️ Database Schema Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if pnpm run schema:check; then
+            echo "✅ Schema validation passed" >> $GITHUB_STEP_SUMMARY
+            echo "schema_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Schema validation failed" >> $GITHUB_STEP_SUMMARY
+            echo "schema_status=failed" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Required Actions:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Review missing database tables or columns" >> $GITHUB_STEP_SUMMARY
+            echo "2. Apply database migrations in Supabase dashboard" >> $GITHUB_STEP_SUMMARY
+            echo "3. Verify environment variables are correctly set" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "See [DATABASE_SETUP.md](./DATABASE_SETUP.md) for setup instructions." >> $GITHUB_STEP_SUMMARY
+          fi
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-key' }}
+        continue-on-error: true
+
+      - name: Report schema drift
+        if: steps.schema-check.outputs.schema_status == 'failed'
+        run: |
+          echo "🚨 Database Schema Drift Detected"
+          echo ""
+          echo "The database schema does not match the application requirements."
+          echo "This could cause runtime errors in the survey and game functionality."
+          echo ""
+          echo "Please review the schema check output above and apply necessary migrations."
+          exit 1
