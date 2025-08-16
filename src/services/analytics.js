@@ -14,7 +14,8 @@
  * @function
  */
 export function onSurveyStart() {
-  console.debug('Analytics: survey_start');
+  // Analytics placeholder - implement with your provider
+  if (import.meta.env.DEV) console.debug('Analytics: survey_start');
 }
 
 /**
@@ -24,7 +25,8 @@ export function onSurveyStart() {
  * @param {any} answer - The answer value (type varies by question type)
  */
 export function onQuestionAnswered(questionId, answer) {
-  console.debug('Analytics: question_answered', { questionId, answer });
+  // Analytics placeholder - implement with your provider
+  if (import.meta.env.DEV) console.debug('Analytics: question_answered', { questionId, answer });
 }
 
 /**
@@ -33,7 +35,8 @@ export function onQuestionAnswered(questionId, answer) {
  * @param {string} participantId - The unique identifier of the participant
  */
 export function onSurveyComplete(participantId) {
-  console.debug('Analytics: survey_complete', { participantId });
+  // Analytics placeholder - implement with your provider
+  if (import.meta.env.DEV) console.debug('Analytics: survey_complete', { participantId });
 }
 
 /**
@@ -42,7 +45,8 @@ export function onSurveyComplete(participantId) {
  * @param {string} participantId - The unique identifier of the participant
  */
 export function onGameStart(participantId) {
-  console.debug('Analytics: game_start', { participantId });
+  // Analytics placeholder - implement with your provider
+  if (import.meta.env.DEV) console.debug('Analytics: game_start', { participantId });
 }
 
 /**
@@ -53,5 +57,6 @@ export function onGameStart(participantId) {
  * @param {string} choice - The choice made ('like', 'dislike', 'love', 'not_sure')
  */
 export function onSwipe(participantId, cardId, choice) {
-  console.debug('Analytics: swipe', { participantId, cardId, choice });
+  // Analytics placeholder - implement with your provider
+  if (import.meta.env.DEV) console.debug('Analytics: swipe', { participantId, cardId, choice });
 }

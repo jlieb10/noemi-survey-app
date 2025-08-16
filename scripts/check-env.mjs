@@ -36,7 +36,7 @@ function loadEnvFile() {
     });
 
     return envVars;
-  } catch (error) {
+  } catch {
     // .env file doesn't exist or can't be read
     return {};
   }

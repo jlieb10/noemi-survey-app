@@ -60,7 +60,7 @@ function installPlaywright() {
       timeout: 300000, // 5 minute timeout
     });
     console.log('✅ Playwright browsers installed successfully');
-  } catch (error) {
+  } catch {
     console.warn('⚠️  Playwright installation failed, but continuing...');
     console.warn(
       'This may affect E2E tests. Run `npx playwright install` manually if needed.'

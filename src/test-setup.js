@@ -41,3 +41,17 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }));
+
+// Suppress React act() warnings for async effects in tests
+// These warnings occur due to side effects like autosave, geolocation, etc.
+// that don't affect the core functionality being tested
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  if (
+    typeof args[0] === 'string' &&
+    args[0].includes('Warning: An update to')
+  ) {
+    return;
+  }
+  originalConsoleError.call(console, ...args);
+};

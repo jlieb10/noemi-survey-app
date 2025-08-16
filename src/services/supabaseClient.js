@@ -51,7 +51,7 @@ if (!SUPABASE_ANON_KEY.startsWith('eyJ')) {
 
 // Log successful configuration (with masked values for security)
 if (import.meta.env.DEV || import.meta.env.VITE_DEBUG_SUPABASE) {
-  console.log('Supabase client initialized:', {
+  if (import.meta.env.DEV) console.debug('Supabase client initialized:', {
     url: `${SUPABASE_URL.substring(0, 20)}...`,
     anonKeyPrefix: `${SUPABASE_ANON_KEY.substring(0, 10)}...`,
     anonKeyLength: SUPABASE_ANON_KEY.length,
@@ -79,7 +79,7 @@ export async function checkDbHealth() {
 
   try {
     // Try a simple table query first (most reliable for checking DB connectivity)
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('participants')
       .select('count')
       .limit(1);
@@ -94,10 +94,7 @@ export async function checkDbHealth() {
     }
 
     // If table query fails, fall back to auth session check
-    console.log(
-      'Table query failed, trying auth session check:',
-      error.message
-    );
+    console.warn('Table query failed, trying auth session check:', error.message);
     const { error: authError } = await supabase.auth.getSession();
 
     return {
@@ -125,22 +122,4 @@ export async function checkDbHealth() {
       };
     }
   }
-}
-
-/**
- * Generate diagnostic information for troubleshooting
- * @param {any} healthResult - Result from checkDbHealth
- * @returns {string} Formatted diagnostic string
- */
-export function generateDiagnostics(healthResult) {
-  const diagnostics = {
-    timestamp: new Date().toISOString(),
-    userAgent: navigator.userAgent,
-    url: window.location.href,
-    supabaseUrl: `${SUPABASE_URL.substring(0, 30)}...`,
-    anonKeyPrefix: `${SUPABASE_ANON_KEY.substring(0, 15)}...`,
-    healthCheck: healthResult,
-  };
-
-  return `DB_HEALTH_DIAGNOSTICS | ${JSON.stringify(diagnostics, null, 2)}`;
 }

@@ -54,7 +54,7 @@ export default defineConfig([
 
       // General JavaScript rules
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-console': ['warn', { allow: ['warn', 'error', 'debug'] }],
       'prefer-const': 'warn',
     },
   },
