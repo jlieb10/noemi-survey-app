@@ -1,5 +1,35 @@
 # Database Setup Instructions
 
+## Overview
+
+The NOEMI Survey application requires specific database tables to function properly:
+- **participants**: Store survey responses and user data
+- **swipes**: Store design rating game interactions  
+- **design_sets**: Store groups of related design images
+- **designs**: Store individual design images for the rating game
+
+## Schema Management
+
+### Expected Schema
+The complete expected database schema is maintained in `supabase/schema.sql`. This file serves as the **source of truth** for all database requirements.
+
+### Migration Files
+Database changes are managed through migration files in `supabase/migrations/`:
+- `0001_init.sql`: Initial participants and swipes tables
+- `0002_add_design_tables.sql`: Adds design_sets and designs tables
+
+### Schema Verification
+Use the schema checking tools to verify your database matches the expected schema:
+
+```bash
+# Check schema compliance
+npm run schema:check
+
+# Seed design data from static files
+npm run db:seed:dry  # dry run to preview changes
+npm run db:seed      # actually insert data
+```
+
 ## Issue: Database Writes Not Happening
 
 The survey and swipe game components are configured to write to Supabase, but database writes may be failing due to missing tables or schema mismatches.
@@ -8,28 +38,32 @@ The survey and swipe game components are configured to write to Supabase, but da
 
 1. **Missing location_data column**: The Survey component was trying to insert `location_data` but the original schema didn't include this column.
 2. **Tables may not exist in production**: The migration file exists but may not have been applied to the production database.
+3. **Missing design tables**: The game expects `designs` and `design_sets` tables that may not exist.
 
 ## Fixes Applied
 
 1. **✅ Updated database schema** in `supabase/migrations/0001_init.sql` to include `location_data jsonb` column
-2. **✅ Added comprehensive error logging** in both Survey and SwipeGame components to identify specific database errors
+2. **✅ Added comprehensive error logging** in both Survey and SwipeGame components to identify specific database errors  
 3. **✅ Improved error handling** with detailed console logging
+4. **✅ Added missing design tables** in `supabase/migrations/0002_add_design_tables.sql`
+5. **✅ Created schema verification system** with automated checking and CI integration
 
 ## Production Database Setup Required
 
-To fix database writes in production, the following steps need to be completed in the Supabase dashboard:
-
 ### Step 1: Verify Environment Variables
 
-Ensure these environment variables are set in Netlify:
+Ensure your Supabase project has the correct environment variables set:
 
-- `VITE_SUPABASE_URL=https://lzzgroksxrqkwyvykmka.supabase.co`
-- `VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+```bash
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anonymous-key
+```
 
-### Step 2: Apply Database Migration
+### Step 2: Apply Database Migrations
 
-In the Supabase dashboard SQL editor, run this migration:
+In the Supabase dashboard SQL editor, run **all** migration files in order:
 
+#### Migration 1 - Core Tables (0001_init.sql)
 ```sql
 -- Create participants table with location_data column
 create table if not exists public.participants (
@@ -38,7 +72,10 @@ create table if not exists public.participants (
   marketing_opt_in boolean default false,
   answers jsonb not null default '{}',
   location_data jsonb,
-  created_at timestamptz default now()
+  is_complete boolean default false,
+  progress text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
 -- Create swipes table
@@ -54,22 +91,74 @@ create table if not exists public.swipes (
 create index if not exists idx_swipes_participant on public.swipes(participant_id);
 ```
 
-### Step 3: Verify Permissions
-
-Ensure the anonymous user has INSERT permissions on both tables:
-
+#### Migration 2 - Design Tables (0002_add_design_tables.sql)
 ```sql
--- Grant permissions to anonymous users
-grant insert, select on public.participants to anon;
-grant insert, select, delete on public.swipes to anon;
+-- Create design_sets table to group related design images
+create table if not exists public.design_sets (
+  id uuid primary key default gen_random_uuid(),
+  source_image_url text,
+  note text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Create designs table to store individual design quadrants
+create table if not exists public.designs (
+  id uuid primary key default gen_random_uuid(),
+  set_id uuid not null references public.design_sets(id) on delete cascade,
+  quadrant_index integer not null check (quadrant_index >= 0 and quadrant_index <= 3),
+  image_url text not null,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Add indexes for performance
+create index if not exists idx_designs_set_id on public.designs(set_id);
+create index if not exists idx_designs_quadrant on public.designs(quadrant_index);
 ```
 
-### Step 4: Test Database Connection
+### Step 3: Verify Permissions
+
+Ensure the anonymous user has correct permissions on all tables:
+
+```sql
+-- Grant permissions to anonymous users (required for public access)
+grant insert, select on public.participants to anon;
+grant insert, select, delete on public.swipes to anon;
+grant select on public.design_sets to anon;
+grant select on public.designs to anon;
+
+-- Grant permissions to authenticated users
+grant insert, select, update, delete on public.participants to authenticated;
+grant insert, select, update, delete on public.swipes to authenticated;
+grant select on public.design_sets to authenticated;
+grant select on public.designs to authenticated;
+```
+
+### Step 4: Seed Design Data (Optional)
+
+If you want to populate the designs tables from the existing static JSON:
+
+```bash
+npm run db:seed
+```
+
+This will import all design data from `public/designs/index.json` into the database.
+
+### Step 5: Verify Setup
+
+Run the schema verification to ensure everything is working:
+
+```bash
+npm run schema:check
+```
+
+### Step 6: Test Database Connection
 
 With improved logging now in place, check the browser console in production to see:
 
 - "Attempting to save survey data:" logs from Survey submissions
-- "Saving swipe:" logs from SwipeGame interactions
+- "Saving swipe:" logs from SwipeGame interactions  
 - Any specific error messages from failed database operations
 
 ## Verification
@@ -79,6 +168,7 @@ After applying the migration:
 1. Submit a survey and check for successful logging: "Survey data saved successfully: [ID]"
 2. Play the swipe game and check for: "Swipe saved successfully"
 3. Monitor the Supabase dashboard for new entries in the participants and swipes tables
+4. Run `npm run schema:check` to verify schema compliance
 
 ## Monitoring
 
@@ -87,3 +177,32 @@ The enhanced logging will help identify any remaining issues:
 - Check browser console for database operation logs
 - Monitor Supabase dashboard for actual data entries
 - Set up alerts in Supabase for monitoring data ingestion
+- Use the schema check in CI to catch drift early
+
+## Safety Policy
+
+All database changes follow strict safety guidelines:
+
+- **✅ Additive only**: Only `CREATE TABLE`, `ADD COLUMN`, `ADD INDEX` operations
+- **❌ No destructive changes**: No `DROP TABLE`, `ALTER COLUMN TYPE`, etc.
+- **✅ Backwards compatible**: Existing data is preserved
+- **✅ Manual approval**: Destructive changes require separate PR and manual review
+- **✅ Automated checking**: CI validates schema compliance on every PR
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"Table does not exist" errors**: Apply migrations in Supabase dashboard
+2. **Permission denied errors**: Check RLS policies and anon user permissions  
+3. **Schema drift detected**: Run `npm run schema:check` to see specific issues
+4. **Data not appearing**: Check console logs for insert/update errors
+
+### Getting Help
+
+If you encounter issues:
+
+1. Check the schema verification output: `npm run schema:check`
+2. Review browser console for detailed error messages
+3. Verify environment variables are set correctly
+4. Ensure migrations were applied in the correct order
