@@ -1,6 +1,5 @@
 # Database Setup Instructions
 
-<<<<<<< HEAD
 ⚠️ **IMPORTANT**: This document is now legacy. For current database setup and schema management, see **[docs/database-schema.md](./docs/database-schema.md)**.
 
 ## Quick Setup (New Approach)
@@ -23,7 +22,6 @@ export SUPABASE_DB_URL="your-connection-string"
 
 # Legacy Documentation (Historical Reference)
 
-=======
 ## Overview
 
 The NOEMI Survey application requires specific database tables to function properly:
@@ -54,8 +52,6 @@ npm run schema:check
 npm run db:seed:dry  # dry run to preview changes
 npm run db:seed      # actually insert data
 ```
-
->>>>>>> copilot/fix-73-2
 ## Issue: Database Writes Not Happening
 
 The survey and swipe game components are configured to write to Supabase, but database writes may be failing due to missing tables or schema mismatches.

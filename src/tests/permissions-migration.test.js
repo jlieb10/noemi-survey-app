@@ -4,7 +4,7 @@
  * to fix the "permission denied" error for anonymous users
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 

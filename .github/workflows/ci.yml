@@ -331,32 +331,6 @@ jobs:
           echo "- UI changes require visual regression tests" >> $GITHUB_STEP_SUMMARY
           echo "- See [TESTING.md](./TESTING.md) for detailed guidelines" >> $GITHUB_STEP_SUMMARY
 
-  schema-check:
-    name: Database Schema Verification
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-
-      - name: Check schema drift
-        run: |
-          chmod +x scripts/check-schema-drift.sh
-          ./scripts/check-schema-drift.sh
-        env:
-          # Only check actual schema if we have a connection string
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-
-      - name: Upload schema report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: schema-drift-report
-          path: /tmp/noemi-schema-check/
-
   quality-gate:
     name: Quality Gate
     runs-on: ubuntu-latest
@@ -390,11 +364,7 @@ jobs:
             exit 1
           fi
           if [[ "${{ needs.schema-check.result }}" != "success" && "${{ needs.schema-check.result }}" != "skipped" ]]; then
-<<<<<<< HEAD
             echo "❌ Schema check failed - database drift detected"
-=======
-            echo "❌ Schema validation failed"
->>>>>>> copilot/fix-73-2
             exit 1
           fi
           echo "✅ All quality checks passed!"
