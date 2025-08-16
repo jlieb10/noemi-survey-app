@@ -17,7 +17,11 @@
     "typecheck": "tsc --noEmit",
     "test:ci": "vitest run --reporter=dot --environment jsdom src",
     "e2e:ci": "playwright test --reporter=dot || true",
-    "bundle:report": "source-map-explorer 'dist/assets/*.js' --html analyzer.html || true"
+    "bundle:report": "source-map-explorer 'dist/assets/*.js' --html analyzer.html || true",
+    "schema:check": "node scripts/check-schema.mjs",
+    "schema:verify": "node scripts/check-schema.mjs",
+    "db:seed": "node scripts/seed-designs.mjs",
+    "db:seed:dry": "node scripts/seed-designs.mjs --dry-run"
   },
   "dependencies": {
     "@react-spring/web": "^9.7.5",

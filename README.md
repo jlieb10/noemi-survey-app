@@ -18,7 +18,7 @@ This application prioritizes **user interaction and luxury aesthetic** above all
 
 - Node.js v20.11.1
 - pnpm v8.10.5
-- A Supabase project with `designs` and `swipes` tables
+- A Supabase project with required database tables (see [Database Schema](./docs/database-schema.md))
 
 ## Setup
 
