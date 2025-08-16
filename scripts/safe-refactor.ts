@@ -1,5 +1,5 @@
 // scripts/safe-refactor.ts
-import { Project, SyntaxKind, SourceFile } from 'ts-morph';
+import { Project, SyntaxKind, SourceFile, VariableDeclarationKind } from 'ts-morph';
 import { globby } from 'globby';
 import pc from 'picocolors';
 
