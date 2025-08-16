@@ -123,3 +123,43 @@ export async function checkDbHealth() {
     }
   }
 }
+
+/**
+ * Generate diagnostic information for database connectivity issues
+ * @param {Object} healthStatus - Health status object from checkDbHealth()
+ * @returns {string} Formatted diagnostic information
+ */
+export function generateDiagnostics(healthStatus) {
+  if (!healthStatus) {
+    return 'No health status available';
+  }
+
+  const lines = [];
+  lines.push('=== Database Connection Diagnostics ===');
+  lines.push(`Status: ${healthStatus.ok ? 'HEALTHY' : 'UNHEALTHY'}`);
+  lines.push(`Timestamp: ${new Date(healthStatus.timestamp).toISOString()}`);
+  lines.push(`Check Method: ${healthStatus.method || 'unknown'}`);
+  
+  if (healthStatus.error) {
+    lines.push('');
+    lines.push('=== Error Details ===');
+    lines.push(`Message: ${healthStatus.error.message || 'Unknown error'}`);
+    lines.push(`Code: ${healthStatus.error.code || 'N/A'}`);
+    
+    if (healthStatus.error.details) {
+      lines.push(`Details: ${healthStatus.error.details}`);
+    }
+    
+    if (healthStatus.error.hint) {
+      lines.push(`Hint: ${healthStatus.error.hint}`);
+    }
+  }
+  
+  lines.push('');
+  lines.push('=== Environment Info ===');
+  lines.push(`URL: ${SUPABASE_URL.substring(0, 30)}...`);
+  lines.push(`User Agent: ${navigator?.userAgent || 'Unknown'}`);
+  lines.push(`Generated: ${new Date().toISOString()}`);
+  
+  return lines.join('\n');
+}
