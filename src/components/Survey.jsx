@@ -386,16 +386,7 @@ export default function Survey({ onComplete }) {
               onChange={(e) => handleChange(subQ.id, e.target.value)}
               placeholder={subQ.placeholder}
               required={subQ.required}
-              style={{
-                width: '100%',
-                padding: 'var(--space-3)',
-                border: '2px solid rgba(198, 162, 90, 0.3)',
-                borderRadius: 'var(--radius-sm)',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '1rem',
-                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                background: 'var(--color-surface-elevated)',
-              }}
+              className="survey-input"
             />
           </div>
         );
@@ -424,16 +415,7 @@ export default function Survey({ onComplete }) {
               min={subQ.min}
               max={subQ.max}
               required={subQ.required}
-              style={{
-                width: '100%',
-                padding: 'var(--space-3)',
-                border: '2px solid rgba(198, 162, 90, 0.3)',
-                borderRadius: 'var(--radius-sm)',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '1rem',
-                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                background: 'var(--color-surface-elevated)',
-              }}
+              className="survey-input"
             />
           </div>
         );
@@ -455,16 +437,7 @@ export default function Survey({ onComplete }) {
               value={currentValue}
               onChange={(e) => handleChange(subQ.id, e.target.value)}
               required={subQ.required}
-              style={{
-                width: '100%',
-                padding: 'var(--space-3)',
-                border: '2px solid rgba(198, 162, 90, 0.3)',
-                borderRadius: 'var(--radius-sm)',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '1rem',
-                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                background: 'var(--color-surface-elevated)',
-              }}
+              className="survey-select"
             >
               <option value="">Select an option</option>
               {subQ.options.map((option, index) => (
@@ -503,37 +476,20 @@ export default function Survey({ onComplete }) {
               onChange={(e) => handleChange(subQ.id, e.target.value)}
               placeholder="your@email.com"
               required={subQ.required}
-              style={{
-                width: '100%',
-                padding: 'var(--space-3)',
-                border: '2px solid rgba(198, 162, 90, 0.3)',
-                borderRadius: 'var(--radius-sm)',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '1rem',
-                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                background: 'var(--color-surface-elevated)',
-              }}
+              className="survey-input"
             />
             {subQ.marketing_consent && (
               <div
                 className="marketing-consent"
                 style={{ marginTop: 'var(--space-2)', fontSize: '0.875rem' }}
               >
-                <label
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-2)',
-                    cursor: 'pointer',
-                  }}
-                >
+                <label className="marketing-consent-label">
                   <input
                     type="checkbox"
                     checked={answers[`${subQ.id}_consent`] !== false}
                     onChange={(e) =>
                       handleChange(`${subQ.id}_consent`, e.target.checked)
                     }
-                    style={{ accentColor: 'var(--color-gold)' }}
                   />
                   <span>I agree to receive marketing communications</span>
                 </label>
@@ -579,18 +535,7 @@ export default function Survey({ onComplete }) {
                     .toLowerCase()
                     .replace(/[^a-z0-9]/g, '_');
                   return (
-                    <label
-                      key={index}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'var(--space-2)',
-                        padding: 'var(--space-2)',
-                        borderRadius: 'var(--radius-sm)',
-                        transition: 'background-color 0.2s ease',
-                        cursor: 'pointer',
-                      }}
-                    >
+                    <label key={index} className="checkbox-option">
                       <input
                         type="checkbox"
                         checked={currentArray.includes(optionId)}
@@ -600,7 +545,6 @@ export default function Survey({ onComplete }) {
                             : [...currentArray, optionId];
                           handleChange(subQ.id, newArray);
                         }}
-                        style={{ accentColor: 'var(--color-gold)' }}
                       />
                       <span>{option}</span>
                     </label>
@@ -1009,12 +953,8 @@ export default function Survey({ onComplete }) {
           aria-label={`Survey progress: Question ${index + 1} of ${questions.length}`}
         />
         <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '0.5rem',
-          }}
+          className="progress-summary"
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}
         >
           <p
             style={{
