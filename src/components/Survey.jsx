@@ -568,7 +568,7 @@ export default function Survey({ onComplete }) {
     switch (q.type) {
       case 'group':
         return (
-          <div className="group-question" aria-labelledby={`${q.id}-title`}>
+          <div className="group-question question-block" aria-labelledby={`${q.id}-title`}>
             <h3
               id={`${q.id}-title`}
               className="group-title"
@@ -581,7 +581,7 @@ export default function Survey({ onComplete }) {
             >
               {q.title}
             </h3>
-            <div className="sub-questions stack">
+            <div className="sub-questions form-section">
               {q.sub_questions.map((subQ) => renderSubQuestion(subQ))}
             </div>
           </div>
@@ -589,7 +589,7 @@ export default function Survey({ onComplete }) {
       case 'single_select':
         return (
           <fieldset
-            className="stack"
+            className="question-block"
             role="radiogroup"
             aria-labelledby={`${q.id}-label`}
           >
@@ -624,7 +624,7 @@ export default function Survey({ onComplete }) {
         );
       case 'multi_select':
         return (
-          <fieldset className="stack" aria-labelledby={`${q.id}-label`}>
+          <fieldset className="question-block" aria-labelledby={`${q.id}-label`}>
             <legend id={`${q.id}-label`} className="sr-only">
               {q.prompt}
             </legend>

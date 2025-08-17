@@ -342,8 +342,7 @@ input[type='email']:focus {
 }
 
 /* Progress indicator styling */
-.survey-wrapper .stack:first-child span {
-  /* keep for backward compatibility but minimized to avoid leaking into choices */
+.progress-summary p {
   font-family: var(--font-serif);
   color: var(--color-text-muted);
   font-style: italic;

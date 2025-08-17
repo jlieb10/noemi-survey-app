@@ -211,11 +211,17 @@ export default function SwipeGame({ participantId }) {
               tutorialDir ? ` hint-${tutorialDir}` : ''
             }`}
           >
-            <DesignCanvas
-              src={current.image_url}
-              alt={`Design ${current.id}`}
-              fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
-            />
+            <div className="tutorial-content">
+              <div className="tutorial-text">
+                {config.game_tutorial?.welcome_card || 
+                  'Welcome to the NOEMI Brand Exploration game! Swipe to help us refine what feels most NOEMI. Continue by swiping this card up.'}
+              </div>
+              <DesignCanvas
+                src={current.image_url}
+                alt={`Design ${current.id}`}
+                fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
+              />
+            </div>
           </div>
         ) : (
           <TinderCard key={current.id} onSwipe={handleSwipe}>

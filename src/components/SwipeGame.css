@@ -203,6 +203,27 @@
   transform: translateY(50px) rotate(3deg);
 }
 
+/* Tutorial content styling */
+.tutorial-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+}
+
+.tutorial-text {
+  padding: var(--space-4) var(--space-3);
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+  background: linear-gradient(135deg, var(--color-gold-light), rgba(230, 196, 120, 0.3));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin-bottom: var(--space-2);
+}
+
 @keyframes luxuryFeedback {
   0% {
     transform: translate(-50%, -50%) scale(0.8) rotate(-10deg);
