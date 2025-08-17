@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
 import TinderCard from 'react-tinder-card';
-import config from '../../docs/noemi-survey-config.json';
 import { supabase } from '../services/supabaseClient.js';
 import {
   CHOICE_MAP,
@@ -40,7 +39,7 @@ import './SwipeGame.css';
  * @returns {JSX.Element} SwipeGame component
  */
 export default function SwipeGame({ participantId }) {
-  const { deck, setDeck, loadDesigns, resetDeck, total, tutorialDeck } = useDeck();
+  const { deck, setDeck, loadDesigns, resetDeck, total } = useDeck();
   const { feedbacks, addFeedback } = useSwipeFeedback();
   const current = deck?.[0];
 
@@ -233,7 +232,7 @@ export default function SwipeGame({ participantId }) {
 
       <div className="swipe-container">
         <TinderCard key={current.id} onSwipe={handleSwipe}>
-          <div className="card">
+          <div className={`card ${current.isTutorial ? `tutorial-card-wrapper hint-${current.requireDirection}` : ''}`}>
             <DesignCanvas
               src={current.image_url}
               alt={current.isTutorial ? current.text : `Design ${current.id}`}

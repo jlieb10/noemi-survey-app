@@ -80,8 +80,14 @@ export const SURVEY_CONSTANTS = {
   OTHER_OPTION_ID: 'other',
 };
 
-// Tutorial constants
+// Tutorial and card type constants
 export const TUTORIAL_KIND = {
   TEXT: 'text',   // simple full-screen text card
   // (room for future: image, animation, etc.)
+};
+
+export const CARD_TYPES = {
+  TEXT: 'text',
+  IMAGE: 'image',
+  TUTORIAL: 'tutorial', // special type of text card
 };

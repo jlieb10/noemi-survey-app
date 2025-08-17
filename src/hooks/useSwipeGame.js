@@ -9,7 +9,7 @@ import {
   TUTORIAL_TIMING,
   FEEDBACK_TIMING,
   STORAGE_KEYS,
-  TUTORIAL_KIND,
+  CARD_TYPES,
 } from '../constants.js';
 import { delay } from '../utils/common.js';
 
@@ -30,7 +30,8 @@ export function buildTutorialDeckFromConfig() {
 
   return steps.map((s, i) => ({
     id: `tutorial_${s.id}_${i}`,
-    kind: TUTORIAL_KIND.TEXT,
+    kind: CARD_TYPES.TEXT,
+    cardType: CARD_TYPES.TUTORIAL,
     text: s.text,
     requireDirection: s.requireDirection,
     // Rendered via DesignCanvas as an overlay card (no image_url)
@@ -56,7 +57,9 @@ export function getTutorialSeen() {
 export function setTutorialSeen() {
   try { 
     localStorage.setItem(STORAGE_KEYS.TUTORIAL_SEEN, '1'); 
-  } catch {}
+  } catch {
+    // ignore localStorage errors in tests/SSR
+  }
 }
 
 /**
@@ -65,7 +68,9 @@ export function setTutorialSeen() {
 export function clearTutorialSeen() {
   try { 
     localStorage.removeItem(STORAGE_KEYS.TUTORIAL_SEEN); 
-  } catch {}
+  } catch {
+    // ignore localStorage errors in tests/SSR
+  }
 }
 
 /**

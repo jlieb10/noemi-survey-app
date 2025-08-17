@@ -55,16 +55,30 @@ export default function DesignCanvas({ src, alt, card, tutorialHighlightDir }) {
     return () => window.removeEventListener('keydown', prevent);
   }, []);
 
-  // Tutorial card display
-  if (card?.isTutorial) {
+  // Text card display (unified system for tutorials and potential future text cards)
+  if (card?.isTutorial || card?.kind === 'text' || card?.cardType === 'text' || card?.cardType === 'tutorial') {
     return (
-      <div className="tutorial-card">
-        <div className="tutorial-card__content">
-          {card.text}
+      <div className="text-card" style={{
+        width: '100%',
+        height: '100%',
+        minWidth: '400px',
+        minHeight: '400px'
+      }}>
+        <div className="text-card__content">
+          <div className="text-card__text">
+            {card.text}
+          </div>
+          {tutorialHighlightDir && (
+            <div className="text-card__direction-hint">
+              <div className={`direction-arrow dir-${card.requireDirection.toLowerCase()}`}>
+                {card.requireDirection === 'up' && '↑'}
+                {card.requireDirection === 'down' && '↓'}
+                {card.requireDirection === 'left' && '←'}
+                {card.requireDirection === 'right' && '→'}
+              </div>
+            </div>
+          )}
         </div>
-        {tutorialHighlightDir && (
-          <div className={`tutorial-hint dir-${card.requireDirection.toLowerCase()}`} />
-        )}
       </div>
     );
   }
