@@ -187,8 +187,10 @@ describe('useTutorial', () => {
     const { result } = renderHook(() => useTutorial(true));
 
     expect(result.current.showTutorial).toBe(true);
-    // Tutorial starts immediately, so direction might already be set
-    expect(typeof result.current.tutorialDir).toBe('string');
+    expect(result.current.tutorialCardIndex).toBe(0);
+    // Tutorial starts with null direction initially 
+    expect(result.current.tutorialDir).toBeNull();
+    expect(typeof result.current.handleTutorialSwipe).toBe('function');
   });
 
   it('should run tutorial sequence when enabled', async () => {
@@ -222,13 +224,14 @@ describe('useTutorial', () => {
   it('should not run tutorial when showTutorial is manually set to false', async () => {
     const { result } = renderHook(() => useTutorial(true));
 
-    // Manually disable tutorial
+    // Manually disable tutorial immediately
     act(() => {
       result.current.setShowTutorial(false);
     });
 
+    // Wait for any potential async operations to complete
     await act(async () => {
-      vi.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(2000); // Wait longer to ensure cleanup
     });
 
     expect(result.current.showTutorial).toBe(false);
@@ -251,6 +254,43 @@ describe('useTutorial', () => {
     });
 
     expect(result.current.showTutorial).toBe(false);
+  });
+
+  it('should support multi-card tutorial progression', () => {
+    const { result } = renderHook(() => useTutorial(true));
+
+    // Should start with first card (welcome)
+    expect(result.current.tutorialCardIndex).toBe(0);
+    
+    // Simulate swiping to next tutorial card
+    act(() => {
+      result.current.handleTutorialSwipe();
+    });
+    
+    expect(result.current.tutorialCardIndex).toBe(1);
+    
+    // Simulate swiping through remaining cards
+    act(() => {
+      result.current.handleTutorialSwipe(); // card 2
+    });
+    expect(result.current.tutorialCardIndex).toBe(2);
+    
+    act(() => {
+      result.current.handleTutorialSwipe(); // card 3
+    });
+    expect(result.current.tutorialCardIndex).toBe(3);
+    
+    act(() => {
+      result.current.handleTutorialSwipe(); // card 4
+    });
+    expect(result.current.tutorialCardIndex).toBe(4);
+    
+    // Final swipe should end tutorial
+    act(() => {
+      result.current.handleTutorialSwipe();
+    });
+    expect(result.current.showTutorial).toBe(false);
+    expect(result.current.tutorialCardIndex).toBe(0);
   });
 });
 

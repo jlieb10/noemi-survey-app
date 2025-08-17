@@ -13,8 +13,10 @@ vi.mock('../hooks/useSwipeGame.js', () => ({
   }),
   useTutorial: () => ({
     showTutorial: true,
+    tutorialCardIndex: 0,
     tutorialDir: null,
     setShowTutorial: vi.fn(),
+    handleTutorialSwipe: vi.fn(),
   }),
   useSwipeFeedback: () => ({
     feedbacks: [],
@@ -43,10 +45,13 @@ describe('SwipeGame Tutorial', () => {
     expect(tutorialText).toBeInTheDocument();
   });
 
-  it('uses game title from config', () => {
+  it('displays tutorial without game title for cleaner mobile experience', () => {
     render(<SwipeGame participantId="test-participant" />);
     
-    // Should display the title from config
-    expect(screen.getByText('NOEMI Brand Exploration')).toBeInTheDocument();
+    // Should NOT display the title anymore for minimal mobile design
+    expect(screen.queryByText('NOEMI Brand Exploration')).not.toBeInTheDocument();
+    
+    // Should still have the tutorial content
+    expect(screen.getByText(/Welcome to the NOEMI Brand Exploration game/i)).toBeInTheDocument();
   });
 });

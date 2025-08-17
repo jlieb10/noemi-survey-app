@@ -40,7 +40,7 @@ import './SwipeGame.css';
  */
 export default function SwipeGame({ participantId }) {
   const { deck, setDeck, loadDesigns, resetDeck, total } = useDeck();
-  const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(
+  const { showTutorial, tutorialCardIndex, tutorialDir, setShowTutorial, handleTutorialSwipe } = useTutorial(
     deck !== null
   );
   const { feedbacks, addFeedback } = useSwipeFeedback();
@@ -192,17 +192,17 @@ export default function SwipeGame({ participantId }) {
 
   return (
     <div className="swipe-game">
-      <h2 className="sg-title">
-        {config.design_feedback?.title || 'Design Exploration'}
-      </h2>
-      {total > 0 && (
-        <progress
-          className="sg-progress"
-          value={total - deck.length}
-          max={total}
-          aria-label="Swipe progress"
-        />
-      )}
+      {/* Minimal header - only on non-mobile or when needed */}
+      <div className="sg-header">
+        {total > 0 && !showTutorial && (
+          <progress
+            className="sg-progress"
+            value={total - deck.length}
+            max={total}
+            aria-label="Swipe progress"
+          />
+        )}
+      </div>
 
       <div className="swipe-container">
         {showTutorial ? (
@@ -210,17 +210,20 @@ export default function SwipeGame({ participantId }) {
             className={`card tutorial${
               tutorialDir ? ` hint-${tutorialDir}` : ''
             }`}
+            onTouchStart={(e) => e.preventDefault()} // Prevent default touch behavior
+            onClick={() => handleTutorialSwipe && handleTutorialSwipe()}
           >
             <div className="tutorial-content">
               <div className="tutorial-text">
-                {config.game_tutorial?.welcome_card || 
-                  'Welcome to the NOEMI Brand Exploration game! Swipe to help us refine what feels most NOEMI. Continue by swiping this card up.'}
+                {getTutorialText(tutorialCardIndex)}
               </div>
-              <DesignCanvas
-                src={current.image_url}
-                alt={`Design ${current.id}`}
-                fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
-              />
+              {tutorialCardIndex > 0 && (
+                <div className="tutorial-demo-area">
+                  <div className="swipe-demo-card">
+                    <span className="demo-text">Demo Card</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -264,4 +267,22 @@ export default function SwipeGame({ participantId }) {
       </div>
     </div>
   );
+}
+
+/**
+ * Get tutorial text based on current card index
+ * @param {number} cardIndex - Current tutorial card index
+ * @returns {string} Tutorial text to display
+ */
+function getTutorialText(cardIndex) {
+  const tutorialTexts = [
+    config.game_tutorial?.welcome_card || 
+      'Welcome to the NOEMI Brand Exploration game! Swipe to help us refine what feels most NOEMI. Continue by swiping this card up.',
+    config.game_tutorial?.card_one || 'Swipe right to like',
+    config.game_tutorial?.card_two || 'Swipe left to dislike',
+    config.game_tutorial?.card_three || 'Swipe up to love',
+    config.game_tutorial?.card_four || 'Swipe down for not sure'
+  ];
+  
+  return tutorialTexts[cardIndex] || tutorialTexts[0];
 }

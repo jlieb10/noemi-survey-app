@@ -53,35 +53,79 @@ export function useDeck() {
  */
 export function useTutorial(shouldShowTutorial) {
   const [showTutorial, setShowTutorial] = useState(shouldShowTutorial);
+  const [tutorialCardIndex, setTutorialCardIndex] = useState(0);
   const [tutorialDir, setTutorialDir] = useState(null);
 
-  useEffect(() => {
-    if (!shouldShowTutorial || !showTutorial) return;
-
-    async function runTutorial() {
-      const sequence = [
-        SWIPE_DIRECTIONS.RIGHT,
-        SWIPE_DIRECTIONS.LEFT,
-        SWIPE_DIRECTIONS.UP,
-        SWIPE_DIRECTIONS.DOWN,
-      ];
-
-      for (const dir of sequence) {
-        setTutorialDir(dir);
-        await delay(TUTORIAL_TIMING.DIRECTION_DISPLAY_MS);
-        setTutorialDir(null);
-        await delay(TUTORIAL_TIMING.DIRECTION_PAUSE_MS);
-      }
+  const handleTutorialSwipe = useCallback(() => {
+    if (tutorialCardIndex < 4) {
+      // Move to next tutorial card
+      setTutorialCardIndex(prev => prev + 1);
+    } else {
+      // End tutorial and start game
       setShowTutorial(false);
+      setTutorialCardIndex(0);
+    }
+  }, [tutorialCardIndex]);
+
+  useEffect(() => {
+    if (!shouldShowTutorial || !showTutorial) {
+      setTutorialDir(null);
+      return;
     }
 
-    runTutorial();
-  }, [shouldShowTutorial, showTutorial]);
+    let cancelled = false;
+
+    async function runTutorialAnimation() {
+      // For welcome card (index 0), show up animation
+      if (tutorialCardIndex === 0) {
+        await delay(1000); // Initial pause
+        if (!cancelled && showTutorial) {
+          setTutorialDir(SWIPE_DIRECTIONS.UP);
+          await delay(TUTORIAL_TIMING.DIRECTION_DISPLAY_MS);
+          if (!cancelled && showTutorial) {
+            setTutorialDir(null);
+            await delay(TUTORIAL_TIMING.DIRECTION_PAUSE_MS);
+          }
+        }
+        return;
+      }
+
+      // For instruction cards, show the specific direction
+      const directions = [
+        null, // welcome card
+        SWIPE_DIRECTIONS.RIGHT, // card_one: "Swipe right to like"
+        SWIPE_DIRECTIONS.LEFT,  // card_two: "Swipe left to dislike"  
+        SWIPE_DIRECTIONS.UP,    // card_three: "Swipe up to love"
+        SWIPE_DIRECTIONS.DOWN   // card_four: "Swipe down for not sure"
+      ];
+
+      const targetDirection = directions[tutorialCardIndex];
+      if (targetDirection && !cancelled && showTutorial) {
+        await delay(800); // Pause before showing motion hint
+        if (!cancelled && showTutorial) {
+          setTutorialDir(targetDirection);
+          await delay(TUTORIAL_TIMING.DIRECTION_DISPLAY_MS * 2); // Longer display for instruction cards
+          if (!cancelled && showTutorial) {
+            setTutorialDir(null);
+            await delay(TUTORIAL_TIMING.DIRECTION_PAUSE_MS);
+          }
+        }
+      }
+    }
+
+    runTutorialAnimation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [shouldShowTutorial, showTutorial, tutorialCardIndex]);
 
   return {
     showTutorial,
+    tutorialCardIndex,
     tutorialDir,
     setShowTutorial,
+    handleTutorialSwipe,
   };
 }
 
