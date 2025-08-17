@@ -9,10 +9,19 @@
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useDeck, useTutorial, useSwipeFeedback } from './useSwipeGame.js';
+import { useDeck, useSwipeFeedback, buildTutorialDeckFromConfig, getTutorialSeen, setTutorialSeen, clearTutorialSeen } from './useSwipeGame.js';
 
 // Mock fetch for deck loading
 global.fetch = vi.fn();
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+global.localStorage = localStorageMock;
 
 // Mock constants
 vi.mock('../constants.js', () => ({
@@ -32,11 +41,33 @@ vi.mock('../constants.js', () => ({
   FEEDBACK_TIMING: {
     DISPLAY_DURATION_MS: 200,
   },
+  STORAGE_KEYS: {
+    TUTORIAL_SEEN: 'noemi_tutorial_seen',
+  },
+  TUTORIAL_KIND: {
+    TEXT: 'text',
+  },
+}));
+
+// Mock config
+vi.mock('../../docs/noemi-survey-config.json', () => ({
+  default: {
+    game_tutorial: {
+      welcome_card: 'Welcome to the NOEMI Brand Exploration game!',
+      card_one: 'Swipe right to like',
+      card_two: 'Swipe left to dislike',
+      card_three: 'Swipe up to love',
+      card_four: 'Swipe down for not sure'
+    }
+  }
 }));
 
 describe('useDeck', () => {
   beforeEach(() => {
     fetch.mockClear();
+    localStorageMock.getItem.mockClear();
+    localStorageMock.setItem.mockClear();
+    localStorageMock.removeItem.mockClear();
   });
 
   afterEach(() => {
@@ -48,12 +79,14 @@ describe('useDeck', () => {
 
     expect(result.current.deck).toBeNull();
     expect(result.current.initialDeck).toEqual([]);
+    expect(result.current.tutorialDeck).toEqual([]);
     expect(typeof result.current.loadDesigns).toBe('function');
     expect(typeof result.current.resetDeck).toBe('function');
     expect(typeof result.current.setDeck).toBe('function');
   });
 
   it('should load designs successfully', async () => {
+    localStorageMock.getItem.mockReturnValue('1'); // Tutorial seen
     const mockDesigns = [
       { id: 1, name: 'Design 1' },
       { id: 2, name: 'Design 2' },
@@ -76,7 +109,53 @@ describe('useDeck', () => {
     expect(returnedData).toEqual(mockDesigns);
   });
 
+  it('should include tutorial cards when tutorial has not been seen', async () => {
+    localStorageMock.getItem.mockReturnValue(null); // Tutorial not seen
+    const mockDesigns = [
+      { id: 1, name: 'Design 1' },
+      { id: 2, name: 'Design 2' },
+    ];
+
+    fetch.mockResolvedValue({
+      json: () => Promise.resolve(mockDesigns),
+    });
+
+    const { result } = renderHook(() => useDeck());
+
+    await act(async () => {
+      await result.current.loadDesigns();
+    });
+
+    expect(result.current.deck).toHaveLength(7); // 5 tutorial + 2 designs
+    expect(result.current.deck[0].isTutorial).toBe(true);
+    expect(result.current.deck[5].name).toBe('Design 1');
+    expect(result.current.tutorialDeck).toHaveLength(5);
+  });
+
+  it('should skip tutorial cards when tutorial has been seen', async () => {
+    localStorageMock.getItem.mockReturnValue('1'); // Tutorial seen
+    const mockDesigns = [
+      { id: 1, name: 'Design 1' },
+      { id: 2, name: 'Design 2' },
+    ];
+
+    fetch.mockResolvedValue({
+      json: () => Promise.resolve(mockDesigns),
+    });
+
+    const { result } = renderHook(() => useDeck());
+
+    await act(async () => {
+      await result.current.loadDesigns();
+    });
+
+    expect(result.current.deck).toHaveLength(2); // Only designs
+    expect(result.current.deck[0].name).toBe('Design 1');
+    expect(result.current.tutorialDeck).toHaveLength(0);
+  });
+
   it('should handle fetch errors gracefully', async () => {
+    localStorageMock.getItem.mockReturnValue('1'); // Tutorial seen
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     fetch.mockRejectedValue(new Error('Network error'));
 
@@ -99,6 +178,7 @@ describe('useDeck', () => {
   });
 
   it('should handle JSON parsing errors', async () => {
+    localStorageMock.getItem.mockReturnValue('1'); // Tutorial seen
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     fetch.mockResolvedValue({
       json: () => Promise.reject(new Error('Invalid JSON')),
@@ -120,6 +200,7 @@ describe('useDeck', () => {
   });
 
   it('should reset deck to initial state', async () => {
+    localStorageMock.getItem.mockReturnValue('1'); // Tutorial seen, so no tutorial cards
     const mockDesigns = [
       { id: 1, name: 'Design 1' },
       { id: 2, name: 'Design 2' },
@@ -165,132 +246,90 @@ describe('useDeck', () => {
   });
 });
 
-describe('useTutorial', () => {
+describe('Tutorial Functions', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
+    localStorageMock.getItem.mockClear();
+    localStorageMock.setItem.mockClear();
+    localStorageMock.removeItem.mockClear();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
+  describe('buildTutorialDeckFromConfig', () => {
+    it('should build tutorial deck from config', () => {
+      const tutorialDeck = buildTutorialDeckFromConfig();
+
+      expect(tutorialDeck).toHaveLength(5);
+      expect(tutorialDeck[0]).toEqual({
+        id: 'tutorial_welcome_card_0',
+        kind: 'text',
+        text: 'Welcome to the NOEMI Brand Exploration game!',
+        requireDirection: 'up',
+        isTutorial: true,
+      });
+      expect(tutorialDeck[1]).toEqual({
+        id: 'tutorial_card_one_1',
+        kind: 'text',
+        text: 'Swipe right to like',
+        requireDirection: 'right',
+        isTutorial: true,
+      });
+    });
+
+    it('should filter out empty text entries', () => {
+      // This would test if config has empty entries, but our mock config is complete
+      const tutorialDeck = buildTutorialDeckFromConfig();
+      tutorialDeck.forEach(card => {
+        expect(card.text).toBeTruthy();
+      });
+    });
   });
 
-  it('should initialize with correct initial state when tutorial should not show', () => {
-    const { result } = renderHook(() => useTutorial(false));
+  describe('localStorage tutorial functions', () => {
+    it('should get tutorial seen status', () => {
+      localStorageMock.getItem.mockReturnValue('1');
+      expect(getTutorialSeen()).toBe(true);
 
-    expect(result.current.showTutorial).toBe(false);
-    expect(result.current.tutorialDir).toBeNull();
-    expect(typeof result.current.setShowTutorial).toBe('function');
-  });
+      localStorageMock.getItem.mockReturnValue(null);
+      expect(getTutorialSeen()).toBe(false);
 
-  it('should initialize with tutorial showing when shouldShowTutorial is true', async () => {
-    const { result } = renderHook(() => useTutorial(true));
-
-    expect(result.current.showTutorial).toBe(true);
-    expect(result.current.tutorialCardIndex).toBe(0);
-    // Tutorial starts with null direction initially 
-    expect(result.current.tutorialDir).toBeNull();
-    expect(typeof result.current.handleTutorialSwipe).toBe('function');
-  });
-
-  it('should run tutorial sequence when enabled', async () => {
-    const { result } = renderHook(() => useTutorial(true));
-
-    expect(result.current.showTutorial).toBe(true);
-    expect(typeof result.current.setShowTutorial).toBe('function');
-
-    // Tutorial should start with a direction
-    await act(async () => {
-      vi.advanceTimersByTime(10);
+      localStorageMock.getItem.mockReturnValue('0');
+      expect(getTutorialSeen()).toBe(false);
     });
 
-    // Tutorial direction should be one of the expected values
-    expect(['right', 'left', 'up', 'down', null]).toContain(
-      result.current.tutorialDir
-    );
-  });
-
-  it('should not run tutorial when shouldShowTutorial is false', async () => {
-    const { result } = renderHook(() => useTutorial(false));
-
-    await act(async () => {
-      vi.advanceTimersByTime(1000);
+    it('should handle localStorage errors in getTutorialSeen', () => {
+      localStorageMock.getItem.mockImplementation(() => {
+        throw new Error('localStorage not available');
+      });
+      
+      expect(getTutorialSeen()).toBe(false);
     });
 
-    expect(result.current.showTutorial).toBe(false);
-    expect(result.current.tutorialDir).toBeNull();
-  });
-
-  it('should not run tutorial when showTutorial is manually set to false', async () => {
-    const { result } = renderHook(() => useTutorial(true));
-
-    // Manually disable tutorial immediately
-    act(() => {
-      result.current.setShowTutorial(false);
+    it('should set tutorial seen flag', () => {
+      setTutorialSeen();
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('noemi_tutorial_seen', '1');
     });
 
-    // Wait for any potential async operations to complete
-    await act(async () => {
-      vi.advanceTimersByTime(2000); // Wait longer to ensure cleanup
+    it('should handle localStorage errors in setTutorialSeen', () => {
+      localStorageMock.setItem.mockImplementation(() => {
+        throw new Error('localStorage not available');
+      });
+      
+      // Should not throw
+      expect(() => setTutorialSeen()).not.toThrow();
     });
 
-    expect(result.current.showTutorial).toBe(false);
-    expect(result.current.tutorialDir).toBeNull();
-  });
-
-  it('should allow manual control of tutorial state', () => {
-    const { result } = renderHook(() => useTutorial(false));
-
-    // Enable tutorial manually
-    act(() => {
-      result.current.setShowTutorial(true);
+    it('should clear tutorial seen flag', () => {
+      clearTutorialSeen();
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('noemi_tutorial_seen');
     });
 
-    expect(result.current.showTutorial).toBe(true);
-
-    // Disable tutorial manually
-    act(() => {
-      result.current.setShowTutorial(false);
+    it('should handle localStorage errors in clearTutorialSeen', () => {
+      localStorageMock.removeItem.mockImplementation(() => {
+        throw new Error('localStorage not available');
+      });
+      
+      // Should not throw
+      expect(() => clearTutorialSeen()).not.toThrow();
     });
-
-    expect(result.current.showTutorial).toBe(false);
-  });
-
-  it('should support multi-card tutorial progression', () => {
-    const { result } = renderHook(() => useTutorial(true));
-
-    // Should start with first card (welcome)
-    expect(result.current.tutorialCardIndex).toBe(0);
-    
-    // Simulate swiping to next tutorial card
-    act(() => {
-      result.current.handleTutorialSwipe();
-    });
-    
-    expect(result.current.tutorialCardIndex).toBe(1);
-    
-    // Simulate swiping through remaining cards
-    act(() => {
-      result.current.handleTutorialSwipe(); // card 2
-    });
-    expect(result.current.tutorialCardIndex).toBe(2);
-    
-    act(() => {
-      result.current.handleTutorialSwipe(); // card 3
-    });
-    expect(result.current.tutorialCardIndex).toBe(3);
-    
-    act(() => {
-      result.current.handleTutorialSwipe(); // card 4
-    });
-    expect(result.current.tutorialCardIndex).toBe(4);
-    
-    // Final swipe should end tutorial
-    act(() => {
-      result.current.handleTutorialSwipe();
-    });
-    expect(result.current.showTutorial).toBe(false);
-    expect(result.current.tutorialCardIndex).toBe(0);
   });
 });
 

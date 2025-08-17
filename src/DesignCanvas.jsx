@@ -2,15 +2,16 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Canvas-based image renderer to prevent easy saving.
- * @param {{ src: string, alt: string }} props
+ * Also handles tutorial cards with text-based overlay.
+ * @param {{ src?: string, alt: string, card?: object, tutorialHighlightDir?: string }} props
  * @returns {JSX.Element}
  */
-export default function DesignCanvas({ src, alt }) {
+export default function DesignCanvas({ src, alt, card, tutorialHighlightDir }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !src) return;
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -53,6 +54,20 @@ export default function DesignCanvas({ src, alt }) {
     window.addEventListener('keydown', prevent);
     return () => window.removeEventListener('keydown', prevent);
   }, []);
+
+  // Tutorial card display
+  if (card?.isTutorial) {
+    return (
+      <div className="tutorial-card">
+        <div className="tutorial-card__content">
+          {card.text}
+        </div>
+        {tutorialHighlightDir && (
+          <div className={`tutorial-hint dir-${card.requireDirection.toLowerCase()}`} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <canvas

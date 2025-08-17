@@ -2,13 +2,71 @@
  * Custom hooks for managing swipe game state and behavior.
  */
 import { useState, useEffect, useCallback } from 'react';
+import config from '../../docs/noemi-survey-config.json';
 import {
   ASSET_PATHS,
   SWIPE_DIRECTIONS,
   TUTORIAL_TIMING,
   FEEDBACK_TIMING,
+  STORAGE_KEYS,
+  TUTORIAL_KIND,
 } from '../constants.js';
 import { delay } from '../utils/common.js';
+
+/**
+ * Build tutorial deck from config
+ * @returns {Array} Tutorial cards array
+ */
+export function buildTutorialDeckFromConfig() {
+  const t = config?.game_tutorial || {};
+  // Ordered list
+  const steps = [
+    { id: 'welcome_card', text: t.welcome_card, requireDirection: SWIPE_DIRECTIONS.UP },
+    { id: 'card_one',     text: t.card_one,     requireDirection: SWIPE_DIRECTIONS.RIGHT },
+    { id: 'card_two',     text: t.card_two,     requireDirection: SWIPE_DIRECTIONS.LEFT },
+    { id: 'card_three',   text: t.card_three,   requireDirection: SWIPE_DIRECTIONS.UP },
+    { id: 'card_four',    text: t.card_four,    requireDirection: SWIPE_DIRECTIONS.DOWN },
+  ].filter(s => !!s.text);
+
+  return steps.map((s, i) => ({
+    id: `tutorial_${s.id}_${i}`,
+    kind: TUTORIAL_KIND.TEXT,
+    text: s.text,
+    requireDirection: s.requireDirection,
+    // Rendered via DesignCanvas as an overlay card (no image_url)
+    isTutorial: true,
+  }));
+}
+
+/**
+ * Get tutorial seen flag from localStorage
+ * @returns {boolean} Whether tutorial has been seen
+ */
+export function getTutorialSeen() {
+  try { 
+    return localStorage.getItem(STORAGE_KEYS.TUTORIAL_SEEN) === '1'; 
+  } catch { 
+    return false; 
+  }
+}
+
+/**
+ * Set tutorial seen flag in localStorage
+ */
+export function setTutorialSeen() {
+  try { 
+    localStorage.setItem(STORAGE_KEYS.TUTORIAL_SEEN, '1'); 
+  } catch {}
+}
+
+/**
+ * Clear tutorial seen flag in localStorage
+ */
+export function clearTutorialSeen() {
+  try { 
+    localStorage.removeItem(STORAGE_KEYS.TUTORIAL_SEEN); 
+  } catch {}
+}
 
 /**
  * Hook for managing the deck of cards and loading state.
@@ -17,18 +75,26 @@ import { delay } from '../utils/common.js';
 export function useDeck() {
   const [deck, setDeck] = useState(null);
   const [initialDeck, setInitialDeck] = useState([]);
+  const [tutorialDeck, setTutorialDeck] = useState([]);
 
   const loadDesigns = useCallback(async () => {
+    // 1) build tutorial
+    const tDeck = getTutorialSeen() ? [] : buildTutorialDeckFromConfig();
+    setTutorialDeck(tDeck);
+
+    // 2) load designs
     try {
       const res = await fetch(ASSET_PATHS.DESIGNS_INDEX);
       const data = await res.json();
-      setDeck(data);
-      setInitialDeck(data);
-      return data;
+      const combined = [...tDeck, ...data];
+      setDeck(combined);
+      setInitialDeck(combined);
+      return combined;
     } catch (err) {
       console.error('Failed to load designs', err);
-      setDeck([]);
-      return [];
+      setDeck([...tDeck]); // at least show tutorial
+      setInitialDeck([...tDeck]);
+      return [...tDeck];
     }
   }, []);
 
@@ -42,6 +108,7 @@ export function useDeck() {
     initialDeck,
     loadDesigns,
     resetDeck,
+    tutorialDeck,
     total: initialDeck.length,
   };
 }

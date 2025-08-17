@@ -12,6 +12,7 @@ export const URL_PARAMS = {
 // Local storage keys
 export const STORAGE_KEYS = {
   PARTICIPANT_ID: 'participant_id',
+  TUTORIAL_SEEN: 'noemi_tutorial_seen',
 };
 
 // Application steps/states
@@ -77,4 +78,10 @@ export const ASSET_PATHS = {
 export const SURVEY_CONSTANTS = {
   GATE_QUESTION_ID: 'q1d', // Email consent is now part of q1
   OTHER_OPTION_ID: 'other',
+};
+
+// Tutorial constants
+export const TUTORIAL_KIND = {
+  TEXT: 'text',   // simple full-screen text card
+  // (room for future: image, animation, etc.)
 };

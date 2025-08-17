@@ -5,23 +5,24 @@ import SwipeGame from './SwipeGame.jsx';
 // Mock the hooks to control tutorial state
 vi.mock('../hooks/useSwipeGame.js', () => ({
   useDeck: () => ({
-    deck: [{ id: 'test-design', image_url: '/test-image.jpg' }],
+    deck: [{ 
+      id: 'tutorial_welcome_card_0', 
+      isTutorial: true,
+      text: 'Welcome to the NOEMI Brand Exploration game! Swipe to help us refine what feels most NOEMI. Continue by swiping this card up.',
+      requireDirection: 'up'
+    }],
     setDeck: vi.fn(),
     loadDesigns: vi.fn(),
     resetDeck: vi.fn(),
+    tutorialDeck: [],
     total: 1,
-  }),
-  useTutorial: () => ({
-    showTutorial: true,
-    tutorialCardIndex: 0,
-    tutorialDir: null,
-    setShowTutorial: vi.fn(),
-    handleTutorialSwipe: vi.fn(),
   }),
   useSwipeFeedback: () => ({
     feedbacks: [],
     addFeedback: vi.fn(),
   }),
+  setTutorialSeen: vi.fn(),
+  clearTutorialSeen: vi.fn(),
 }));
 
 describe('SwipeGame Tutorial', () => {
@@ -33,16 +34,16 @@ describe('SwipeGame Tutorial', () => {
     expect(screen.getByText(/Continue by swiping this card up/i)).toBeInTheDocument();
   });
 
-  it('shows tutorial content overlay on the card', () => {
+  it('shows tutorial content as a card', () => {
     render(<SwipeGame participantId="test-participant" />);
     
-    // Should have tutorial content container
-    const tutorialContent = document.querySelector('.tutorial-content');
-    expect(tutorialContent).toBeInTheDocument();
+    // Should have tutorial card container
+    const tutorialCard = document.querySelector('.tutorial-card');
+    expect(tutorialCard).toBeInTheDocument();
     
-    // Should have tutorial text element
-    const tutorialText = document.querySelector('.tutorial-text');
-    expect(tutorialText).toBeInTheDocument();
+    // Should have tutorial text content
+    const tutorialContent = document.querySelector('.tutorial-card__content');
+    expect(tutorialContent).toBeInTheDocument();
   });
 
   it('displays tutorial without game title for cleaner mobile experience', () => {
