@@ -4,7 +4,7 @@ test('renders welcome screen and first question', async ({ page }) => {
   await page.goto('/');
   await expect(
     page.getByRole('heading', {
-      name: 'NOEMI — A Minute for Your Future Ritual',
+      name: 'Thank you for taking a moment to share your thoughts',
     })
   ).toBeVisible();
   await page.getByRole('button', { name: 'Begin' }).click();

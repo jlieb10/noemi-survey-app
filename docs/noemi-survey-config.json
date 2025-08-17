@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "brand": {
     "name": "NOEMI",
     "instagram": "@noemi",
@@ -16,8 +16,8 @@
   },
   "survey": {
     "meta": {
-      "title": "NOEMI — A Minute for Your Future Ritual",
-      "subtitle": "12 quick taps to join the pre‑launch circle",
+      "title": "Thank you for sharing your thoughts",
+      "subtitle": "Enjoy early access to exclusive products and offers",
       "estimated_time_seconds": 150,
       "language": "en-GB",
       "start_cta": "Begin",
@@ -25,7 +25,7 @@
     },
     "consent": {
       "show_at_start": true,
-      "checkbox_label": "I agree to the mini terms & privacy notice",
+      "checkbox_label": "I agree to the privacy notice",
       "required": true
     }
   },
@@ -37,10 +37,10 @@
       "sub_questions": [
         {
           "id": "q1a",
-          "label": "Your name",
+          "label": "Your name (optional)",
           "type": "short_text",
-          "placeholder": "First and last",
-          "required": true
+          "placeholder": "",
+          "required": false
         },
         {
           "id": "q1b",
@@ -48,29 +48,29 @@
           "type": "number",
           "min": 16,
           "max": 99,
-          "placeholder": "e.g., 32",
-          "required": true
+          "placeholder": "e.g., 36",
+          "required": false
         },
         {
           "id": "q1c",
-          "label": "How do you identify?",
+          "label": "Your gender",
           "type": "select",
           "options": [
             "Woman",
             "Man",
-            "Non‑binary",
-            "Prefer not to say",
-            "Self‑describe"
+            "Non-binary",
+            "Prefer not to say"
           ],
-          "required": true
+          "required": false
         },
         {
           "id": "q1d",
-          "label": "Email for exclusive offers and insights",
+          "label": "Email",
           "type": "email",
           "marketing_consent": {
             "default_checked": true,
-            "tooltip": "We'll only send you NOEMI news and offers. You can unsubscribe anytime."
+            "incentive": "Unlock exclusive offers and enter to win a year of NOEMI",
+            "tooltip": "We’ll only send you NOEMI news and offers. You can unsubscribe anytime."
           },
           "required": false
         },
@@ -80,10 +80,9 @@
           "type": "checkbox",
           "options": [
             "Vitamins",
-            "Nutritional supplements",
-            "Wellness supplements",
-            "Functional medicines",
-            "Functional foods",
+            "Supplements",
+            "Functional blends",
+            "Functional food",
             "None of the above, but I'm curious",
             "None of the above and not interested"
           ],
@@ -94,12 +93,12 @@
           "label": "My wellness indulgences include… (select all that apply)",
           "type": "checkbox",
           "options": [
-            "Yoga or Pilates classes",
-            "Luxury candles or aromatherapy",
-            "At‑home spa rituals (baths, scrubs, masks)",
-            "Energy healing or breathwork",
+            "Yoga or Pilates",
+            "Candles or aromatherapy",
+            "At-home spa self-care (baths, scrubs, masks, sauna)",
+            "Breathwork, reiki, and traditional wellness",
             "Meditation apps or mindfulness tools",
-            "Other spiritual or wellness practices",
+            "Other wellness or spiritual practices (please specify)",
             "None of the above"
           ],
           "required": true
@@ -109,148 +108,175 @@
     {
       "id": "q2",
       "type": "multi_select",
-      "prompt": "What do you most want from your ritual?",
+      "prompt": "What do you most want more of right now?",
       "required": true,
       "ui_hint": "chips",
       "max_select": 3,
+      "randomize": true,
       "options": [
         { "id": "sleep", "label": "Deeper sleep" },
         { "id": "mood", "label": "Steadier mood" },
         { "id": "stress", "label": "Less stress" },
         { "id": "energy", "label": "Calm energy" },
-        { "id": "glow", "label": "Glowing skin" }
+        { "id": "glow", "label": "Glowing skin" },
+        { "id": "focus", "label": "Sharper focus" },
+        { "id": "immunity", "label": "Stronger immunity" },
+        { "id": "digestion", "label": "Better digestion" },
+        { "id": "longevity", "label": "Healthy ageing" },
+        { "id": "metabolism", "label": "Metabolic & nutritional health" }
       ]
     },
     {
       "id": "q3",
       "type": "single_select",
-      "prompt": "Your style of self‑care:",
+      "prompt": "What is your style of self-care?",
       "required": true,
       "ui_hint": "chips",
+      "randomize": true,
       "options": [
-        { "id": "minimal", "label": "Minimal & effortless" },
-        { "id": "sensory", "label": "Considered & sensory" },
-        { "id": "clinical", "label": "Clinical & evidence‑led" },
-        { "id": "mixed", "label": "Mixed / depends" }
+        { "id": "style_minimal", "label": "Minimal & effortless" },
+        { "id": "style_sensory_ritual", "label": "Considered & sensory (rituals)" },
+        { "id": "style_science", "label": "Science-based & clinical" },
+        { "id": "style_natural_traditional", "label": "Nature-first & traditional" },
+        { "id": "style_functional", "label": "Functional & results-focused" },
+        { "id": "style_biohacker", "label": "Data-driven / biohacking" },
+        { "id": "style_practitioner", "label": "Practitioner- or protocol-led" },
+        { "id": "style_convenience", "label": "Convenient & on-the-go" },
+        { "id": "style_flexible", "label": "Flexible / situational" }
       ]
     },
     {
       "id": "q4",
-      "type": "single_select",
-      "prompt": "Preferred format:",
+      "type": "multi_select",
+      "prompt": "When thinking about wellness formulas, which formats and routines fit you best? (select all that apply)",
       "required": true,
       "ui_hint": "chips",
       "options": [
-        { "id": "capsules", "label": "Capsules" },
-        { "id": "elixir", "label": "Elixir/Tonic" },
-        { "id": "powder", "label": "Powder to mix" },
-        { "id": "none", "label": "No preference" }
-      ]
-    },
-    {
-      "id": "q5",
-      "type": "single_select",
-      "prompt": "How often would you take it?",
-      "required": true,
-      "ui_hint": "chips",
-      "options": [
-        { "id": "daily", "label": "Daily" },
-        { "id": "most_days", "label": "Most days" },
-        { "id": "few_week", "label": "A few times a week" }
+        { "id": "capsules_daily", "label": "Capsules" },
+        { "id": "gummies_daily", "label": "Gummies" },
+        { "id": "drink_daily", "label": "Ready-to-drink" },
+        { "id": "powder_flexible", "label": "Powder to mix" },
+        { "id": "occasional_other", "label": "Other occasional" },
+        { "id": "no_preference", "label": "No strong preference" }
       ]
     },
     {
       "id": "q6",
-      "type": "scale",
-      "prompt": "“Functional beauty” grounded in evidence appeals to me.",
+      "type": "single_select",
+      "prompt": "When it comes to wellness formulas, which approach feels most appealing to you?",
       "required": true,
-      "min": 1,
-      "max": 5,
-      "left": "No",
-      "right": "Very much"
+      "ui_hint": "chips",
+      "options": [
+        { "id": "tradition", "label": "Traditional wisdom & natural remedies" },
+        { "id": "evidence", "label": "Scientific evidence & clinical research" },
+        { "id": "blend", "label": "A blend of both" }
+      ]
     },
     {
       "id": "q7",
       "type": "scale",
-      "prompt": "Openness to botanicals (standardised, precise doses):",
+      "prompt": "When choosing supplements, which style of labeling feels more appealing?",
       "required": true,
       "min": 1,
       "max": 5,
-      "left": "Skeptical",
-      "right": "All for it"
+      "left": "Ingredient-led (e.g., Vitamin B12, Vitamin B6)",
+      "right": "Function-led (e.g., 'Energy Support' blends)"
     },
     {
       "id": "q8",
       "type": "single_select",
-      "prompt": "Do you enjoy subtle scent/flavour cues in a ritual?",
+      "prompt": "How much do sensory details (taste, smell, look and feel) matter to you in wellness formulas?",
       "required": true,
       "ui_hint": "chips",
       "options": [
-        { "id": "yes", "label": "Yes" },
-        { "id": "sometimes", "label": "Sometimes" },
-        { "id": "no", "label": "No" }
+        { "id": "high", "label": "They matter a lot" },
+        { "id": "medium", "label": "I notice them sometimes" },
+        { "id": "low", "label": "They don’t influence my choice" }
       ]
     },
     {
       "id": "q9",
-      "type": "single_select",
-      "prompt": "Would you subscribe if it genuinely helped?",
+      "type": "multi_select",
+      "prompt": "If a wellness formula truly worked for you, under what conditions would you consider a monthly subscription (cancel anytime)?",
       "required": true,
       "ui_hint": "chips",
       "options": [
-        { "id": "yes", "label": "Yes" },
-        { "id": "maybe", "label": "Maybe after a month" },
-        { "id": "no", "label": "Prefer one‑off" }
+        { "id": "no", "label": "I wouldn’t subscribe" },
+        { "id": "trial_first", "label": "I’d want to try one-off first" },
+        { "id": "discount", "label": "If there were a substantial discount" },
+        { "id": "lt50", "label": "If it were under £50/month" },
+        { "id": "lt75", "label": "If it were under £75/month" },
+        { "id": "lt100", "label": "If it were under £100/month" },
+        { "id": "any_price", "label": "Price doesn’t matter, if it truly worked for me" }
       ]
     },
     {
       "id": "q10",
-      "type": "single_select",
-      "prompt": "Monthly budget ceiling for a premium base formula:",
+      "type": "multi_select",
+      "prompt": "What would make you more likely to try a new wellness formula?",
       "required": true,
       "ui_hint": "chips",
+      "max_select": 3,
+      "randomize": true,
       "options": [
-        { "id": "lt50", "label": "< £50" },
-        { "id": "50_80", "label": "£50–£80" },
-        { "id": "80_100", "label": "£80–£100" },
-        { "id": "100p", "label": "£100+" }
+        { "id": "recommendation", "label": "Recommendation from a trusted source" },
+        { "id": "influencer", "label": "Influencer endorsement" },
+        { "id": "brand_reputation", "label": "Brand reputation" },
+        { "id": "scientific_evidence", "label": "Scientific evidence or studies" },
+        { "id": "sustainability", "label": "Sustainability and ethical sourcing" },
+        { "id": "aesthetics", "label": "Aesthetically pleasing packaging" },
+        { "id": "free_sample", "label": "Free sample or trial experience" },
+        { "id": "reviews", "label": "Positive customer reviews" }
       ]
     },
     {
       "id": "q11",
       "type": "multi_select",
-      "prompt": "Which ingredients interest you for wellness support?",
+      "prompt": "Which of these labels or ingredients would appeal to you on a wellness formula? (Choose up to 8)",
       "required": false,
       "ui_hint": "ingredient_grid",
       "max_select": 8,
       "layout": "two_columns",
+      "randomize": true,
       "options": [
-        { "id": "adaptogen_ashwagandha", "label": "Ashwagandha" },
-        { "id": "adaptogen_rhodiola", "label": "Rhodiola" },
-        { "id": "adaptogen_reishi", "label": "Reishi" },
-        { "id": "botanical_turmeric", "label": "Turmeric" },
-        { "id": "botanical_ginger", "label": "Ginger" },
-        { "id": "botanical_ginkgo", "label": "Ginkgo Biloba" },
-        { "id": "botanical_ginseng", "label": "Ginseng" },
-        { "id": "botanical_echinacea", "label": "Echinacea" },
-        { "id": "vitamin_d", "label": "Vitamin D3" },
-        { "id": "vitamin_b_complex", "label": "B-Complex" },
-        { "id": "vitamin_c", "label": "Vitamin C" },
-        { "id": "mineral_magnesium", "label": "Magnesium" },
-        { "id": "mineral_zinc", "label": "Zinc" },
-        { "id": "omega_3", "label": "Omega-3" },
-        { "id": "probiotic", "label": "Probiotics" },
-        { "id": "collagen", "label": "Collagen" },
-        { "id": "coq10", "label": "CoQ10" },
-        { "id": "botanical_chamomile", "label": "Chamomile" },
-        { "id": "botanical_lavender", "label": "Lavender" },
-        { "id": "botanical_valerian", "label": "Valerian Root" }
+        { "id": "ingredient_vitamin_d3", "label": "Vitamin D3" },
+        { "id": "ingredient_magnesium", "label": "Magnesium" },
+        { "id": "ingredient_omega_3", "label": "Omega-3" },
+        { "id": "ingredient_probiotic", "label": "Probiotics" },
+        { "id": "beauty_collagen", "label": "Collagen" },
+
+        { "id": "branded_ubiquinol", "label": "Ubiquinol® (CoQ10)" },
+        { "id": "branded_suntheanine", "label": "Suntheanine® (L-Theanine)" },
+        { "id": "science_creatine", "label": "Creatine" },
+
+        { "id": "traditional_ashwagandha", "label": "Ashwagandha" },
+        { "id": "traditional_ginseng", "label": "Ginseng" },
+        { "id": "science_curcumin", "label": "Curcumin" },
+
+        { "id": "nootropic_rhodiola", "label": "Rhodiola" },
+        { "id": "nootropic_lions_mane", "label": "Lion’s Mane" },
+        { "id": "exotic_schisandra", "label": "Schisandra" },
+
+        { "id": "function_sleep", "label": "Sleep Support" },
+        { "id": "function_energy", "label": "Energy Support" },
+        { "id": "function_mood", "label": "Mood Support" },
+        { "id": "function_immunity", "label": "Immunity Support" },
+
+        { "id": "label_traditional", "label": "Traditional remedies" },
+        { "id": "label_clinical", "label": "Clinically researched" }
       ]
     }
   ],
   "design_feedback": {
-    "title": "Design Exploration",
-    "subtitle": "Help us refine what feels most NOEMI",
-    "intro": "We're seeking your intuitive response to design concepts. Swipe to share your preferences and help shape our visual identity."
+    "title": "NOEMI Brand Exploration",
+    "subtitle": "Swipe to help us refine what feels most NOEMI",
+    "intro": "We're seeking your intuition to help shape our design and brand concepts"
+  },
+  "game_tutorial": {
+    "welcome_card": "Welcome to the NOEMI Brand Exploration game! Swipe to help us refine what feels most NOEMI. Continue by swiping this card up.",
+    "card_one": "Swipe right to like ",
+    "card_two": "Swipe left to dislike",
+    "card_three": "Swipe up to love",
+    "card_four": "Swipe down for not sure",
   }
 }
