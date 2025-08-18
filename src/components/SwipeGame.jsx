@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { onGameStart, onSwipe as trackSwipe } from '../services/analytics.js';
 import TinderCard from 'react-tinder-card';
-import config from '../../docs/noemi-survey-config.json';
 import { supabase } from '../services/supabaseClient.js';
 import {
   CHOICE_MAP,
@@ -13,8 +12,9 @@ import {
 } from '../constants.js';
 import {
   useDeck,
-  useTutorial,
   useSwipeFeedback,
+  setTutorialSeen,
+  clearTutorialSeen,
 } from '../hooks/useSwipeGame.js';
 import DesignCanvas from '../DesignCanvas.jsx';
 import './SwipeGame.css';
@@ -40,9 +40,6 @@ import './SwipeGame.css';
  */
 export default function SwipeGame({ participantId }) {
   const { deck, setDeck, loadDesigns, resetDeck, total } = useDeck();
-  const { showTutorial, tutorialDir, setShowTutorial } = useTutorial(
-    deck !== null
-  );
   const { feedbacks, addFeedback } = useSwipeFeedback();
   const current = deck?.[0];
 
@@ -129,13 +126,32 @@ export default function SwipeGame({ participantId }) {
    */
   const handleSwipe = useCallback(
     async (direction) => {
-      const choice = CHOICE_MAP[direction];
-      if (!choice || !deck?.length) return;
-
+      if (!deck?.length) return;
       const current = deck[0];
 
       // Show quick emoji feedback
       addFeedback(ICON_MAP[direction], FEEDBACK_TIMING.DISPLAY_DURATION_MS);
+
+      // Tutorial gate
+      if (current.isTutorial) {
+        if (direction !== current.requireDirection) {
+          // Wrong direction: show nudge, do NOT pop
+          return;
+        }
+        // Correct direction: pop card, do not persist, do not analytics as swipe
+        setDeck(prev => prev.slice(1));
+        // Check if this was the last tutorial card
+        const remainingCards = deck.slice(1);
+        const hasMoreTutorialCards = remainingCards.length > 0 && remainingCards[0]?.isTutorial;
+        if (!hasMoreTutorialCards) {
+          setTutorialSeen();
+        }
+        return;
+      }
+
+      // Normal design card path
+      const choice = CHOICE_MAP[direction];
+      if (!choice) return;
 
       setDeck((prev) => {
         const [first, ...rest] = prev;
@@ -145,7 +161,7 @@ export default function SwipeGame({ participantId }) {
 
       await saveSwipe(current.id, choice);
     },
-    [deck, saveSwipe, addFeedback, setDeck]
+    [deck, addFeedback, setDeck, saveSwipe]
   );
 
   /**
@@ -180,11 +196,21 @@ export default function SwipeGame({ participantId }) {
           type="button"
           onClick={() => {
             resetDeck();
-            setShowTutorial(true);
           }}
           className="lux-button-primary"
         >
           Play Again
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            clearTutorialSeen();
+            loadDesigns();
+          }}
+          className="lux-button-secondary"
+          style={{ marginTop: 'var(--space-2)' }}
+        >
+          Replay Tutorial
         </button>
       </div>
     );
@@ -192,63 +218,35 @@ export default function SwipeGame({ participantId }) {
 
   return (
     <div className="swipe-game">
-      <h2 className="sg-title">
-        {config.design_feedback?.title || 'Design Exploration'}
-      </h2>
-      {total > 0 && (
-        <progress
-          className="sg-progress"
-          value={total - deck.length}
-          max={total}
-          aria-label="Swipe progress"
-        />
-      )}
+      {/* Minimal header - only on non-mobile or when needed */}
+      <div className="sg-header">
+        {total > 0 && !current?.isTutorial && (
+          <progress
+            className="sg-progress"
+            value={total - deck.length}
+            max={total}
+            aria-label="Swipe progress"
+          />
+        )}
+      </div>
 
       <div className="swipe-container">
-        {showTutorial ? (
-          <div
-            className={`card tutorial${
-              tutorialDir ? ` hint-${tutorialDir}` : ''
-            }`}
-          >
+        <TinderCard key={current.id} onSwipe={handleSwipe}>
+          <div className={`card ${current.isTutorial ? `tutorial-card-wrapper hint-${current.requireDirection}` : ''}`}>
             <DesignCanvas
               src={current.image_url}
-              alt={`Design ${current.id}`}
+              alt={current.isTutorial ? current.text : `Design ${current.id}`}
+              card={current}
+              tutorialHighlightDir={current.isTutorial ? current.requireDirection : null}
               fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
             />
           </div>
-        ) : (
-          <TinderCard key={current.id} onSwipe={handleSwipe}>
-            <div className="card">
-              <DesignCanvas
-                src={current.image_url}
-                alt={`Design ${current.id}`}
-                fallbackSrc={ASSET_PATHS.FALLBACK_IMAGE}
-              />
-            </div>
-          </TinderCard>
-        )}
+        </TinderCard>
 
-        <span
-          className={`swipe-label left${tutorialDir === SWIPE_DIRECTIONS.LEFT ? ' active' : ''}`}
-        >
-          Dislike
-        </span>
-        <span
-          className={`swipe-label right${tutorialDir === SWIPE_DIRECTIONS.RIGHT ? ' active' : ''}`}
-        >
-          Like
-        </span>
-        <span
-          className={`swipe-label up${tutorialDir === SWIPE_DIRECTIONS.UP ? ' active' : ''}`}
-        >
-          Love
-        </span>
-        <span
-          className={`swipe-label down${tutorialDir === SWIPE_DIRECTIONS.DOWN ? ' active' : ''}`}
-        >
-          Unsure
-        </span>
+        <span className="swipe-label left">Dislike</span>
+        <span className="swipe-label right">Like</span>
+        <span className="swipe-label up">Love</span>
+        <span className="swipe-label down">Unsure</span>
 
         {feedbacks.map((fb) => (
           <div key={fb.id} className="swipe-feedback" aria-live="polite">
